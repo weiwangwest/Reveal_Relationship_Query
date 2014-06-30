@@ -60,11 +60,13 @@ public class Graph {
 		int treeEdges=0;	//calculate the number of tree edges
 		for (Edge e: E){
 			if (!e.isInTree(this)){
-				System.err.println("Edge not in tree: "+e.src.getName()+e.dst.getName());
+				System.err.println("Edge not in tree: ");
+				e.print();
 				return false;
 			}
 			if (!e.getSource().isInTree(this)||!e.getDestin().isInTree(this)){
-				System.err.println("Edge connects no vertex in tree: "+e.src.getName()+e.dst.getName());
+				System.err.println("Edge connects vertex/verticis that can not be found in the tree:");
+				e.print();
 				return false;
 			}
 			treeEdges ++;
@@ -73,10 +75,11 @@ public class Graph {
 	}
 	public void addVertex(String name){	//create a Vertex instance
 		if (V.containsKey(name)){
-			System.err.println("Vertex name already exists!");
-			System.exit(-1);
+			//System.err.println("Vertex name already exists!"); 
+			//System.exit(-1);
+		}else{
+			V.put(name, new Vertex(name));
 		}
-		V.put(name, new Vertex(name));
 	}	
 	public void addEdge(String from, String to, String type, double weight){ //create an Edge instance
 		if (!V.containsKey(from)){
@@ -163,17 +166,20 @@ public class Graph {
 		System.out.println("Max degree="+maxDegree);
 	}
 	public void printEdgesStastistics(){	//print overall analysis on edges.
+		double totalWeight=0;
 		Map<String, Integer> edgeTypes=new HashMap<String, Integer>();
-		for (Edge e: E){			
+		for (Edge e: E){
+				totalWeight += e.getWeight();
 				String type=e.getName();
-				if (edgeTypes.containsKey(type)){	//existing key, count++
+				if (edgeTypes.containsKey(type)){	//existing type, count++
 					edgeTypes.put(type, (edgeTypes.get(type)+1));
-				}else{		//new key, count=1
+				}else{		//new type, count=1
 					edgeTypes.put(type, 1);						
 				}
 		}
 		System.out.println("-------------EdgesStastistics-------------");
 		System.out.println("Number of edges: "+E.size());
+		System.out.println("Total weight: "+totalWeight);
 		Set<String> keys=edgeTypes.keySet();
 		for (String key: keys){
 			System.out.println(key+": "+edgeTypes.get(key));
@@ -490,13 +496,19 @@ public class Graph {
 		return tree;
 	}
 	
-	public void clearTree(){
-		for (Edge e: this.E){
-//			e.setInTree(false);
+	public Graph getArtificialSteinerTree(TreeMap<String, Vertex>VPrime){
+		Graph resultGraph=new Graph();
+		resultGraph.V.putAll(VPrime);
+		int k=0;
+		String previousKey="";
+		for (String key: resultGraph.V.keySet()){
+			if (k!=0){
+				resultGraph.addEdge(this.V.get(key).getName(), this.V.get(previousKey).getName(), "myType", 1000);
+			}
+			previousKey=key;
+			k++;
 		}
-		for (Vertex v: this.V.values()){
-//			v.setIsInTree(false);
-		}
+		return resultGraph;
 	}
 	public void clearVisited(){
 		for (Edge e: this.E){
@@ -512,7 +524,6 @@ public class Graph {
 		}
 	}
 	public void clearAll(){
-		this.clearTree();
 		this.clearVisited();
 		this.clearTerminal();
 	}
@@ -531,4 +542,20 @@ public class Graph {
 			}
 		}
 	}
+	public void setEdgeWeight(String from, String to, String name, double weight){
+		Edge edge=new Edge(from ==null?null:V.get(from), to==null?null:V.get(to), name, weight);
+		boolean found=false;
+		for (Edge e: this.E){
+			if (e.equals(edge)){
+				e.weight=weight;
+				found = true;
+			}
+		}
+		if (!found){
+			System.err.println("edge not found:");
+			edge.print();
+			System.exit(-1);
+		}
+	}
+
 }

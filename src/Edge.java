@@ -48,10 +48,20 @@ public class Edge {
 	public Vertex getDestin(){
 		return this.dst;
 	}
-	public boolean equals(Edge e){	
-		//Suppose: any two vertices must have one edge at most.
+	public boolean equals(Edge e){
+		//Suppose: any two vertices must have at most one edge of  a given name of type at most.
 		// Any edge has but only one Edge instance.
-		return this.src.equals(e.getSource()) && this.dst.equals(e.getDestin());
+		boolean result=true;
+		if (e.getSource()!=null){
+			result = result && this.src.equals(e.getSource()); 
+		}
+		if (e.getDestin()!=null){
+			result = result && this.dst.equals(e.getDestin());
+		}
+		if (e.getName()!=null){
+			result = result && this.nameOfType.equals(e.getName());
+		}
+		return result;
 	}
 	public String getName(){
 		return nameOfType;
