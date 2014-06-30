@@ -52,7 +52,7 @@ public class JenaTestSubClassnq {
 		//g.printEdgesStastistics();
 		System.out.println("--------test: is it a tree?----------\n"+ g.isATree());
 */
-		Timer.tick("\n\n********3. T: The original steiner tree,	 VPrime: the set of terminal nodes***************");
+		Timer.tick("3. T: The original steiner tree,	 VPrime: the set of terminal nodes");
 		G.clearAll(); // clear all tags.
 		TreeMap<String, Vertex> VPrime = new TreeMap<String, Vertex>(); // store terminal nodes in VPrime.
 		VPrime.put("http://rdf.data-vocabulary.org/#Organization", G.V.get("http://rdf.data-vocabulary.org/#Organization"));
@@ -67,17 +67,18 @@ public class JenaTestSubClassnq {
 		T.printTree(T);
 		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+ T.isATree());
+		Timer.tick("--------test: is it a tree?----------\n"+ T.isATree());
 		
 
-		Timer.tick("\n\n********5. The BEST steiner tree***************");
+		Timer.tick("5. The BEST steiner tree");
 		T = G.improveTree(T); // Of course T has been changed during improveTree(T)
 	
-		System.out.println("\n\n*******************The Final tree*******************");
+		Timer.tick("The Final tree");
 		T.printTree(T);
 		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+ T.isATree());
+		Timer.tick("--------test: is it a tree?----------\n"+ T.isATree());
+		
 		Timer.stop("");
 	}
 

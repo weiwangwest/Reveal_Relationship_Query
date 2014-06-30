@@ -8,12 +8,12 @@ public static long startTime, lastTime;
 	}
 	public static void stop(String message){
 		tick(message);
-		System.out.println("Total time:" + (lastTime-startTime)/1000000 + " secondes.");
+		System.out.println("Total time:" + (lastTime-startTime)/1000/1000 + " seconds.");
 		System.out.println("end at " + new java.util.Date());
 	}
 	public static void tick(String message){
 		long currentTime=System.nanoTime();
-		System.out.println((currentTime-lastTime)/1000000 + " secondes." );
+		System.out.println((currentTime-lastTime)/1000/1000 + " seconds." );
 		System.out.println();
 		System.out.println("---------------------" +message+"---------------------");
 		lastTime=currentTime;
