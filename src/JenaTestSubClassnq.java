@@ -5,7 +5,7 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
 
 public class JenaTestSubClassnq {
-	public static void main(String[] args) {
+	public static void mainOriginal(String[] args) {
 		Timer.start(null);
 
 		Timer.tick("1. G: the Original Graph");
@@ -53,8 +53,10 @@ public class JenaTestSubClassnq {
 		System.out.println("--------test: is it a tree?----------\n"+ g.isATree());
 */
 		Timer.tick("3. T: The original steiner tree,	 VPrime: the set of terminal nodes");
-		G.clearAll(); // clear all tags.
-		TreeMap<String, Vertex> VPrime = new TreeMap<String, Vertex>(); // store terminal nodes in VPrime.
+		// clear all tags.
+		G.clearAll(); 
+		// store terminal nodes in VPrime.
+		TreeMap<String, Vertex> VPrime = new TreeMap<String, Vertex>(); 
 		VPrime.put("http://rdf.data-vocabulary.org/#Organization", G.V.get("http://rdf.data-vocabulary.org/#Organization"));
 		VPrime.put("http://aims.fao.org/aos/geopolitical.owl#territory", G.V.get("http://aims.fao.org/aos/geopolitical.owl#territory"));
 //		<http://aims.fao.org/aos/geopolitical.owl#territory> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://aims.fao.org/aos/geopolitical.owl#area> <http://aims.fao.org/aos/geopolitical.owl> .
@@ -63,23 +65,41 @@ public class JenaTestSubClassnq {
 //		<http://aims.fao.org/aos/geopolitical.owl#area> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://www.w3.org/2002/07/owl#Thing> <http://aims.fao.org/geopolitical.owl> .
 		VPrime.put("http://www.w3.org/1999/02/22-rdf-syntax-ns#Resource", G.V.get("http://www.w3.org/1999/02/22-rdf-syntax-ns#Resource"));
 
-		Graph T = G.getArtificialSteinerTree(VPrime); // find Steiner tree.
+		// find Steiner tree.
+		Graph T = G.getArtificialSteinerTree(VPrime); 
 		T.printTree(T);
 		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		Timer.tick("--------test: is it a tree?----------\n"+ T.isATree());
+		Timer.tick("--------test: is it a tree?----------\n"+ Graph.isATree(T));
 		
-
+		// Of course T has been changed during improveTree(T)
 		Timer.tick("5. The BEST steiner tree");
-		T = G.improveTree(T); // Of course T has been changed during improveTree(T)
+		T = G.improveTree(T); 
 	
 		Timer.tick("The Final tree");
 		T.printTree(T);
 		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		Timer.tick("--------test: is it a tree?----------\n"+ T.isATree());
+		Timer.tick("--------test: is it a tree?----------\n"+ Graph.isATree(T));
 		
 		Timer.stop("");
 	}
+	public static void main(String[] args) {
+		Timer.start(null);
 
+		Timer.tick("1. G: the Original Graph");
+		Graph G = Graph.loadDatasetFromNQFile("file:///home//wang//myDocuments//UniKoblenz//STAR//subclass.nq");
+
+		Timer.tick("2. T: The original steiner tree,	 VPrime: the set of terminal nodes");
+		Graph T = G.findBestSteinerTree(new String[] {"http://rdf.data-vocabulary.org/#Organization",
+				"http://aims.fao.org/aos/geopolitical.owl#territory",
+				"http://www.w3.org/1999/02/22-rdf-syntax-ns#Resource"
+				});
+		Timer.tick("3. The Final tree");
+		T.printTree(T);
+		T.printVerticesStastistics();
+		T.printEdgesStastistics();
+		Timer.tick("--------test: is it a tree?----------\n"+ Graph.isATree(T));		
+		Timer.stop("");
+	}
 }

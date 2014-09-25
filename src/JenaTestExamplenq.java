@@ -40,28 +40,32 @@ public class JenaTestExamplenq {
 		G.print();
 		G.printVerticesStastistics();
 		G.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+ G.isATree());
+		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(G));
 
 		System.out.println("\n\n**********2. The Breath First Spanning Tree***************");
 		Graph g = G.getBreathFirstSpanningTree(G.V, G.E);
 		g.printTree(g);
 		G.printVerticesStastistics();
 		g.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+ g.isATree());
+		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(g));
 
 		System.out.println("\n\n********3. T: The original steiner tree,	 VPrime: the set of terminal nodes***************");
 		G.clearAll(); // clear all tags.
-		TreeMap<String, Vertex> VPrime = new TreeMap<String, Vertex>(); // store terminal nodes in VPrime.
+		
+		// store terminal(required)  nodes in VPrime.
+		TreeMap<String, Vertex> VPrime = new TreeMap<String, Vertex>(); 
 		VPrime.put("http://example.org/bob/foaf.rdf", G.V.get("http://example.org/bob/foaf.rdf"));
 		VPrime.put("http://example.org/bob/", G.V.get("http://example.org/bob/"));
 		VPrime.put("http://xmlns.com/foaf/0.1/Person", G.V.get("http://xmlns.com/foaf/0.1/Person"));
-		Graph test = G.getArtificialSteinerTree(VPrime); // find Steiner tree.		
-		Graph T = G.getFirstSteinerTree(VPrime); // find Steiner tree.
+		
+		// find first Steiner tree.
+		Graph T = G.getFirstSteinerTree(VPrime); 
 		T.printTree(T);
 		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+ T.isATree());
+		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(T));
 
+		// improve the Steiner tree
 		System.out.println("\n\n********5. The BEST steiner tree***************");
 		T = G.improveTree(T); // Of course T has been changed during improveTree(T)
 		
@@ -69,6 +73,6 @@ public class JenaTestExamplenq {
 		T.printTree(T);
 		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+ T.isATree());
+		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(T));
 	}
 }

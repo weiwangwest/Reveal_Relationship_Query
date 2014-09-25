@@ -40,14 +40,14 @@ public class JenaTest {
 		//G.print();
 		//G.printVerticesStastistics();
 		//G.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+ G.isATree());
+		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(G));
 
 		System.out.println("\n\n**********2. The Breath First Spanning Tree***************");
 		Graph g = G.getBreathFirstSpanningTree(G.V, G.E);
 		//g.printTree(g);
 		//G.printVerticesStastistics();
 		//g.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+ g.isATree());
+		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(g));
 
 		System.out.println("\n\n********3. T: The original steiner tree,	 VPrime: the set of terminal nodes***************");
 		G.clearAll(); // clear all tags.

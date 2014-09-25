@@ -1,4 +1,3 @@
-import java.util.*;
 public class Edge {
 	//todo: private members, public methods.
 	Vertex src;
@@ -15,25 +14,19 @@ public class Edge {
 			return null;
 		}
 	}
-	public Edge getNextEdgeInLoosePath(Vertex v, Graph T){ //get another edge of the vertex in loose path
+	public Edge getNextEdgeInLoosePath(Vertex v, Graph g){ //get another edge of the vertex in loose path
 		Vertex v1=this.getAnotherVertex(v);
-		return v1.getAnotherEdgeInLoosePath(this, T);
-	}
-	public LoosePath findNextLoosePath( TreeMap<String, Vertex> treeVertices){
-		LoosePath lp=new LoosePath();
-		//find fixed nodes whose tree degree==1
-		//find a loose path starting from the node, marks all nodes in the path as in the tree.
-		return lp;
+		return v1.getAnyOtherEdgeInLoosePath(this, g);
 	}
 	public Edge clone(){
 		return new Edge(this);
 	}
 	public Edge(Edge e){
-		this.dst=e.dst;
-		this.isVisited=e.isVisited;
-		this.nameOfType=e.nameOfType;
 		this.src=e.src;
+		this.dst=e.dst;
+		this.nameOfType=e.nameOfType;
 		this.weight=e.weight;
+		this.isVisited=e.isVisited;
 	}
 	public Edge(Vertex src, Vertex dst, String type, double w){
 		this.src=src;
@@ -48,22 +41,28 @@ public class Edge {
 	public Vertex getDestin(){
 		return this.dst;
 	}
-	public boolean equals(Edge e){
+	@Override
+	public boolean equals(Object obj){
 		//Suppose: any two vertices must have at most one edge of  a given name of type at most.
 		// Any edge has but only one Edge instance.
 		boolean result=true;
-		if (e.getSource()!=null){
-			result = result && this.src.equals(e.getSource()); 
-		}
-		if (e.getDestin()!=null){
-			result = result && this.dst.equals(e.getDestin());
-		}
-		if (e.getName()!=null){
-			result = result && this.nameOfType.equals(e.getName());
+		if (obj instanceof Edge){
+			Edge e=(Edge)obj;
+			if (e.getSource()!=null){
+				result = result && this.src.equals(e.getSource()); 
+			}
+			if (e.getDestin()!=null){
+				result = result && this.dst.equals(e.getDestin());
+			}
+			if (e.getType()!=null){
+				result = result && this.nameOfType.equals(e.getType());
+			}
+		}else{
+			result=false;
 		}
 		return result;
 	}
-	public String getName(){
+	public String getType(){
 		return nameOfType;
 	}
 	public boolean isVisited(){
@@ -78,7 +77,10 @@ public class Edge {
 	public void print(){		
 		System.out.println(src.getName()+" -- ("+nameOfType+", "+weight+") --> "+dst.getName());
 	}
-	public boolean isInTree(Graph T) {
-		return T.E.contains(this);
+	public String toString(){
+		return new String(src.getName()+" -- ("+nameOfType+", "+weight+") --> "+dst.getName());
+	}
+	public boolean isContainedBy(Graph g) {
+		return g.contains(this);
 	}
 }

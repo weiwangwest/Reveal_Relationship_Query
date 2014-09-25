@@ -10,6 +10,12 @@ public class LoosePath implements Comparable<LoosePath>{
 			this.weight += e.weight;
 		}
 	}
+	public void print(){
+		System.out.println("--------Loose path-----------");
+		for (Edge e: edges){
+			e.print();			
+		}
+	}
 	public LoosePath(){
 		weight=0;
 		edges=new ArrayList<Edge>();
@@ -21,6 +27,7 @@ public class LoosePath implements Comparable<LoosePath>{
 	public double getWeight(){
 		return this.weight;
 	}
+	@Override	//implement compareTo(...) in Comparable 
 	public int compareTo(LoosePath lp) {
 		return Double.compare(lp.getWeight(), this.weight);		//longer paths before shorter ones in priority queue.
 	}
@@ -74,9 +81,15 @@ public class LoosePath implements Comparable<LoosePath>{
 		}
 		return vertices;
 	}
+
+	public HashSet <Edge> getEdges(){
+		return new HashSet<Edge>(this.edges);
+	}
+	
 	public ArrayList<Vertex> getVertices(){	//list of vertices in the path, excluding the source and destination vertices.
-		ArrayList<Vertex>	vertices=this.getVertices();
-		vertices.add(0, this.getStartVertex());
+		ArrayList<Vertex>	vertices=new ArrayList<Vertex>();
+		vertices.add(this.getStartVertex());
+		vertices.addAll(this.getVerticesWithinPath());
 		vertices.add(this.getEndVertex());
 		return vertices;
 	}

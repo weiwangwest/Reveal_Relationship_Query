@@ -32,14 +32,14 @@ public class SimpleTest {
 		G.print();
 		G.printVerticesStastistics();
 		G.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+G.isATree());
+		System.out.println("--------test: is it a tree?----------\n"+Graph.isATree(G));
 
 		System.out.println("\n\n**********2. The Breath First Spanning Tree***************");
 		Graph g=G.getBreathFirstSpanningTree(G.V, G.E);
 		g.printTree(g);
 		G.printVerticesStastistics();
 		g.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+g.isATree());
+		System.out.println("--------test: is it a tree?----------\n"+Graph.isATree(g));
 		
 		System.out.println("\n\n********3. T: The original steiner tree,	 VPrime: the set of terminal nodes***************");
 		G.clearAll();		//clear all tags.
@@ -51,7 +51,7 @@ public class SimpleTest {
 		T.printTree(T);
 		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+T.isATree());
+		System.out.println("--------test: is it a tree?----------\n"+Graph.isATree(T));
 
 		System.out.println("\n\n********4. T: the manually built steiner tree***************");
 		G.clearAll();		//clear all tags.
@@ -99,7 +99,7 @@ public class SimpleTest {
 		T.printTree(T);
 		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+T.isATree());
+		System.out.println("--------test: is it a tree?----------\n"+Graph.isATree(T));
 
 		System.out.println("\n\n********5. The BEST steiner tree***************");
 		T=G.improveTree(T);	//Of course T has been changed during improveTree(T)
@@ -107,6 +107,6 @@ public class SimpleTest {
 		T.printTree(T);
 		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+T.isATree());
+		System.out.println("--------test: is it a tree?----------\n"+Graph.isATree(T));
 	}
 }

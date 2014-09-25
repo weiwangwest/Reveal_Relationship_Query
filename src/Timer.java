@@ -1,22 +1,33 @@
 public class Timer{
 public static long startTime, lastTime;
-	public static void start(String message){
-		startTime=System.nanoTime();
+	public static long start(String message){
+		startTime=System.currentTimeMillis();
 		lastTime=startTime;
-		System.out.println(message==null?"":message );
-		System.out.println("start at " + new java.util.Date());
+		if (message!=null){			
+			System.out.println(message==null?"":message );
+			System.out.println("start at " + new java.util.Date());
+		}
+		return startTime;
 	}
-	public static void stop(String message){
+	public static long stop(String message){
+		long totalTime=lastTime-startTime;
 		tick(message);
-		System.out.println("Total time:" + (lastTime-startTime)/1000/1000 + " seconds.");
-		System.out.println("end at " + new java.util.Date());
+		if (message!=null){
+			System.out.println("Total time:" + (totalTime) + "  milli-seconds.");
+			System.out.println("end at " + new java.util.Date());			
+		}
+		return totalTime;
 	}
-	public static void tick(String message){
-		long currentTime=System.nanoTime();
-		System.out.println((currentTime-lastTime)/1000/1000 + " seconds." );
-		System.out.println();
-		System.out.println("---------------------" +message+"---------------------");
+	public static long tick(String message){
+		long currentTime=System.currentTimeMillis();
+		long duration=currentTime-lastTime;
+		if (message!=null){
+			System.out.println((duration) + " milli-seconds." );
+			System.out.println();
+			System.out.println("---------------------" +message+"---------------------");
+		}
 		lastTime=currentTime;
+		return duration;
 	}
 	public static void main(String[] args) {
 		Timer.start("start");
@@ -25,7 +36,8 @@ public static long startTime, lastTime;
 			for (long j=0; i<1000000; i++){
 				for (long k=0; i<1000000; i++){
 					for (long l=0; i<1000000; i++){						
-						for (long m=0; i<1000000; i++){						
+						for (long m=0; i<1000000; i++){		
+							System.out.print("");
 						}
 					}					
 				}
@@ -37,12 +49,13 @@ public static long startTime, lastTime;
 				for (long k=0; i<1000000; i++){
 					for (long l=0; i<1000000; i++){						
 						for (long m=0; i<1000000; i++){						
+							System.out.print("");
 						}
 					}
 					
 				}
 			}
 		}
-		Timer.stop("finied here");
+		Timer.stop("finished here");
 	}
 }
