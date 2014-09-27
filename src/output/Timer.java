@@ -1,3 +1,4 @@
+package output;
 public class Timer{
 public static long startTime, lastTime;
 	public static long start(String message){

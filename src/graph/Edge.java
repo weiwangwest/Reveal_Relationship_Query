@@ -1,3 +1,5 @@
+package graph;
+
 public class Edge {
 	//todo: private members, public methods.
 	Vertex src;

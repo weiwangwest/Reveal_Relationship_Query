@@ -1,7 +1,12 @@
+package graph;
+
+
 import java.util.*;
 
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
+
+import performance.JenaPerformTestDatanq;
 
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -12,8 +17,8 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 public class Graph {
-	TreeMap<String, Vertex> V;
-	 ArrayList<Edge> E;
+	public TreeMap<String, Vertex> V;
+	 public ArrayList<Edge> E;
 
 	public Graph getArtificialSteinerTree(TreeMap<String, Vertex> vPrime) {
 		return new ArtificialSteinerTree(vPrime).getTree();

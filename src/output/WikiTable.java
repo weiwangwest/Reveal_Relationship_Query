@@ -1,4 +1,4 @@
-package output.format;
+package output;
 
 import java.io.PrintStream;
 

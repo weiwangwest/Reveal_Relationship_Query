@@ -1,3 +1,5 @@
+package graph;
+
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
@@ -7,6 +9,8 @@ import java.util.PriorityQueue;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import performance.JenaPerformTestDatanq;
 
 public class GraphTest {
 
@@ -158,4 +162,25 @@ public class GraphTest {
 			}
 		}
 	}
+	@Test
+	public void testFindBestSteinerTreeForSpecificExample1() throws Exception {
+					for (int run = 0; run < 10000; run++) {
+						JenaPerformTestDatanq.pathToDataFiles = "/home/wang/myDocuments/UniKoblenz/STAR/";
+						Graph g = Graph.loadDatasetEntitiesFromNQFile(JenaPerformTestDatanq.pathToDataFiles	+ "example.nq");
+						String[] requiredVertices=new String[3];						  
+						requiredVertices[2]="http://example.org/bob/";
+						requiredVertices[1]="http://xmlns.com/foaf/0.1/Person";
+						requiredVertices[0]="http://example.org/alice/foaf.rdf#me";
+						//System.out.println("run:"+run);				
+						Graph T = g.findBestSteinerTree(requiredVertices);
+						for (String vertexStr: requiredVertices){
+							assertTrue(" could not be found in the tree." ,T.V.containsKey(vertexStr));
+						}
+						assertTrue("The result is not a tree!", Graph.isATree(T));
+						if (Double.compare(T.getWeight(T), 500) > 0){
+							fail("failed to find a tree,  about to select another set of entities");
+						}
+						System.out.println("\n"+String.valueOf(run)+"\n" + T.printTreeToString(T));
+					}							
+				}		
 }

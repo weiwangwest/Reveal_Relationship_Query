@@ -1,3 +1,5 @@
+package graph;
+
 import java.util.*;
 public class Vertex implements Comparable<Vertex> {
 	//a way to switch between the current sorting method used for compareTo, which is used by PriorityQueue

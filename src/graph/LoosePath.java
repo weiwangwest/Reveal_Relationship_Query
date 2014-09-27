@@ -1,3 +1,5 @@
+package graph;
+
 import java.util.*;
 public class LoosePath implements Comparable<LoosePath>{
 	double weight;

@@ -1,3 +1,7 @@
+package performance;
+import graph.Graph;
+import graph.Vertex;
+
 import java.util.*;
 public class SimpleTest {
 	public static void main(String[] args) {

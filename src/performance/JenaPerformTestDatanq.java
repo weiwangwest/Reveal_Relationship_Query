@@ -1,3 +1,4 @@
+package performance;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.util.*;
@@ -7,7 +8,8 @@ import com.hp.hpl.jena.query.Dataset;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
 
-import output.format.WikiTable;
+import output.Timer;
+import output.WikiTable;
 
 public class JenaPerformTestDatanq {
 	static HashSet <String> entities; // a list of entities
@@ -15,7 +17,11 @@ public class JenaPerformTestDatanq {
 	static long numberofdistinctrdfsSubclassstatement;
 	static long numberofdistinctRDFclasstypesTotal;
 	static long numberofdistinctRDFclasstypesUsedAsObject;
-	static String pathToDataFiles="";
+	public static String pathToDataFiles="";
+	static HashSet<String> OverallDistinctRDFclassesSet;
+	static HashSet<String>DistinctRdfsSubclassStmtsSet;
+	static HashSet<String>DistinctRdfClassTypeExplicitClassDefinitionSet;
+	static HashSet<String>DistinctRdfClassTypeasObjectTypeSet;
 	/**
 	 * Returns a pseudo-random number between min and max, inclusive.
 	 * The difference between min and max can be at most
@@ -76,7 +82,54 @@ public class JenaPerformTestDatanq {
 	public static boolean isEntity(RDFNode node) throws Exception{
 			return node.toString().startsWith("http")&&!(isBlankNode(node.toString())||node.isLiteral()||isRdfClassType(node.toString()));
 	}
-   
+
+
+	public static void getStatisticByTripleNew(Statement stmt){
+		String subject=stmt.getSubject().toString();
+		String object=stmt.getObject().toString();
+		String predicate=stmt.getPredicate().toString();
+		String statement=stmt.toString();
+			//1. 关于Distinct Rdfs Subclass Stmts: Total number of distinct rdfs:subclass statements in data set
+			//A rdfs:subClassOf B, then 
+			//A rdf:type rdfs:Class
+			//B rdf:type rdfs:Class			
+			if (predicate.equals("http://www.w3.org/2000/01/rdf-schema#subClassOf")){
+				OverallDistinctRDFclassesSet.add(subject);
+				OverallDistinctRDFclassesSet.add(object);
+				DistinctRdfsSubclassStmtsSet.add(statement);
+			}
+
+			//2. 关于Distinct Rdf Class Type: explicit class definition
+			//D rdf:type rdfs:Class
+			if (predicate.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type") 
+					&& object.equals("http://www.w3.org/2000/01/rdf-schema#Class")){
+				DistinctRdfClassTypeExplicitClassDefinitionSet.add(subject);
+				OverallDistinctRDFclassesSet.add(subject);
+			}
+
+			//3. Distinct Rdf Class Type as Object: type statments: 
+			//Total number of distinct RDF class types used as object in rdf:type statements
+			//X rdf:type C, THEN
+			//C rdf:type rdfs:Class
+			if (predicate.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
+				DistinctRdfClassTypeasObjectTypeSet.add(object);
+				OverallDistinctRDFclassesSet.add(object);
+			}
+			
+			//4. Overall distinct RDF classes (new column)
+			//Overall distinct RDF classes:
+			//A+B+C+D distinct		
+	}
+  /*
+	 output to file "DistinctRdfsSubclassStmtsSet"
+	 output to column 1 DistinctRdfsSubclassStmtsSet.size()
+	 output to file "DistinctRdfClassTypeExplicitClassDefinitionSet"
+	 output to column 2 DistinctRdfClassTypeExplicitClassDefinitionSet.size()
+	 output to file "OverallDistinctRDFclassesSet"
+	 output to column 3 DistinctRdfClassTypeasObjectTypeSet.size()
+	 output to file "DistinctRdfClassTypeasObjectTypeSet"
+	 output to column 4 OverallDistinctRDFclassesSet.size()	 
+	*/
 	public static void getStatisticByTriple(Statement stmt) throws Exception{
 		//Generate a list of entities (subject or object URIs -- so no blank nodes, no literals, no RDF class types)
 		if (isEntity(stmt.getSubject())){

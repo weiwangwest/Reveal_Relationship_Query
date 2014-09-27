@@ -1,8 +1,15 @@
+package performance;
+import graph.Graph;
+import graph.Vertex;
+
 import java.util.*;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.query.Dataset;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
+
+import output.Timer;
+
 
 public class JenaTestSubClassnq {
 	public static void mainOriginal(String[] args) {
