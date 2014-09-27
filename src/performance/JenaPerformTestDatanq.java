@@ -12,16 +12,22 @@ import output.Timer;
 import output.WikiTable;
 
 public class JenaPerformTestDatanq {
-	static HashSet <String> entities; // a list of entities
-	static long numberoftriples;
-	static long numberofdistinctrdfsSubclassstatement;
-	static long numberofdistinctRDFclasstypesTotal;
-	static long numberofdistinctRDFclasstypesUsedAsObject;
 	public static String pathToDataFiles="";
-	static HashSet<String> OverallDistinctRDFclassesSet;
-	static HashSet<String>DistinctRdfsSubclassStmtsSet;
-	static HashSet<String>DistinctRdfClassTypeExplicitClassDefinitionSet;
-	static HashSet<String>DistinctRdfClassTypeasObjectTypeSet;
+	static HashSet <String> Entities; // a list of entities
+	static long Numberoftriples;
+	static HashSet<String>DistinctRdfsSubclassOfStmtsSet;	//column 1	
+	static HashSet<String>DistinctRdfClassTypeExplicitClassDefinitionSet;	//column2
+	static HashSet<String>DistinctRdfClassTypeAsObjectTypeSet;		//column 3
+	static HashSet<String> OverallDistinctRDFclassesSet;			//column4
+
+	public static void resetAllValues(){
+		Entities=new HashSet<String>(); // a list of entities
+		Numberoftriples=0;
+		DistinctRdfsSubclassOfStmtsSet=new HashSet<String>();
+		DistinctRdfClassTypeExplicitClassDefinitionSet=new HashSet<String>();
+		DistinctRdfClassTypeAsObjectTypeSet=new HashSet<String>();
+		OverallDistinctRDFclassesSet=new HashSet<String>();
+	}
 	/**
 	 * Returns a pseudo-random number between min and max, inclusive.
 	 * The difference between min and max can be at most
@@ -46,7 +52,7 @@ public class JenaPerformTestDatanq {
 	}
 	//randomly select number of Entities from the entities set.
 	public static String [] selectEntities(int numberOfEntities){
-		Object[] entitiesArray=entities.toArray();
+		Object[] entitiesArray=Entities.toArray();
 		HashSet <String> resultSet=new HashSet<String>();
 		while(resultSet.size()<numberOfEntities){
 			resultSet.add(entitiesArray[randInt(0, entitiesArray.length-1)].toString());
@@ -84,19 +90,31 @@ public class JenaPerformTestDatanq {
 	}
 
 
-	public static void getStatisticByTripleNew(Statement stmt){
+	public static void getStatisticByTriple(Statement stmt) throws Exception{
 		String subject=stmt.getSubject().toString();
 		String object=stmt.getObject().toString();
 		String predicate=stmt.getPredicate().toString();
 		String statement=stmt.toString();
-			//1. 关于Distinct Rdfs Subclass Stmts: Total number of distinct rdfs:subclass statements in data set
+		
+		//Generate a list of entities (subject or object URIs -- so no blank nodes, no literals, no RDF class types)
+		if (isEntity(stmt.getSubject())){
+			Entities.add(stmt.getSubject().toString());
+		}
+		if (isEntity(stmt.getObject())){
+			Entities.add(stmt.getObject().toString());
+		}
+		
+		 //Total number of triples / NQuads in data set
+		Numberoftriples++;
+
+		//1. 关于Distinct Rdfs Subclass Stmts: Total number of distinct rdfs:subclass statements in data set
 			//A rdfs:subClassOf B, then 
 			//A rdf:type rdfs:Class
 			//B rdf:type rdfs:Class			
 			if (predicate.equals("http://www.w3.org/2000/01/rdf-schema#subClassOf")){
 				OverallDistinctRDFclassesSet.add(subject);
 				OverallDistinctRDFclassesSet.add(object);
-				DistinctRdfsSubclassStmtsSet.add(statement);
+				DistinctRdfsSubclassOfStmtsSet.add(statement);
 			}
 
 			//2. 关于Distinct Rdf Class Type: explicit class definition
@@ -112,7 +130,7 @@ public class JenaPerformTestDatanq {
 			//X rdf:type C, THEN
 			//C rdf:type rdfs:Class
 			if (predicate.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
-				DistinctRdfClassTypeasObjectTypeSet.add(object);
+				DistinctRdfClassTypeAsObjectTypeSet.add(object);
 				OverallDistinctRDFclassesSet.add(object);
 			}
 			
@@ -120,63 +138,19 @@ public class JenaPerformTestDatanq {
 			//Overall distinct RDF classes:
 			//A+B+C+D distinct		
 	}
-  /*
-	 output to file "DistinctRdfsSubclassStmtsSet"
-	 output to column 1 DistinctRdfsSubclassStmtsSet.size()
-	 output to file "DistinctRdfClassTypeExplicitClassDefinitionSet"
-	 output to column 2 DistinctRdfClassTypeExplicitClassDefinitionSet.size()
-	 output to file "OverallDistinctRDFclassesSet"
-	 output to column 3 DistinctRdfClassTypeasObjectTypeSet.size()
-	 output to file "DistinctRdfClassTypeasObjectTypeSet"
-	 output to column 4 OverallDistinctRDFclassesSet.size()	 
-	*/
-	public static void getStatisticByTriple(Statement stmt) throws Exception{
-		//Generate a list of entities (subject or object URIs -- so no blank nodes, no literals, no RDF class types)
-		if (isEntity(stmt.getSubject())){
-			entities.add(stmt.getSubject().toString());
-		}
-		if (isEntity(stmt.getObject())){
-			entities.add(stmt.getObject().toString());
-		}
-		
-		 //Total number of triples / NQuads in data set
-		numberoftriples++;
-		
-		//Total number of distinct rdfs:subClassOf statements in data set
-		if (stmt.getPredicate().toString().contains("rdfs:subClassOf")||stmt.getPredicate().toString().contains("http://www.w3.org/2000/01/rdf-schema#subClassOf")){
-			numberofdistinctrdfsSubclassstatement++;
-		}
-		
-		//	rdfs:subClassOf
-		// http://www.w3.org/2000/01/rdf-schema#subClassOf
-		
-		if (isRdfClassType(stmt.getSubject().toString())){
-			
-			numberofdistinctRDFclasstypesTotal++;
-		}
-		if (isRdfClassType(stmt.getObject().toString())){
-			numberofdistinctRDFclasstypesTotal++;
-			numberofdistinctRDFclasstypesUsedAsObject++;
-		}
-	}
-	//generate entitiesList files and overviewOfDataSetFiles
+  //generate entitiesList files and overviewOfDataSetFiles
 	public static  void getEntitiesList_OverviewOfDataSet() throws Exception{
 		Timer.tick("initialize data structure");
 		//generate the table 2
 		//System.out.println("<div id=\"Table 2. Test overview\"></div>");
 		WikiTable table2=new WikiTable("Table 2. Test overview",		//title 
-				new String[] {"testResults", "datasets", "entities","triples/NQuads", "distinctRdfsSubclassStmts", "distnctRdfClassTypsTotal", "distnctRdfClassTypsObj"}	//heads 
+				new String[] {"testResults", "datasets", "triples/NQuads","entities", "distinctRdfsSubclassStmts", "distinctRdfClassTyps", "distinctRdfClassTypsAsObj", "OverallDistinctRdfClasses"}	//heads 
 				);		
 
 		//append the dataset report to lines of table 2.
-		for (int  i=2; i<=6; i++){	//todo: i<=6
-			Timer.tick("overview of data-0_"+i+".nq");
-			
-			entities=new HashSet<String>(); // a list of entities
-			numberoftriples=0;
-			numberofdistinctrdfsSubclassstatement=0;
-			numberofdistinctRDFclasstypesTotal=0;
-			numberofdistinctRDFclasstypesUsedAsObject=0;
+		for (int  i=2; i<=3; i++){	//todo: i<=6
+			Timer.tick("overview of data-0_"+i+".nq");			
+			resetAllValues(); 
 			Dataset dataset = RDFDataMgr.loadDataset(pathToDataFiles+"data-0_"+i+".nq", RDFLanguages.NQUADS);  //load data into Dataset 
 			Iterator<String> it = dataset.listNames();
 			while (it.hasNext()) {
@@ -191,13 +165,19 @@ public class JenaPerformTestDatanq {
 			// write statistics into Wiki table as a new line of data
 			table2.appendLine(
 						new Object [] {	//dataLine
-				            "(see [[#3|Table "+(i+1)+"]])", "{0.."+i+"}", String.valueOf(entities.size()), String.valueOf(numberoftriples), String.valueOf(numberofdistinctrdfsSubclassstatement), String.valueOf(numberofdistinctRDFclasstypesTotal), String.valueOf(numberofdistinctRDFclasstypesUsedAsObject)
+				            "(see [[#3|Table "+(i+1)+"]])", "{0.."+i+"}", 
+				            String.valueOf(Numberoftriples), 
+				            String.valueOf(Entities.size()), 
+				            String.valueOf(DistinctRdfsSubclassOfStmtsSet.size()), 
+				            String.valueOf(DistinctRdfClassTypeExplicitClassDefinitionSet.size()), 
+				            String.valueOf(DistinctRdfClassTypeAsObjectTypeSet.size()),
+				            String.valueOf(OverallDistinctRDFclassesSet.size()),
 				        }
 					);
 			//write entities into file "entitiesList0_i"
 			PrintStream entityList=new PrintStream("entitiesList"+"0_"+i);
 			int lineNo=0;
-			for (String entity: entities){
+			for (String entity: Entities){
 				if (lineNo==0){
 					entityList.print(entity); //prevent additional empty line at the end.					
 				}else{

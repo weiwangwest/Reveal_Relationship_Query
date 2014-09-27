@@ -130,7 +130,7 @@ public class WikiTable {
 		//table 2
 		System.out.println("<div id=\"Table 2. Test overview\"></div>");
 		WikiTable table2=new WikiTable("Table 2. Test overview",		//title 
-				new String[] {"testResults", "datasets", "entitiesList","triples/NQuads", "distinctRdfsSubclassStmts", "distnctRdfClassTyps"},	//heads 
+				new String[] {"testResults", "datasets", "entities","triples/NQuads", "distinctRdfsSubclassStmts", "distnctRdfClassTyps"},	//heads 
 				new Object [][] {	//data
 			            {"(see [[#3|Table 3]])", "{0..2}", null, null, null, null},
 			            {"(see [[#4|Table 4]])", "{0..3}", null, null, null, null},

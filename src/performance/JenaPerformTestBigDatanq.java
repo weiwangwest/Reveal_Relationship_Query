@@ -29,8 +29,8 @@ public class JenaPerformTestBigDatanq {
 		for (int  i=2; i<=2; i++){	//todo: i<=6
 			Timer.tick("data-0_"+i+".nq");
 			Graph G = Graph.loadDatasetEntitiesFromNQFile(JenaPerformTestDatanq.pathToDataFiles+"data-0_"+i+".nq");			
-			JenaPerformTestDatanq.entities=new HashSet<String>();	// a list of entities
-			JenaPerformTestDatanq.entities.addAll(G.V.keySet()); 
+			JenaPerformTestDatanq.Entities=new HashSet<String>();	// a list of entities
+			JenaPerformTestDatanq.Entities.addAll(G.V.keySet()); 
 			for (int currentQueryType = 0; currentQueryType < 3; currentQueryType++) {
 				QUERYID:
 				for (int queryId = 0; queryId < 3; queryId++) {
