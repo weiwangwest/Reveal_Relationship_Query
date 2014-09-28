@@ -79,6 +79,7 @@ public class Edge {
 	public void print(){		
 		System.out.println(src.getName()+" -- ("+nameOfType+", "+weight+") --> "+dst.getName());
 	}
+	@Override
 	public String toString(){
 		return new String(src.getName()+" -- ("+nameOfType+", "+weight+") --> "+dst.getName());
 	}

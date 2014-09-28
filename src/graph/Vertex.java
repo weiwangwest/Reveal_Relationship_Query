@@ -1,6 +1,8 @@
 package graph;
 
 import java.util.*;
+
+import performance.JenaPerformTestDatanq;
 public class Vertex implements Comparable<Vertex> {
 	//a way to switch between the current sorting method used for compareTo, which is used by PriorityQueue
 	//remember each time before we operate on Qi  (i=1,2,...), we must set CURRENT_IDEX to i.
@@ -189,7 +191,7 @@ public class Vertex implements Comparable<Vertex> {
 	public boolean equals(Object obj){		//We suppose: any vertex in a graph has only one Vertex instance.
 		if (obj instanceof Vertex){
 			Vertex v=(Vertex) obj;
-			return this.name.equals(v.getName());
+			return this.getName().equals(v.getName());
 		}else{
 			return false;
 		}
@@ -216,7 +218,7 @@ public class Vertex implements Comparable<Vertex> {
 		}
 	}
 	public static void main(String args[]) throws Exception{
-		Graph G = Graph.loadDatasetEntitiesFromNQFile("/home/wang/myDocuments/UniKoblenz/STAR/"+"example.nq");
+		Graph G = JenaPerformTestDatanq.generateGraphFromEntitiesOfNQFile("/home/wang/myDocuments/UniKoblenz/STAR/"+"example.nq");
 	    Random rand = new Random();
 		for (Vertex v: G.V.values()){		//1: for all v ∈ V do
 				v.d1=rand.nextInt((1000-0) + 1) + 0;

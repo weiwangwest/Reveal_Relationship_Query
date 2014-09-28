@@ -3,19 +3,9 @@ package graph;
 
 import java.util.*;
 
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFLanguages;
 
 import performance.JenaPerformTestDatanq;
 
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.NodeIterator;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.ResIterator;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
 public class Graph {
 	public TreeMap<String, Vertex> V;
 	 public ArrayList<Edge> E;
@@ -174,29 +164,41 @@ public class Graph {
 		}
 		return result;
 	}
-	public boolean addEdge(String from, String to, String type, double weight){ //create an Edge instance
-		boolean result=true;
+	public boolean addEdge(String from, String to, String type, double weight){ 
+		boolean feasible=true;
 		if (!V.containsKey(from)){
 			System.err.println("addEdge: Couldn't find "+from);
-			result=false;
+			feasible=false;
 		}
 		if (!V.containsKey(to)){
 			System.err.println("addEdge: Couldn't find "+to);
-			result=false;
+			feasible=false;
 		}
 		if (from.equals(to)){
-			//System.err.println("addEdge: loop edge connecting single vertex: "+to);
-			result=false;			
+			System.err.println("addEdge: loop edge connecting single vertex: "+to);
+			feasible=false;			
 		}
 		Edge e=new Edge(V.get(from), V.get(to), type, weight);		
 		if (E.contains(e)){
-			//System.err.println("addEdge: same type edge already exists: "+from + "--" + to);
-			result=false;			
+			System.err.println("addEdge: same type edge already exists:" + e.toString());
+			feasible=false;			
 		}
-		V.get(from).addAdjacency(e);				//For Steiner tree problem, degree=in degree+out degree
-		V.get(to).addAdjacency(e);				//For Steiner tree problem, degree=in degree+out degree
-		if (!E.add(e)){
-			System.err.println("Failed to add edge!");
+		if (feasible){
+			V.get(from).addAdjacency(e);				//For Steiner tree problem, degree=in degree+out degree
+			V.get(to).addAdjacency(e);				//For Steiner tree problem, degree=in degree+out degree
+			E.add(e);
+		}
+		return feasible;
+	}
+	
+	@Override
+	public boolean equals(Object obj){
+		boolean result=true;
+		if (obj instanceof Graph){
+			Graph g=(Graph)obj;
+			result = result && this.E.size()==g.E.size() && this.E.containsAll(g.E);
+			result = result && this.V.equals(g.V); 
+		}else{
 			result=false;
 		}
 		return result;
@@ -825,81 +827,13 @@ public class Graph {
 			System.exit(-1);
 		}
 	}
-	// load dataset into a graph from a nq file
-	public static Graph loadDatasetFromNQFile(String fileName){
-		Graph G = new Graph();
-		Dataset dataset = RDFDataMgr.loadDataset(	fileName, RDFLanguages.NQUADS);
-		Iterator<String> it = dataset.listNames();
-		while (it.hasNext()) {
-			Model tim = dataset.getNamedModel(it.next());
-
-			// add Vertices from the dataset file
-			ResIterator r = tim.listSubjects();
-			while (r.hasNext()) {
-				G.addVertex(r.next().toString());
-			}
-			NodeIterator n = tim.listObjects();
-			while (n.hasNext()) {
-				G.addVertex(n.next().toString());
-			}
-
-			// add edges from the dataset file
-			StmtIterator s = tim.listStatements();
-			while (s.hasNext()) {
-				Statement stmt = s.next();
-				G.addEdge(stmt.getSubject().toString(), stmt.getObject().toString(), stmt.getPredicate().toString(), 1);
-			}
+	public void addAll(Graph g){	//merge g into current graph 
+		for (String name: g.V.keySet()){
+			this.addVertex(name);
 		}
-		return G;
-	}
-	// load dataset into a graph from a nq file, except for 
-	public static Graph loadDatasetEntitiesFromNQFile(String fileName) throws Exception{
-		Graph G = new Graph();
-		Dataset dataset = RDFDataMgr.loadDataset(fileName, RDFLanguages.NQUADS);
-		Iterator<String> it = dataset.listNames();			
-		while (it.hasNext()) {
-			Model tim = dataset.getNamedModel(it.next());
-			
-			// add Vertices from the subjects entities
-			ResIterator r = tim.listSubjects();			
-			while (r.hasNext()) {
-				Resource rsc=r.next();	//add entities only into the Graph
-				if (JenaPerformTestDatanq.isEntity(rsc)){
-					G.addVertex(rsc.toString());
-				}
-			}
-			// add Vertices from the  objects entities
-			NodeIterator n = tim.listObjects();
-			while (n.hasNext()) {
-				RDFNode rdfnd=n.next();
-				if (JenaPerformTestDatanq.isEntity(rdfnd)){
-					G.addVertex(rdfnd.toString());						
-				}
-			}
-			// add edges (connecting two entities) from statements,  get statistics
-			StmtIterator s = tim.listStatements();
-			while (s.hasNext()) {
-				Statement stmt = s.next();
-				if (JenaPerformTestDatanq.isEntity(stmt.getSubject())&&JenaPerformTestDatanq.isEntity(stmt.getObject())){
-					G.addEdge(stmt.getSubject().toString(), stmt.getObject().toString(), stmt.getPredicate().toString(), 1);
-				}
-			}
-			//remove isolated entities
-			Vertex vToBeDelete;
-			do{
-				vToBeDelete=null;
-				for (Vertex v: G.V.values()){
-					if (v.getDegree()==0){
-						vToBeDelete=v;
-						break;
-					}
-				}
-				if (vToBeDelete!=null){
-					G.removeVertex(vToBeDelete.getName());
-				}				
-			}while (vToBeDelete!=null);
-		} //while each model
-		return G;
+		for (Edge e: g.E){
+			this.addEdge(e.getSource().getName(), e.getDestin().getName(), e.getType(), e.getWeight());
+		}
 	}
 	public static boolean isATree(Graph graph) {
 		return graph.isATree();

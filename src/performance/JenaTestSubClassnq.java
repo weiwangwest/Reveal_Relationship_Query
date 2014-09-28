@@ -95,7 +95,7 @@ public class JenaTestSubClassnq {
 		Timer.start(null);
 
 		Timer.tick("1. G: the Original Graph");
-		Graph G = Graph.loadDatasetFromNQFile("file:///home//wang//myDocuments//UniKoblenz//STAR//subclass.nq");
+		Graph G = JenaPerformTestDatanq.generateGraphFromStmtsOfNQFile("file:///home//wang//myDocuments//UniKoblenz//STAR//subclass.nq");
 
 		Timer.tick("2. T: The original steiner tree,	 VPrime: the set of terminal nodes");
 		Graph T = G.findBestSteinerTree(new String[] {"http://rdf.data-vocabulary.org/#Organization",

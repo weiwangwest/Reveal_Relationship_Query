@@ -1,4 +1,11 @@
 package performance;
+import graph.Graph;
+import graph.Vertex;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.util.*;
@@ -199,5 +206,120 @@ public class JenaPerformTestDatanq {
 		//JenaPerformTestDatanq.pathToDataFiles = "/home/wang/myDocuments/UniKoblenz/STAR/temp/";
 		JenaPerformTestDatanq.pathToDataFiles = "/home/wang//myDocuments/UniKoblenz/STAR/data/";
 		getEntitiesList_OverviewOfDataSet();
+	}
+	// load dataset into a graph from a nq file
+	public static Graph generateGraphFromStmtsOfNQFile(String fileName){
+		Graph G = new Graph();
+		Dataset dataset = RDFDataMgr.loadDataset(	fileName, RDFLanguages.NQUADS);
+		Iterator<String> it = dataset.listNames();
+		while (it.hasNext()) {
+			Model tim = dataset.getNamedModel(it.next());
+	
+			// add Vertices from the dataset file
+			ResIterator r = tim.listSubjects();
+			while (r.hasNext()) {
+				G.addVertex(r.next().toString());
+			}
+			NodeIterator n = tim.listObjects();
+			while (n.hasNext()) {
+				G.addVertex(n.next().toString());
+			}
+	
+			// add edges from the dataset file
+			StmtIterator s = tim.listStatements();
+			while (s.hasNext()) {
+				Statement stmt = s.next();
+				G.addEdge(stmt.getSubject().toString(), stmt.getObject().toString(), stmt.getPredicate().toString(), 1);
+			}
+		}
+		return G;
+	}
+	// load big dataset into a graph from a nq file
+	public static Graph generateGraphFromEntitiesOfBigNQFile(String fileName) throws Exception{
+		Graph G=new Graph();
+		BufferedReader bigFileReader = new BufferedReader(new FileReader(new File(fileName)));
+		PrintStream partFileWriter=null;		
+		String line;
+		int fileId=0;
+		do{	//divide file into small 500 lines temp.nq
+			line = bigFileReader.readLine();
+			if (line!=null && !line.endsWith("> .")){
+				System.err.println(line);
+				assert(false);
+			}
+			if (line!=null){
+				fileId ++;
+				partFileWriter=new PrintStream(fileName+".part"+String.valueOf(fileId));
+				for (int i=1; i<500 && line!=null; i++){
+					if (i==1) {
+						partFileWriter.print(line);
+					}else{
+						partFileWriter.print("\n"+line);
+					}
+					line = bigFileReader.readLine(); 
+					if (line!=null && !line.endsWith("> .")){
+						System.err.println(line);
+						assert(false);
+					}
+				}
+				if (line!=null){
+					partFileWriter.print("\n"+line);
+				}
+				partFileWriter.close();
+				Graph part=generateGraphFromEntitiesOfNQFile(fileName+".part"+String.valueOf(fileId)); //load dataset from nq.part
+				G.addAll(part);	//merge the dataset into G					
+			}
+		}while (line!=null);
+		bigFileReader.close();
+		return G;
+	}
+	// load dataset into a graph from a nq file, except for 
+	public static Graph generateGraphFromEntitiesOfNQFile(String fileName) throws Exception{
+		Graph G = new Graph();
+		Dataset dataset = RDFDataMgr.loadDataset(fileName, RDFLanguages.NQUADS);
+		Iterator<String> it = dataset.listNames();			
+		while (it.hasNext()) {
+			Model tim = dataset.getNamedModel(it.next());
+			
+			// add Vertices from the subjects entities
+			ResIterator r = tim.listSubjects();			
+			while (r.hasNext()) {
+				Resource rsc=r.next();	//add entities only into the Graph
+				if (isEntity(rsc)){
+					G.addVertex(rsc.toString());
+				}
+			}
+			// add Vertices from the  objects entities
+			NodeIterator n = tim.listObjects();
+			while (n.hasNext()) {
+				RDFNode rdfnd=n.next();
+				if (isEntity(rdfnd)){
+					G.addVertex(rdfnd.toString());						
+				}
+			}
+			// add edges (connecting two entities) from statements,  get statistics
+			StmtIterator s = tim.listStatements();
+			while (s.hasNext()) {
+				Statement stmt = s.next();
+				if (isEntity(stmt.getSubject())&&isEntity(stmt.getObject())){
+					G.addEdge(stmt.getSubject().toString(), stmt.getObject().toString(), stmt.getPredicate().toString(), 1);
+				}
+			}
+			//remove isolated entities
+			Vertex vToBeDelete;
+			do{
+				vToBeDelete=null;
+				for (Vertex v: G.V.values()){
+					if (v.getDegree()==0){
+						vToBeDelete=v;
+						break;
+					}
+				}
+				if (vToBeDelete!=null){
+					G.removeVertex(vToBeDelete.getName());
+				}				
+			}while (vToBeDelete!=null);
+		} //while each model
+		return G;
 	}
 }

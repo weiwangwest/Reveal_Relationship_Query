@@ -13,7 +13,7 @@ public class JenaPerformTestSmallDatanq {
 		// append the dataset report to lines of table 2.
 		JenaPerformTestDatanq.pathToDataFiles = "/home/wang/myDocuments/UniKoblenz/STAR/";
 		Timer.tick("example.nq");
-		Graph G = Graph.loadDatasetEntitiesFromNQFile(JenaPerformTestDatanq.pathToDataFiles	+ "example.nq");
+		Graph G = JenaPerformTestDatanq.generateGraphFromEntitiesOfNQFile(JenaPerformTestDatanq.pathToDataFiles	+ "example.nq");
 		JenaPerformTestDatanq.Entities = new HashSet<String>(); // a list of entities
 		JenaPerformTestDatanq.Entities.addAll(G.V.keySet());		
 		//do performance test 3 types(queries with 2, 3, 4 entities respectively), 3 queries/type, 10 runs/query

@@ -166,7 +166,7 @@ public class GraphTest {
 	public void testFindBestSteinerTreeForSpecificExample1() throws Exception {
 					for (int run = 0; run < 10000; run++) {
 						JenaPerformTestDatanq.pathToDataFiles = "/home/wang/myDocuments/UniKoblenz/STAR/";
-						Graph g = Graph.loadDatasetEntitiesFromNQFile(JenaPerformTestDatanq.pathToDataFiles	+ "example.nq");
+						Graph g = JenaPerformTestDatanq.generateGraphFromEntitiesOfNQFile(JenaPerformTestDatanq.pathToDataFiles	+ "example.nq");
 						String[] requiredVertices=new String[3];						  
 						requiredVertices[2]="http://example.org/bob/";
 						requiredVertices[1]="http://xmlns.com/foaf/0.1/Person";
