@@ -4,11 +4,15 @@ import graph.Vertex;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.zip.GZIPInputStream;
 
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.query.Dataset;
@@ -19,7 +23,7 @@ import output.Timer;
 import output.WikiTable;
 
 public class JenaPerformTestDatanq {
-	public static String pathToDataFiles="";
+	public static String pathToDataFiles="/data/";
 	static HashSet <String> Entities; // a list of entities
 	static long Numberoftriples;
 	static HashSet<String>DistinctRdfsSubclassOfStmtsSet;	//column 1	
@@ -203,14 +207,12 @@ public class JenaPerformTestDatanq {
 		Timer.stop("");		
 	}
 	public static void main(String args[]) throws Exception{
-		//JenaPerformTestDatanq.pathToDataFiles = "/home/wang/myDocuments/UniKoblenz/STAR/temp/";
-		JenaPerformTestDatanq.pathToDataFiles = "/home/wang//myDocuments/UniKoblenz/STAR/data/";
 		getEntitiesList_OverviewOfDataSet();
 	}
 	// load dataset into a graph from a nq file
 	public static Graph generateGraphFromStmtsOfNQFile(String fileName){
 		Graph G = new Graph();
-		Dataset dataset = RDFDataMgr.loadDataset(	fileName, RDFLanguages.NQUADS);
+		Dataset dataset = RDFDataMgr.loadDataset(fileName, RDFLanguages.NQUADS);
 		Iterator<String> it = dataset.listNames();
 		while (it.hasNext()) {
 			Model tim = dataset.getNamedModel(it.next());
@@ -233,11 +235,27 @@ public class JenaPerformTestDatanq {
 			}
 		}
 		return G;
+	}	
+	public void unGunzipFile(String compressedFile, String decompressedFile) {
+		byte[] buffer = new byte[1024];
+		try {
+			FileInputStream fileIn = new FileInputStream(compressedFile);
+			GZIPInputStream gZIPInputStream = new GZIPInputStream(fileIn);
+			FileOutputStream fileOutputStream = new FileOutputStream(decompressedFile);
+			int bytes_read;
+			while ((bytes_read = gZIPInputStream.read(buffer)) > 0) {
+				fileOutputStream.write(buffer, 0, bytes_read);
+			}
+			gZIPInputStream.close();
+			fileOutputStream.close();
+			System.out.println("The file was decompressed successfully!");
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
 	}
-	// load big dataset into a graph from a nq file
-	public static Graph generateGraphFromEntitiesOfBigNQFile(String fileName) throws Exception{
+	public static Graph generateGraphFromEntitiesOfGzipBigNQFile(String gzipFileName) throws Exception{
 		Graph G=new Graph();
-		BufferedReader bigFileReader = new BufferedReader(new FileReader(new File(fileName)));
+		BufferedReader bigFileReader = new BufferedReader(new InputStreamReader( new GZIPInputStream(new FileInputStream(gzipFileName))));
 		PrintStream partFileWriter=null;		
 		String line;
 		int fileId=0;
@@ -249,7 +267,7 @@ public class JenaPerformTestDatanq {
 			}
 			if (line!=null){
 				fileId ++;
-				partFileWriter=new PrintStream(fileName+".part"+String.valueOf(fileId));
+				partFileWriter=new PrintStream(gzipFileName+".part");
 				for (int i=1; i<500 && line!=null; i++){
 					if (i==1) {
 						partFileWriter.print(line);
@@ -266,7 +284,45 @@ public class JenaPerformTestDatanq {
 					partFileWriter.print("\n"+line);
 				}
 				partFileWriter.close();
-				Graph part=generateGraphFromEntitiesOfNQFile(fileName+".part"+String.valueOf(fileId)); //load dataset from nq.part
+				Graph part=generateGraphFromEntitiesOfNQFile(gzipFileName+".part"); //load dataset from nq.part
+				G.addAll(part);	//merge the dataset into G					
+			}
+		}while (line!=null);
+		bigFileReader.close();
+		return G;
+	}	// load big dataset into a graph from a nq file
+	public static Graph generateGraphFromEntitiesOfBigNQFile(String fileName) throws Exception{
+		Graph G=new Graph();
+		BufferedReader bigFileReader = new BufferedReader(new FileReader(new File(fileName)));
+		PrintStream partFileWriter=null;		
+		String line;
+		int fileId=0;
+		do{	//divide file into small 500 lines temp.nq
+			line = bigFileReader.readLine();
+			if (line!=null && !line.endsWith("> .")){
+				System.err.println(line);
+				assert(false);
+			}
+			if (line!=null){
+				fileId ++;
+				partFileWriter=new PrintStream(fileName+".part");
+				for (int i=1; i<500 && line!=null; i++){
+					if (i==1) {
+						partFileWriter.print(line);
+					}else{
+						partFileWriter.print("\n"+line);
+					}
+					line = bigFileReader.readLine(); 
+					if (line!=null && !line.endsWith("> .")){
+						System.err.println(line);
+						assert(false);
+					}
+				}
+				if (line!=null){
+					partFileWriter.print("\n"+line);
+				}
+				partFileWriter.close();
+				Graph part=generateGraphFromEntitiesOfNQFile(fileName+".part"); //load dataset from nq.part
 				G.addAll(part);	//merge the dataset into G					
 			}
 		}while (line!=null);

@@ -11,7 +11,6 @@ public class JenaPerformTestSmallDatanq {
 	public static void main(String[] args) throws Exception {
 		Timer.start(null);
 		// append the dataset report to lines of table 2.
-		JenaPerformTestDatanq.pathToDataFiles = "/home/wang/myDocuments/UniKoblenz/STAR/";
 		Timer.tick("example.nq");
 		Graph G = JenaPerformTestDatanq.generateGraphFromEntitiesOfNQFile(JenaPerformTestDatanq.pathToDataFiles	+ "example.nq");
 		JenaPerformTestDatanq.Entities = new HashSet<String>(); // a list of entities

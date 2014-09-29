@@ -20,8 +20,6 @@ public class JenaPerformTestBigDatanq {
 	public static void main(String[] args) throws Exception {		
 	
 		Timer.start(null);		
-		//pathToDataFiles="/data/";
-		JenaPerformTestDatanq.pathToDataFiles="/home/wang/myDocuments/UniKoblenz/STAR/data/";
 		//append the dataset report to lines of table 2.
 		for (int  i=2; i<=2; i++){	//todo: i<=6
 			Timer.tick("data-0_"+i+".nq");
