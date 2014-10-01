@@ -32,14 +32,14 @@ public class SimpleTest {
 		G.addEdge("Arnold Schwarzenegger", "actor", "type", 0.95);		
 		G.addEdge("Angela Merkel", "Germany", "chancellorOf", 0.96);		
 		G.print();
-		G.printVerticesStastistics();
+		G.printVerticesStastisticsTree();
 		G.printEdgesStastistics();
 		System.out.println("--------test: is it a tree?----------\n"+Graph.isATree(G));
 
 		System.out.println("\n\n**********2. The Breath First Spanning Tree***************");
 		Graph g=G.getBreathFirstSpanningTree(G.V, G.E);
 		g.printTree(g);
-		G.printVerticesStastistics();
+		G.printVerticesStastisticsTree();
 		g.printEdgesStastistics();
 		System.out.println("--------test: is it a tree?----------\n"+Graph.isATree(g));
 		
@@ -51,7 +51,7 @@ public class SimpleTest {
 		VPrime.put("Germany", G.V.get("Germany"));
 		Graph T=G.getFirstSteinerTree(VPrime); //find Steiner tree.
 		T.printTree(T);
-		T.printVerticesStastistics();
+		T.printVerticesStastisticsTree();
 		T.printEdgesStastistics();
 		System.out.println("--------test: is it a tree?----------\n"+Graph.isATree(T));
 
@@ -99,7 +99,7 @@ public class SimpleTest {
 		T.E.add(G.getDirectedEdge("Arnold Schwarzenegger", "politician"));
 //		G.getDirectedEdge("Arnold Schwarzenegger", "politician").setInTree(true);
 		T.printTree(T);
-		T.printVerticesStastistics();
+		T.printVerticesStastisticsTree();
 		T.printEdgesStastistics();
 		System.out.println("--------test: is it a tree?----------\n"+Graph.isATree(T));
 
@@ -107,7 +107,7 @@ public class SimpleTest {
 		T=G.improveTree(T);	//Of course T has been changed during improveTree(T)
 		System.out.println("\n\n*******************The Final tree*******************");
 		T.printTree(T);
-		T.printVerticesStastistics();
+		T.printVerticesStastisticsTree();
 		T.printEdgesStastistics();
 		System.out.println("--------test: is it a tree?----------\n"+Graph.isATree(T));
 	}

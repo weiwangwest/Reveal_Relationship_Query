@@ -54,13 +54,17 @@ public class Graph {
 				return steinerTree;
 			}
 	 }
+	 private boolean containsEdge(Edge e){
+		 return  (e.src.edges.contains(e) || (e.dst.edges.contains(e)));
+	 }
 	 public boolean contains(Object o){
 		 boolean result =false;
 		 if (o instanceof Vertex){
 			 result=this.V.containsKey(((Vertex)o).getName());
 		 }
 		 if (o instanceof Edge){
-			 result=this.E.contains((Edge) o);
+			 Edge e= (Edge)o;
+			  return (this.containsEdge(e));
 		 }
 		 return result;
 	 }
@@ -83,9 +87,9 @@ public class Graph {
 			while (!adjacents.isEmpty()){
 				Vertex v=adjacents.poll();
 				vistedVertices.put(v.getName(), v); //visit the current vertex
-				v.setVisited(true);
-				for (Edge e: v.edges){
-					if (e.isContainedBy(this)){
+				v.setVisited(true);	//setVisited 
+				for (Edge e: v.edges){	
+					if (e.isContainedByTree(this)){
 						Vertex another=e.getAnotherVertex(v);
 						if (!another.isVisited()){
 							adjacents.add(another);
@@ -140,7 +144,7 @@ public class Graph {
 		}
 		int treeEdges=0;	//calculate the number of tree edges
 		for (Edge e: E){
-			if (!e.isContainedBy(this)){
+			if (!e.isContainedByTree(this)){
 				System.err.println("Edge not in tree: ");
 				e.print();
 				return false;
@@ -166,26 +170,35 @@ public class Graph {
 	}
 	public boolean addEdge(String from, String to, String type, double weight){ 
 		boolean feasible=true;
-		if (!V.containsKey(from)){
-			System.err.println("addEdge: Couldn't find "+from);
+		Vertex src=V.get(from);
+		Vertex dst=V.get(to);
+		Edge e=new Edge(src, dst, type, weight);
+		if (src==null){
+			System.err.println("addEdge: Couldn't find src: "+from);
 			feasible=false;
+		}else{
+			if (src.edges.contains(e)){
+				System.err.println("addEdge: edge already exists in src's adjacents:" + e.toString());
+				feasible=false;			
+			}			
 		}
-		if (!V.containsKey(to)){
-			System.err.println("addEdge: Couldn't find "+to);
+		if (dst==null){
+			System.err.println("addEdge: Couldn't find dst: "+to);
 			feasible=false;
+		}else{
+			if (dst.edges.contains(e)){
+				System.err.println("addEdge: edge already exists in dst's adjacents:" + e.toString());
+				feasible=false;
+			}
 		}
+		// to be done: remove the following if
 		if (from.equals(to)){
 			System.err.println("addEdge: loop edge connecting single vertex: "+to);
 			feasible=false;			
 		}
-		Edge e=new Edge(V.get(from), V.get(to), type, weight);		
-		if (E.contains(e)){
-			System.err.println("addEdge: same type edge already exists:" + e.toString());
-			feasible=false;			
-		}
 		if (feasible){
-			V.get(from).addAdjacency(e);				//For Steiner tree problem, degree=in degree+out degree
-			V.get(to).addAdjacency(e);				//For Steiner tree problem, degree=in degree+out degree
+			src.addAdjacency(e);				//For Steiner tree problem, degree=in degree+out degree
+			dst.addAdjacency(e);				//For Steiner tree problem, degree=in degree+out degree
 			E.add(e);
 		}
 		return feasible;
@@ -196,8 +209,8 @@ public class Graph {
 		boolean result=true;
 		if (obj instanceof Graph){
 			Graph g=(Graph)obj;
-			result = result && this.E.size()==g.E.size() && this.E.containsAll(g.E);
 			result = result && this.V.equals(g.V); 
+			result = result && this.E.size()==g.E.size() && this.E.containsAll(g.E); // to be done, containsAll() has low performance.
 		}else{
 			result=false;
 		}
@@ -215,7 +228,7 @@ public class Graph {
 	public void removeVertexFromTree(String name, Graph T){
 		Vertex v=T.V.get(name);
 		for (Edge e: v.edges){
-			if (e.isContainedBy(T)){
+			if (e.isContainedByTree(T)){
 //				e.setInTree(false);		//mark the edge as not in tree
 				T.E.remove(e);		//remove the edge from Tree, please don't care about the other vertex of the edge in the tree.
 			}
@@ -267,12 +280,29 @@ public class Graph {
 			}
 		}
 	}
-	public void printVerticesStastistics(){	//print overall analysis on edges types.
+	public void printVerticesStastisticsGraph(){	//print overall analysis on edges types.
 		int maxDegree=-1;
 		for (Vertex v: V.values()){
 			int degree=0;
 			for (Edge e: v.edges){
-					if (E.contains(e)){
+					if (this.contains(e)){
+						degree ++;
+					}
+			}
+			if (degree>maxDegree){
+				maxDegree=degree;
+			}
+		}
+		System.out.println("-------------VerticesStastistics-------------");
+		System.out.println("Number of vertices: "+V.size());
+		System.out.println("Max degree="+maxDegree);
+	}	
+	public void printVerticesStastisticsTree(){	//print overall analysis on edges types.
+		int maxDegree=-1;
+		for (Vertex v: V.values()){
+			int degree=0;
+			for (Edge e: v.edges){
+					if (this.E.contains(e)){
 						degree ++;
 					}
 			}
@@ -286,7 +316,7 @@ public class Graph {
 	}
 	public void printEdgesStastistics(){	//print overall analysis on edges.
 		double totalWeight=0;
-		Map<String, Integer> edgeTypes=new HashMap<String, Integer>();
+		Map<String, Integer> edgeTypes=new TreeMap<String, Integer>();
 		for (Edge e: E){
 				totalWeight += e.getWeight();
 				String type=e.getType();
@@ -310,11 +340,11 @@ public class Graph {
 		}
 		dst.V.put(v.name, v);	//add this vertex
 		for (Edge e: v.edges){	//add edges
-			if (e.isContainedBy(src) && !dst.E.contains(e)){
+			if (e.isContainedByTree(src) && !dst.E.contains(e)){
 				dst.E.add(e);
 			}
 		}
-		Map<String, Vertex> adjacents=v.getAdjacentsInGraph(src);
+		Map<String, Vertex> adjacents=v.getAdjacentsInTree(src);
 		for(Vertex child: adjacents.values()){	
 			getTreebyVertex(src, child, dst);					//recursive call
 		}
@@ -338,7 +368,7 @@ public class Graph {
 					dst=g.V.get(String.valueOf(JenaPerformTestDatanq.randInt(0, nVertices-1)));
 					e1=new Edge(src, dst, "", 1);
 					e2=new Edge(dst, src, "", 1);
-				}while (g.E.contains(e1) || g.E.contains(e2)||src==dst);
+				}while (g.contains(e1) || g.contains(e2)||src==dst);
 				g.addEdge(e1.getSource().getName(), e1.getDestin().getName(), "", 1);
 			}					
 		}else{	//start from a whole graph, subtract edges from it
@@ -436,16 +466,16 @@ public class Graph {
 	public static LoosePath findNextLoosePathNew(Graph T){
 		LoosePath lp=null;
 		for (Vertex v: T.V.values()){
-			if (v.getUnvisitedDegreeInGraph(T)==1){	//find a leaf in the unvisited subtree
+			if (v.getUnvisitedDegreeInTree(T)==1){	//find a leaf in the unvisited subtree
 				do{
-					Edge e=v.getAnyUnvisitedEdgeInGraph(T);
+					Edge e=v.getAnyUnvisitedEdgeInTree(T);
 					if (lp==null){
 						lp=new LoosePath();
 					}
 					lp.add(e);
 					e.setVisited(true);
 					v=e.getAnotherVertex(v);
-				}while(!(v.isTerminal()||v.getDegreeInGraph(T)>=3));
+				}while(!(v.isTerminal()||v.getDegreeInTree(T)>=3));
 				break; 
 			}
 		}
@@ -507,12 +537,12 @@ public class Graph {
 		}
 		return Q;
 	}
-	public double getWeight(Graph T){
+	public double getWeightTree(Graph T){
 		double weight=0;
 		for (Edge edge: T.E){
-			if (edge.isContainedBy(T)){
+//			if (edge.isContainedByTree(T)){
 				weight += edge.getWeight();
-			}
+//			}
 		}
 		return weight;
 	}
@@ -685,7 +715,7 @@ public class Graph {
 			TPrime.clearVisited();
 			//System.out.println("----Tprime-------");
 			//TPrime.printTree(TPrime);		//To do: why is not Tprime A tree again?
-			if (getWeight(TPrime) < getWeight(T)){	// if w(T ) < w(T ) then
+			if (getWeightTree(TPrime) < getWeightTree(T)){	// if w(T ) < w(T ) then
 				 T = TPrime;	// T = T
 				// System.out.println("-----T is replaced by another lighter weighted tree: replacement No. "+ numOfIter++);
 				 Q = getLoosePaths (T); //	 Q = LP (T ) //ordered by decreasing weight
@@ -784,14 +814,14 @@ public class Graph {
 			if (v.isContainedBy(T)){
 				System.out.println("Vertex: "+v.getName()+", degree="+v.getDegreeInGraph(T));
 				for (Edge e: v.edges){
-					if (e.isContainedBy(T)){						
+					if (e.isContainedByTree(T)){						
 						System.out.print("\t\t");
 						e.print();
 					}
 				}
 			}
 		}
-		System.out.println("total weight of edges: "+this.getWeight(T));
+		System.out.println("total weight of edges: "+this.getWeightTree(T));
 	}
 
 	public String printTreeToString(Graph T){
@@ -802,14 +832,14 @@ public class Graph {
 			if (v.isContainedBy(T)){				
 				result.append("Vertex: "+v.getName()+", degree="+v.getDegreeInGraph(T)+"\n");
 				for (Edge e: v.edges){
-					if (e.isContainedBy(T)){						
+					if (e.isContainedByTree(T)){						
 						result.append("\t\t");
 						result.append(e.toString()+"\n");
 					}
 				}
 			}
 		}
-		result.append("total weight of edges: "+this.getWeight(T)+"\n");
+		result.append("total weight of edges: "+this.getWeightTree(T)+"\n");
 		return result.toString();
 	}	
 	public void setEdgeWeight(String from, String to, String name, double weight){
@@ -853,7 +883,7 @@ public class Graph {
 		// make aritificial steiner tree.
 		//System.out.println("make aritificial steiner tree.");
 		Graph T = (new ArtificialSteinerTree(VPrime)).getTree();
-		if (!Graph.isATree(T)){
+		if (!T.isATree(T)){
 			System.err.println("artificialSteinerTree is not a tree!");
 			T.print();
 			System.exit(1);

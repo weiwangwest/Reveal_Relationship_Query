@@ -68,7 +68,16 @@ public class Vertex implements Comparable<Vertex> {
 	public int getUnvisitedDegreeInGraph(Graph g){
 		int unvisited=0;
 		for (Edge e: this.edges){
-			if (g.E.contains(e) && !e.isVisited()){
+			if (g.contains(e) && !e.isVisited()){
+				unvisited ++;
+			}
+		}
+		return unvisited;
+	}
+	public int getUnvisitedDegreeInTree(Graph T){
+		int unvisited=0;
+		for (Edge e: this.edges){
+			if (T.E.contains(e) && !e.isVisited()){
 				unvisited ++;
 			}
 		}
@@ -100,9 +109,17 @@ public class Vertex implements Comparable<Vertex> {
 		}
 		return result;
 	}
+	public Edge getAnyUnvisitedEdgeInTree(Graph T){
+		for (Edge e: this.edges){
+			if (T.E.contains(e)&& !e.isVisited()){
+				return e;
+			}
+		}
+		return null;
+	}
 	public Edge getAnyUnvisitedEdgeInGraph(Graph g){
 		for (Edge e: this.edges){
-			if (g.E.contains(e)&& !e.isVisited()){
+			if (g.contains(e)&& !e.isVisited()){
 				return e;
 			}
 		}
@@ -140,7 +157,7 @@ public class Vertex implements Comparable<Vertex> {
 	}
 	//return all vertices in T connected to this vertex.
 	//otherwise return an empty map;
-	public Map<String, Vertex> getAdjacentsInGraph(Graph g){
+	public Map<String, Vertex> getAdjacentsInTree(Graph g){
 		Map<String, Vertex> adj=new TreeMap<String, Vertex>();
 		for (Edge e: this.edges){
 			if (g.E.contains(e)){
@@ -176,6 +193,15 @@ public class Vertex implements Comparable<Vertex> {
 		int degree=0;
 		for (Edge e: this.edges){
 			if (g.contains(e)){
+				degree ++;
+			}
+		}
+		return degree;
+	}
+	public int getDegreeInTree(Graph T){
+		int degree=0;
+		for (Edge e: this.edges){
+			if (T.E.contains(e)){
 				degree ++;
 			}
 		}

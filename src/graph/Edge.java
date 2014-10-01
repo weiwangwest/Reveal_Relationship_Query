@@ -83,6 +83,9 @@ public class Edge {
 	public String toString(){
 		return new String(src.getName()+" -- ("+nameOfType+", "+weight+") --> "+dst.getName());
 	}
+	public boolean isContainedByTree(Graph t){
+		return t.E.contains(this);
+	}
 	public boolean isContainedBy(Graph g) {
 		return g.contains(this);
 	}

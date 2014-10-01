@@ -7,7 +7,7 @@ import java.util.*;
 import output.Timer;
 
 
-public class JenaPerformTestSmallDatanq {
+public class JenaPerformTestExampleDatanq {
 	public static void main(String[] args) throws Exception {
 		Timer.start(null);
 		// append the dataset report to lines of table 2.

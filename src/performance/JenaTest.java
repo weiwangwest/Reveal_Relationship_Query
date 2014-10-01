@@ -13,7 +13,7 @@ public class JenaTest {
 		Graph G = new Graph();
 		System.out.println("\n\n**********1. G: the Original Graph***************");
 		Dataset dataset = RDFDataMgr.loadDataset(
-						"file:///home//wang//myDocuments//UniKoblenz//STAR//subclass.nq",
+						"/data/subclass.nq",
 						RDFLanguages.NQUADS);
 		Iterator<String> it = dataset.listNames();
 		while (it.hasNext()) {

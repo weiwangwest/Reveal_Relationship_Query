@@ -42,14 +42,14 @@ public class JenaTestExamplenq {
 		G.setEdgeWeight("http://example.org/bob/foaf.rdf#me", "http://xmlns.com/foaf/0.1/Person", null, 0.8);
 
 		G.print();
-		G.printVerticesStastistics();
+		G.printVerticesStastisticsGraph();
 		G.printEdgesStastistics();
 		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(G));
 
 		System.out.println("\n\n**********2. The Breath First Spanning Tree***************");
 		Graph g = G.getBreathFirstSpanningTree(G.V, G.E);
 		g.printTree(g);
-		G.printVerticesStastistics();
+		G.printVerticesStastisticsGraph();
 		g.printEdgesStastistics();
 		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(g));
 
@@ -65,7 +65,7 @@ public class JenaTestExamplenq {
 		// find first Steiner tree.
 		Graph T = G.getFirstSteinerTree(VPrime); 
 		T.printTree(T);
-		T.printVerticesStastistics();
+		T.printVerticesStastisticsTree();
 		T.printEdgesStastistics();
 		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(T));
 
@@ -75,7 +75,7 @@ public class JenaTestExamplenq {
 		
 		System.out.println("\n\n*******************The Final tree*******************");
 		T.printTree(T);
-		T.printVerticesStastistics();
+		T.printVerticesStastisticsTree();
 		T.printEdgesStastistics();
 		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(T));
 	}

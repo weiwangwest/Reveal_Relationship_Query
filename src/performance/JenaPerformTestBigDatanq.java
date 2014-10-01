@@ -21,7 +21,7 @@ public class JenaPerformTestBigDatanq {
 	
 		Timer.start(null);		
 		//append the dataset report to lines of table 2.
-		for (int  i=2; i<=2; i++){	//todo: i<=6
+		for (int  i=2; i<=3; i++){	//todo: i<=6
 			Timer.tick("data-0_"+i+".nq");
 			Graph G = JenaPerformTestDatanq.generateGraphFromEntitiesOfNQFile(JenaPerformTestDatanq.pathToDataFiles+"data-0_"+i+".nq");			
 			JenaPerformTestDatanq.Entities=new HashSet<String>();	// a list of entities

@@ -154,7 +154,7 @@ public class GraphTest {
 						// since isolated vertex has been removed from the graph when it's created, following case should be considered as a unit test failure.
 						// if there is at least one isolated vertex in the tree.
 						//assertTrue("failed to find a tree,  about to select another set of entities", );
-						if (T.getWeight(T) >= 500){
+						if (T.getWeightTree(T) >= 500){
 							fail("failed to find a tree,  about to select another set of entities");
 						}
 					}							
@@ -176,7 +176,7 @@ public class GraphTest {
 							assertTrue(" could not be found in the tree." ,T.V.containsKey(vertexStr));
 						}
 						assertTrue("The result is not a tree!", Graph.isATree(T));
-						if (Double.compare(T.getWeight(T), 500) > 0){
+						if (Double.compare(T.getWeightTree(T), 500) > 0){
 							fail("failed to find a tree,  about to select another set of entities");
 						}
 						System.out.println("\n"+String.valueOf(run)+"\n" + T.printTreeToString(T));

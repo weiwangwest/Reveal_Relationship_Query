@@ -75,7 +75,7 @@ public class JenaTestSubClassnq {
 		// find Steiner tree.
 		Graph T = G.getArtificialSteinerTree(VPrime); 
 		T.printTree(T);
-		T.printVerticesStastistics();
+		T.printVerticesStastisticsTree();
 		T.printEdgesStastistics();
 		Timer.tick("--------test: is it a tree?----------\n"+ Graph.isATree(T));
 		
@@ -85,7 +85,7 @@ public class JenaTestSubClassnq {
 	
 		Timer.tick("The Final tree");
 		T.printTree(T);
-		T.printVerticesStastistics();
+		T.printVerticesStastisticsTree();
 		T.printEdgesStastistics();
 		Timer.tick("--------test: is it a tree?----------\n"+ Graph.isATree(T));
 		
@@ -104,7 +104,7 @@ public class JenaTestSubClassnq {
 				});
 		Timer.tick("3. The Final tree");
 		T.printTree(T);
-		T.printVerticesStastistics();
+		T.printVerticesStastisticsTree();
 		T.printEdgesStastistics();
 		Timer.tick("--------test: is it a tree?----------\n"+ Graph.isATree(T));		
 		Timer.stop("");
