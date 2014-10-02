@@ -1,21 +1,10 @@
 package performance;
 import graph.Graph;
-
-import java.io.File;
 import java.io.PrintStream;
-import java.math.BigInteger;
 import java.util.*;
-
-import com.hp.hpl.jena.rdf.model.*;
-import com.hp.hpl.jena.query.Dataset;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFLanguages;
-
 import output.Timer;
-import output.WikiTable;
 
 public class JenaPerformTestBigDatanq {
-
 	
 	public static void main(String[] args) throws Exception {		
 	

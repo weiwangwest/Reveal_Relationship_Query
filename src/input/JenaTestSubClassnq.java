@@ -1,4 +1,4 @@
-package performance;
+package input;
 import graph.Graph;
 import graph.Vertex;
 
@@ -9,6 +9,7 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
 
 import output.Timer;
+import performance.JenaPerformTestDatanq;
 
 
 public class JenaTestSubClassnq {

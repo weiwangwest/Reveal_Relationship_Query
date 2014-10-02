@@ -1,4 +1,4 @@
-package performance;
+package input;
 import graph.Graph;
 import graph.Vertex;
 

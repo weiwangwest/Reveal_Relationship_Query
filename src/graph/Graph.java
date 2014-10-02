@@ -125,39 +125,6 @@ public class Graph {
 		}
 		return result;
 	}
-	public boolean isATreeOld(){
-		//Every node and edge must be in Tree.
-		//every node has at least one tree edge
-		//every edge has its dst and src connected to a tree node
-		//|V|=|E|+1;
-		int treeVertices=0;			//calculate the number of tree vertices
-		for (Vertex v: V.values()){
-			if (!v.isContainedBy(this)){
-				System.err.println("Vertex not in tree: "+v.getName());
-				return false;
-			}
-			if (v.getDegreeInGraph(this)==0 && V.size()>1){
-				System.err.println("Vertex has no edge connected: "+v.getName());
-				return false;	
-			}
-			treeVertices++;
-		}
-		int treeEdges=0;	//calculate the number of tree edges
-		for (Edge e: E){
-			if (!e.isContainedByTree(this)){
-				System.err.println("Edge not in tree: ");
-				e.print();
-				return false;
-			}
-			if (!e.getSource().isContainedBy(this)||!e.getDestin().isContainedBy(this)){
-				System.err.println("Edge connects vertex/verticis that can not be found in the tree:");
-				e.print();
-				return false;
-			}
-			treeEdges ++;
-		}
-		return (treeVertices-1==treeEdges);
-	}
 	public boolean addVertex(String name){	//create a Vertex instance
 		boolean result=true;
 		if (V.containsKey(name)){
@@ -789,8 +756,8 @@ public class Graph {
 	}
 	
 
-	public void clearVisited(){
-		for (Edge e: this.E){
+	public void clearVisited(){ 
+		for (Edge e: this.E){	//to do: two many loops, constrain call by Trees only.
 			e.setVisited(false);
 		}
 		for (Vertex v: this.V.values()){
@@ -842,14 +809,14 @@ public class Graph {
 		result.append("total weight of edges: "+this.getWeightTree(T)+"\n");
 		return result.toString();
 	}	
-	public void setEdgeWeight(String from, String to, String name, double weight){
+	public void setEdgeWeight(String from, String to, String name, double weight){ //to do: test this method.
 		Edge edge=new Edge(from ==null?null:V.get(from), to==null?null:V.get(to), name, weight);
 		boolean found=false;
-		for (Edge e: this.E){
-			if (e.equals(edge)){
-				e.weight=weight;
-				found = true;
-			}
+		Vertex src=this.V.get(from);
+		int idx;
+		if (src!=null && (idx=src.edges.indexOf(edge))!=-1){
+			found=true;
+			src.edges.get(idx).weight=weight;
 		}
 		if (!found){
 			System.err.println("edge not found:");
@@ -857,11 +824,11 @@ public class Graph {
 			System.exit(-1);
 		}
 	}
-	public void addAll(Graph g){	//merge g into current graph 
+	public void addAll(Graph g){ 
 		for (String name: g.V.keySet()){
 			this.addVertex(name);
 		}
-		for (Edge e: g.E){
+		for (Edge e: g.E){	//to do: too many loops
 			this.addEdge(e.getSource().getName(), e.getDestin().getName(), e.getType(), e.getWeight());
 		}
 	}

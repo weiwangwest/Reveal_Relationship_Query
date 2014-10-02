@@ -268,7 +268,7 @@ public class JenaPerformTestDatanq {
 			if (line!=null){
 				fileId ++;
 				partFileWriter=new PrintStream(gzipFileName+".part");
-				for (int i=1; i<500 && line!=null; i++){
+				for (int i=1; i < 2500  && line!=null; i++){
 					if (i==1) {
 						partFileWriter.print(line);
 					}else{
