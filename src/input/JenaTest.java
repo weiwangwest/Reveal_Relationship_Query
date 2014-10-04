@@ -55,7 +55,7 @@ public class JenaTest {
 
 		System.out.println("\n\n********3. T: The original steiner tree,	 VPrime: the set of terminal nodes***************");
 		G.clearAll(); // clear all tags.
-		TreeMap<String, Vertex> VPrime = new TreeMap<String, Vertex>(); // store terminal nodes in VPrime.
+		HashMap<String, Vertex> VPrime = new HashMap<String, Vertex>(); // store terminal nodes in VPrime.
 		//VPrime.put("http://example.org/bob/foaf.rdf", G.V.get("http://example.org/bob/foaf.rdf"));
 		//VPrime.put("http://example.org/bob/", G.V.get("http://example.org/bob/"));
 		//VPrime.put("http://xmlns.com/foaf/0.1/Person", G.V.get("http://xmlns.com/foaf/0.1/Person"));

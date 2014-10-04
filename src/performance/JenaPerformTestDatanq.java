@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.math.BigInteger;
@@ -253,51 +254,13 @@ public class JenaPerformTestDatanq {
 			ex.printStackTrace();
 		}
 	}
-	public static Graph generateGraphFromEntitiesOfGzipBigNQFile(String gzipFileName) throws Exception{
+	public static Graph generateGraphFromInputStream(InputStream inputStream, String fileName) throws IOException {
 		Graph G=new Graph();
-		BufferedReader bigFileReader = new BufferedReader(new InputStreamReader( new GZIPInputStream(new FileInputStream(gzipFileName))));
+		BufferedReader bigFileReader = new BufferedReader(new InputStreamReader(inputStream));
 		PrintStream partFileWriter=null;		
 		String line;
 		int fileId=0;
-		do{	//divide file into small 500 lines temp.nq
-			line = bigFileReader.readLine();
-			if (line!=null && !line.endsWith("> .")){
-				System.err.println(line);
-				assert(false);
-			}
-			if (line!=null){
-				fileId ++;
-				partFileWriter=new PrintStream(gzipFileName+".part");
-				for (int i=1; i < 2500  && line!=null; i++){
-					if (i==1) {
-						partFileWriter.print(line);
-					}else{
-						partFileWriter.print("\n"+line);
-					}
-					line = bigFileReader.readLine(); 
-					if (line!=null && !line.endsWith("> .")){
-						System.err.println(line);
-						assert(false);
-					}
-				}
-				if (line!=null){
-					partFileWriter.print("\n"+line);
-				}
-				partFileWriter.close();
-				Graph part=generateGraphFromEntitiesOfNQFile(gzipFileName+".part"); //load dataset from nq.part
-				G.addAll(part);	//merge the dataset into G					
-			}
-		}while (line!=null);
-		bigFileReader.close();
-		return G;
-	}	// load big dataset into a graph from a nq file
-	public static Graph generateGraphFromEntitiesOfBigNQFile(String fileName) throws Exception{
-		Graph G=new Graph();
-		BufferedReader bigFileReader = new BufferedReader(new FileReader(new File(fileName)));
-		PrintStream partFileWriter=null;		
-		String line;
-		int fileId=0;
-		do{	//divide file into small 500 lines temp.nq
+		do{	//divide file into small 2500 lines temp.nq
 			line = bigFileReader.readLine();
 			if (line!=null && !line.endsWith("> .")){
 				System.err.println(line);
@@ -306,7 +269,7 @@ public class JenaPerformTestDatanq {
 			if (line!=null){
 				fileId ++;
 				partFileWriter=new PrintStream(fileName+".part");
-				for (int i=1; i<500 && line!=null; i++){
+				for (int i=1; i<2500 && line!=null; i++){ 
 					if (i==1) {
 						partFileWriter.print(line);
 					}else{
@@ -322,12 +285,27 @@ public class JenaPerformTestDatanq {
 					partFileWriter.print("\n"+line);
 				}
 				partFileWriter.close();
-				Graph part=generateGraphFromEntitiesOfNQFile(fileName+".part"); //load dataset from nq.part
-				G.addAll(part);	//merge the dataset into G					
+				try{
+					Graph gPart=generateGraphFromEntitiesOfNQFile(fileName+".part"); //load dataset from nq.part
+					G.addAll(gPart);	//merge the dataset into G, catch outOfMemory exception		
+				}catch(Exception e){
+					new File(fileName+".part").renameTo(new File(fileName+".part."+fileId+".toadd"));
+					PrintStream err=new PrintStream(fileName+".part."+fileId+".stacktrace");
+					err.println(e.getMessage());
+					e.printStackTrace(err);
+					err.close();
+				}
 			}
 		}while (line!=null);
 		bigFileReader.close();
 		return G;
+	}
+	public static Graph generateGraphFromEntitiesOfGzipBigNQFile(String gzipFileName) throws Exception{
+		return generateGraphFromInputStream(new GZIPInputStream(new FileInputStream(gzipFileName)), gzipFileName);
+	}	
+	// load big dataset into a graph from a nq file
+	public static Graph generateGraphFromEntitiesOfBigNQFile(String fileName) throws Exception{
+		return  generateGraphFromInputStream(new FileInputStream(fileName), fileName);
 	}
 	// load dataset into a graph from a nq file, except for 
 	public static Graph generateGraphFromEntitiesOfNQFile(String fileName) throws Exception{

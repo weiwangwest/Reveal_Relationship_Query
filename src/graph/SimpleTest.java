@@ -45,7 +45,7 @@ public class SimpleTest {
 		
 		System.out.println("\n\n********3. T: The original steiner tree,	 VPrime: the set of terminal nodes***************");
 		G.clearAll();		//clear all tags.
-		TreeMap<String, Vertex> VPrime=new TreeMap<String, Vertex>(); //store terminal nodes in VPrime.
+		HashMap<String, Vertex> VPrime=new HashMap<String, Vertex>(); //store terminal nodes in VPrime.
 		VPrime.put("Max Planck", G.V.get("Max Planck"));
 		VPrime.put("Arnold Schwarzenegger", G.V.get("Arnold Schwarzenegger"));
 		VPrime.put("Germany", G.V.get("Germany"));

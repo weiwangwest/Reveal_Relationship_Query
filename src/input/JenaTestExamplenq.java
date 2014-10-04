@@ -57,7 +57,7 @@ public class JenaTestExamplenq {
 		G.clearAll(); // clear all tags.
 		
 		// store terminal(required)  nodes in VPrime.
-		TreeMap<String, Vertex> VPrime = new TreeMap<String, Vertex>(); 
+		HashMap<String, Vertex> VPrime = new HashMap<String, Vertex>(); 
 		VPrime.put("http://example.org/bob/foaf.rdf", G.V.get("http://example.org/bob/foaf.rdf"));
 		VPrime.put("http://example.org/bob/", G.V.get("http://example.org/bob/"));
 		VPrime.put("http://xmlns.com/foaf/0.1/Person", G.V.get("http://xmlns.com/foaf/0.1/Person"));

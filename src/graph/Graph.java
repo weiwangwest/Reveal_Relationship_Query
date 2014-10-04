@@ -7,17 +7,17 @@ import java.util.*;
 import performance.JenaPerformTestDatanq;
 
 public class Graph {
-	public TreeMap<String, Vertex> V;
+	public HashMap<String, Vertex> V;
 	 public ArrayList<Edge> E;
 
-	public Graph getArtificialSteinerTree(TreeMap<String, Vertex> vPrime) {
+	public Graph getArtificialSteinerTree(HashMap<String, Vertex> vPrime) {
 		return new ArtificialSteinerTree(vPrime).getTree();
 	}
 	 private class ArtificialSteinerTree {
 		 Graph steinerTree=null;
 		 String edgeType;
 		 private boolean toBeRemoved;
-		   public ArtificialSteinerTree(TreeMap<String, Vertex>VPrime){
+		   public ArtificialSteinerTree(HashMap<String, Vertex>VPrime){
 				//create result tree
 			   steinerTree=new Graph();
 			   edgeType="aritificialSteinerTreeEdge: "+new java.rmi.dgc.VMID().toString();
@@ -70,17 +70,17 @@ public class Graph {
 	 }
 		
 	 public Graph(){
-		V=new TreeMap<String, Vertex>();
+		V=new HashMap<String, Vertex>();
 		E=new ArrayList<Edge>();
 	}
-	public Graph(TreeMap<String, Vertex> v,  ArrayList<Edge> e){	
+	public Graph(HashMap<String, Vertex> v,  ArrayList<Edge> e){	
 		this.V=v;
 		this.E=e;
 	}
 	//Breadth-First traverse the graph to see whether all vertices are reachable.
 	public boolean isConnected(){
 		this.clearVisited();
-		TreeMap<String, Vertex> vistedVertices=new TreeMap<String, Vertex>();
+		HashMap<String, Vertex> vistedVertices=new HashMap<String, Vertex>();
 		LinkedList<Vertex> adjacents=new LinkedList<Vertex>();
 		if (this.E.size()>0){	//at least one edge
 			adjacents.add(this.E.get(0).src);			
@@ -114,7 +114,7 @@ public class Graph {
 		}
 		//build End vertices set from edges, and it should equal V
 		if (E.size()>0){
-			TreeMap<String, Vertex> vFromEdges=new TreeMap<String, Vertex>();
+			HashMap<String, Vertex> vFromEdges=new HashMap<String, Vertex>();
 			for (Edge e: this.E){
 				vFromEdges.put(e.src.getName(), e.src);
 				vFromEdges.put(e.dst.getName(),e.dst);
@@ -283,7 +283,7 @@ public class Graph {
 	}
 	public void printEdgesStastistics(){	//print overall analysis on edges.
 		double totalWeight=0;
-		Map<String, Integer> edgeTypes=new TreeMap<String, Integer>();
+		Map<String, Integer> edgeTypes=new HashMap<String, Integer>();
 		for (Edge e: E){
 				totalWeight += e.getWeight();
 				String type=e.getType();
@@ -605,7 +605,7 @@ public class Graph {
 	public Graph clone(){
 		Graph temp=new Graph();
 		temp.E=(ArrayList<Edge>) this.E.clone();
-		temp.V=(TreeMap<String, Vertex>) this.V.clone();
+		temp.V=(HashMap<String, Vertex>) this.V.clone();
 		return temp;
 	}
 	/** this method changes Tree T by replacing loose path lp with another shorter loose path.
@@ -698,7 +698,7 @@ public class Graph {
 	 */
 	public Graph getBreathFirstSpanningTree(Map<String, Vertex> V, ArrayList<Edge> E){
 		LinkedList<Vertex> S=new LinkedList<Vertex>();	//vertices of T
-		TreeMap<String, Vertex> VPrime=new TreeMap<String, Vertex>();		//working vertices
+		HashMap<String, Vertex> VPrime=new HashMap<String, Vertex>();		//working vertices
 		Iterator<String> iterator=V.keySet().iterator();
 		String name=iterator.next();
 		Vertex vPrime=V.get(name);		//v1 is the root of the spanning tree
@@ -824,7 +824,7 @@ public class Graph {
 			System.exit(-1);
 		}
 	}
-	public void addAll(Graph g){ 
+	public void addAll(Graph g) throws Exception{ 
 		for (String name: g.V.keySet()){
 			this.addVertex(name);
 		}
@@ -842,7 +842,7 @@ public class Graph {
 		this.clearAll(); 
 		// store terminal nodes in VPrime.
 		//System.out.println("store terminal nodes in VPrime.");
-		TreeMap<String, Vertex> VPrime = new TreeMap<String, Vertex>();
+		HashMap<String, Vertex> VPrime = new HashMap<String, Vertex>();
 		for (String terminal: Terminals){
 			VPrime.put(terminal, this.V.get(terminal));
 			this.V.get(terminal).setTerminal(true);	//setTerminal

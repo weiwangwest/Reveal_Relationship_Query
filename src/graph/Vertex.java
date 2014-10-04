@@ -134,14 +134,14 @@ public class Vertex implements Comparable<Vertex> {
 		}
 		return null;
 	}
-	public boolean isTerminal(TreeMap<String, Vertex> VPrime){
+	public boolean isTerminal(HashMap<String, Vertex> VPrime){
 		//return (VPrime.get(this.name)==this);
 		return VPrime.containsKey(this.getName());
 	}
-	public boolean isSteiner(TreeMap<String, Vertex> VPrime, Graph T){
+	public boolean isSteiner(HashMap<String, Vertex> VPrime, Graph T){
 		return this.isContainedBy(T) && !this.isTerminal(VPrime); 
 	}
-	public boolean isFixed(TreeMap<String, Vertex> VPrime, Graph T){
+	public boolean isFixed(HashMap<String, Vertex> VPrime, Graph T){
 		if (this.isContainedBy(T)){	//in Steiner Tree
 			return (this.isTerminal(VPrime) || this.getDegreeInGraph(T)>=3);
 		}else{
@@ -158,7 +158,7 @@ public class Vertex implements Comparable<Vertex> {
 	//return all vertices in T connected to this vertex.
 	//otherwise return an empty map;
 	public Map<String, Vertex> getAdjacentsInTree(Graph g){
-		Map<String, Vertex> adj=new TreeMap<String, Vertex>();
+		Map<String, Vertex> adj=new HashMap<String, Vertex>();
 		for (Edge e: this.edges){
 			if (g.E.contains(e)){
 				if (e.src!=this){
@@ -176,7 +176,7 @@ public class Vertex implements Comparable<Vertex> {
 		Map<String, Vertex> adj=null;
 		for (Edge e: this.edges){
 			if (adj==null){
-				adj=new TreeMap<String, Vertex>();
+				adj=new HashMap<String, Vertex>();
 			}
 			if (e.src!=this){
 				adj.put(e.src.getName(), e.src);

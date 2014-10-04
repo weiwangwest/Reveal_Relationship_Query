@@ -64,7 +64,7 @@ public class JenaTestSubClassnq {
 		// clear all tags.
 		G.clearAll(); 
 		// store terminal nodes in VPrime.
-		TreeMap<String, Vertex> VPrime = new TreeMap<String, Vertex>(); 
+		HashMap<String, Vertex> VPrime = new HashMap<String, Vertex>(); 
 		VPrime.put("http://rdf.data-vocabulary.org/#Organization", G.V.get("http://rdf.data-vocabulary.org/#Organization"));
 		VPrime.put("http://aims.fao.org/aos/geopolitical.owl#territory", G.V.get("http://aims.fao.org/aos/geopolitical.owl#territory"));
 //		<http://aims.fao.org/aos/geopolitical.owl#territory> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://aims.fao.org/aos/geopolitical.owl#area> <http://aims.fao.org/aos/geopolitical.owl> .
