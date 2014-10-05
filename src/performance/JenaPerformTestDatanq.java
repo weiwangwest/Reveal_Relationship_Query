@@ -25,7 +25,7 @@ import output.WikiTable;
 
 public class JenaPerformTestDatanq {
 	public static String pathToDataFiles="/data/";
-	static HashSet <String> Entities; // a list of entities
+	public static HashSet <String> Entities; // a list of entities
 	static long Numberoftriples;
 	static HashSet<String>DistinctRdfsSubclassOfStmtsSet;	//column 1	
 	static HashSet<String>DistinctRdfClassTypeExplicitClassDefinitionSet;	//column2
