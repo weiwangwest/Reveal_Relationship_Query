@@ -41,7 +41,7 @@ public class Graph {
 						System.err.println("outer class object can't be accessed");
 						System.exit(0);
 					}
-					Graph.this.removeEdge(e.src.toString(), e.dst.toString(), e.getType());
+					Graph.this.removeEdge(e.src.toString(), e.dst.toString(), e.getTypeString());
 				}
 			}
 			@Override
@@ -286,7 +286,7 @@ public class Graph {
 		Map<String, Integer> edgeTypes=new HashMap<String, Integer>();
 		for (Edge e: E){
 				totalWeight += e.getWeight();
-				String type=e.getType();
+				String type=e.getTypeString();
 				if (edgeTypes.containsKey(type)){	//existing type, count++
 					edgeTypes.put(type, (edgeTypes.get(type)+1));
 				}else{		//new type, count=1
@@ -351,7 +351,7 @@ public class Graph {
 				do{
 					e=g.E.get(JenaPerformTestDatanq.randInt(0, g.E.size()-1));
 				}while (e.src.getDegree()==1 || e.dst.getDegree()==1);
-				g.removeEdge(e.src.getName(), e.dst.getName(), e.getType());
+				g.removeEdge(e.src.getName(), e.dst.getName(), e.getTypeString());
 			}
 		}
 		return g;
@@ -829,7 +829,7 @@ public class Graph {
 			this.addVertex(name);
 		}
 		for (Edge e: g.E){	//to do: too many loops
-			this.addEdge(e.getSource().getName(), e.getDestin().getName(), e.getType(), e.getWeight());
+			this.addEdge(e.getSource().getName(), e.getDestin().getName(), e.getTypeString(), e.getWeight());
 		}
 	}
 	public static boolean isATree(Graph graph) {

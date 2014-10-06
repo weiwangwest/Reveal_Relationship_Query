@@ -1,10 +1,12 @@
 package graph;
 
+import fundamental.Mapper;
+
 public class Edge {
 	//todo: private members, public methods.
 	Vertex src;
 	Vertex dst;
-	String nameOfType;
+	int nameOfType;
 	double weight;
 	boolean isVisited;
 	public Vertex getAnotherVertex(Vertex v){
@@ -33,7 +35,7 @@ public class Edge {
 	public Edge(Vertex src, Vertex dst, String type, double w){
 		this.src=src;
 		this.dst=dst;
-		nameOfType=type;
+		nameOfType=Mapper.defaultMap.put(type);
 		weight=w;
 		isVisited=false;
 	}
@@ -56,16 +58,17 @@ public class Edge {
 			if (e.getDestin()!=null){
 				result = result && this.dst.equals(e.getDestin());
 			}
-			if (e.getType()!=null){
-				result = result && this.nameOfType.equals(e.getType());
-			}
+			result = result && (this.nameOfType==e.getType());
 		}else{
 			result=false;
 		}
 		return result;
 	}
-	public String getType(){
+	public int getType(){
 		return nameOfType;
+	}
+	public String getTypeString(){
+		return Mapper.defaultMap.getKey(this.getType());
 	}
 	public boolean isVisited(){
 		return this.isVisited;
@@ -77,11 +80,11 @@ public class Edge {
 		return weight;
 	}
 	public void print(){		
-		System.out.println(src.getName()+" -- ("+nameOfType+", "+weight+") --> "+dst.getName());
+		System.out.println(src.getName()+" -- ("+this.getTypeString()+", "+weight+") --> "+dst.getName());
 	}
 	@Override
 	public String toString(){
-		return new String(src.getName()+" -- ("+nameOfType+", "+weight+") --> "+dst.getName());
+		return new String(src.getName()+" -- ("+this.getTypeString()+", "+weight+") --> "+dst.getName());
 	}
 	public boolean isContainedByTree(Graph t){
 		return t.E.contains(this);
