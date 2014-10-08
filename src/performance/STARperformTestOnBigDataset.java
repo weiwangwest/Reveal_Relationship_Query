@@ -1,12 +1,14 @@
 package performance;
 import graph.Graph;
+import graph.Vertex;
 
-import java.io.File;
+import input.DatasetLoaderWithJena;
+
 import java.io.PrintStream;
 import java.util.*;
 import output.Timer;
 
-public class JenaPerformTestBigDatanq {
+public class STARperformTestOnBigDataset {
 	
 	public static void main(String[] args) throws Exception {		
 	
@@ -16,12 +18,14 @@ public class JenaPerformTestBigDatanq {
 		for (int  i=0; i<=6; i++){	//todo: i<=6
 			Timer.tick("data-"+i+".nq.gz");
 			try{
-				 G.addAll(JenaPerformTestDatanq.generateGraphFromEntitiesOfGzipBigNQFile(JenaPerformTestDatanq.pathToDataFiles+"data-"+i+".nq.gz"));
+				 G.addAll(DatasetLoaderWithJena.generateGraphFromEntitiesOfGzipBigNQFile(DatasetLoaderWithJena.pathToDataFiles+"data-"+i+".nq.gz"));
 				 if (i<2){	//skip query on data-0, 1
 					 continue;
 				 }
-				JenaPerformTestDatanq.Entities=new HashSet<String>();	// a list of entities
-				JenaPerformTestDatanq.Entities.addAll(G.V.keySet()); 
+				DatasetLoaderWithJena.Entities=new HashSet<String>();	// a list of entities
+				for (Vertex v: G.V.values()){
+					DatasetLoaderWithJena.Entities.add(v.getNameString());					
+				}
 				for (int currentQueryType = 0; currentQueryType < 3; currentQueryType++) {
 					QUERYID:
 					for (int queryId = 0; queryId < 3; queryId++) {
@@ -30,7 +34,7 @@ public class JenaPerformTestBigDatanq {
 							continue;
 						}
 */						// generate entities for current query
-						String[] requiredVertices = JenaPerformTestDatanq.selectEntities(currentQueryType + 2); // for qtyp1 2 URIs, qtyp2 3 URIs, qtyp3 4 URIs
+						String[] requiredVertices = DatasetLoaderWithJena.selectEntities(currentQueryType + 2); // for qtyp1 2 URIs, qtyp2 3 URIs, qtyp3 4 URIs
 						double runTimeOfCurrentQueryId = 0;
 						long runTimes[]=new long[11]; //the last element is saved for average time.
 						String queryRecordTxt="";

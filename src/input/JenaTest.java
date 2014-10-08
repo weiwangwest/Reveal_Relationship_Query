@@ -22,11 +22,11 @@ public class JenaTest {
 			// add Vertices
 			ResIterator r = tim.listSubjects();
 			while (r.hasNext()) {
-				G.addVertex(r.next().toString());
+				G.addVertex(new Vertex(r.next().toString()));
 			}
 			NodeIterator n = tim.listObjects();
 			while (n.hasNext()) {
-				G.addVertex(n.next().toString());
+				G.addVertex(new Vertex(n.next().toString()));
 			}
 
 			// add edges
@@ -55,7 +55,7 @@ public class JenaTest {
 
 		System.out.println("\n\n********3. T: The original steiner tree,	 VPrime: the set of terminal nodes***************");
 		G.clearAll(); // clear all tags.
-		HashMap<String, Vertex> VPrime = new HashMap<String, Vertex>(); // store terminal nodes in VPrime.
+		HashMap<Integer, Vertex> VPrime = new HashMap<Integer, Vertex>(); // store terminal nodes in VPrime.
 		//VPrime.put("http://example.org/bob/foaf.rdf", G.V.get("http://example.org/bob/foaf.rdf"));
 		//VPrime.put("http://example.org/bob/", G.V.get("http://example.org/bob/"));
 		//VPrime.put("http://xmlns.com/foaf/0.1/Person", G.V.get("http://xmlns.com/foaf/0.1/Person"));

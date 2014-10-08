@@ -13,7 +13,7 @@ public class JenaTestExamplenq {
 		Graph G = new Graph();
 		System.out.println("\n\n**********1. G: the Original Graph***************");
 		Dataset dataset = RDFDataMgr.loadDataset(
-						"file:///home//wang//myDocuments//UniKoblenz//STAR//example.nq",
+						"/data/example.nq",
 						RDFLanguages.NQUADS);
 		Iterator<String> it = dataset.listNames();
 		while (it.hasNext()) {
@@ -22,11 +22,11 @@ public class JenaTestExamplenq {
 			// add Vertices
 			ResIterator r = tim.listSubjects();
 			while (r.hasNext()) {
-				G.addVertex(r.next().toString());
+				G.addVertex(new Vertex(r.next().toString()));
 			}
 			NodeIterator n = tim.listObjects();
 			while (n.hasNext()) {
-				G.addVertex(n.next().toString());
+				G.addVertex(new Vertex(n.next().toString()));
 			}
 
 			// add edges

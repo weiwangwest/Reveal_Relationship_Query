@@ -1,4 +1,4 @@
-package performance;
+package input;
 import graph.Graph;
 import graph.Vertex;
 
@@ -23,7 +23,7 @@ import org.apache.jena.riot.RDFLanguages;
 import output.Timer;
 import output.WikiTable;
 
-public class JenaPerformTestDatanq {
+public class DatasetLoaderWithJena {
 	public static String pathToDataFiles="/data/";
 	public static HashSet <String> Entities; // a list of entities
 	static long Numberoftriples;
@@ -110,10 +110,11 @@ public class JenaPerformTestDatanq {
 		
 		//Generate a list of entities (subject or object URIs -- so no blank nodes, no literals, no RDF class types)
 		if (isEntity(stmt.getSubject())){
-			Entities.add(stmt.getSubject().toString());
+			System.out.println(stmt.getSubject());
+			Entities.add(new Vertex(stmt.getSubject().toString()).toString());
 		}
 		if (isEntity(stmt.getObject())){
-			Entities.add(stmt.getObject().toString());
+			Entities.add(new Vertex(stmt.getObject().toString()).toString());
 		}
 		
 		 //Total number of triples / NQuads in data set
@@ -210,33 +211,6 @@ public class JenaPerformTestDatanq {
 	public static void main(String args[]) throws Exception{
 		getEntitiesList_OverviewOfDataSet();
 	}
-	// load dataset into a graph from a nq file
-	public static Graph generateGraphFromStmtsOfNQFile(String fileName){
-		Graph G = new Graph();
-		Dataset dataset = RDFDataMgr.loadDataset(fileName, RDFLanguages.NQUADS);
-		Iterator<String> it = dataset.listNames();
-		while (it.hasNext()) {
-			Model tim = dataset.getNamedModel(it.next());
-	
-			// add Vertices from the dataset file
-			ResIterator r = tim.listSubjects();
-			while (r.hasNext()) {
-				G.addVertex(r.next().toString());
-			}
-			NodeIterator n = tim.listObjects();
-			while (n.hasNext()) {
-				G.addVertex(n.next().toString());
-			}
-	
-			// add edges from the dataset file
-			StmtIterator s = tim.listStatements();
-			while (s.hasNext()) {
-				Statement stmt = s.next();
-				G.addEdge(stmt.getSubject().toString(), stmt.getObject().toString(), stmt.getPredicate().toString(), 1);
-			}
-		}
-		return G;
-	}	
 	public void unGunzipFile(String compressedFile, String decompressedFile) {
 		byte[] buffer = new byte[1024];
 		try {
@@ -307,7 +281,7 @@ public class JenaPerformTestDatanq {
 	public static Graph generateGraphFromEntitiesOfBigNQFile(String fileName) throws Exception{
 		return  generateGraphFromInputStream(new FileInputStream(fileName), fileName);
 	}
-	// load dataset into a graph from a nq file, except for 
+	// load entities and relationships into a graph from a dataset nq file 
 	public static Graph generateGraphFromEntitiesOfNQFile(String fileName) throws Exception{
 		Graph G = new Graph();
 		Dataset dataset = RDFDataMgr.loadDataset(fileName, RDFLanguages.NQUADS);
@@ -315,23 +289,23 @@ public class JenaPerformTestDatanq {
 		while (it.hasNext()) {
 			Model tim = dataset.getNamedModel(it.next());
 			
-			// add Vertices from the subjects entities
+			// add subjects entities into Vertices
 			ResIterator r = tim.listSubjects();			
 			while (r.hasNext()) {
 				Resource rsc=r.next();	//add entities only into the Graph
 				if (isEntity(rsc)){
-					G.addVertex(rsc.toString());
+					G.addVertex(new Vertex(rsc.toString()));
 				}
 			}
-			// add Vertices from the  objects entities
+			// add objects entities into Vertices
 			NodeIterator n = tim.listObjects();
 			while (n.hasNext()) {
 				RDFNode rdfnd=n.next();
 				if (isEntity(rdfnd)){
-					G.addVertex(rdfnd.toString());						
+					G.addVertex(new Vertex(rdfnd.toString()));						
 				}
 			}
-			// add edges (connecting two entities) from statements,  get statistics
+			// add  statements connecting two entities into edges
 			StmtIterator s = tim.listStatements();
 			while (s.hasNext()) {
 				Statement stmt = s.next();
@@ -339,21 +313,37 @@ public class JenaPerformTestDatanq {
 					G.addEdge(stmt.getSubject().toString(), stmt.getObject().toString(), stmt.getPredicate().toString(), 1);
 				}
 			}
-			//remove isolated entities
-			Vertex vToBeDelete;
-			do{
-				vToBeDelete=null;
-				for (Vertex v: G.V.values()){
-					if (v.getDegree()==0){
-						vToBeDelete=v;
-						break;
-					}
-				}
-				if (vToBeDelete!=null){
-					G.removeVertex(vToBeDelete.getName());
-				}				
-			}while (vToBeDelete!=null);
+			G.removeIsolatedVertices();
 		} //while each model
 		return G;
 	}
+
+	// load dataset into a graph from a nq file
+	public static Graph generateGraphFromStmtsOfNQFile(String fileName){
+		Graph G = new Graph();
+		Dataset dataset = RDFDataMgr.loadDataset(fileName, RDFLanguages.NQUADS);
+		Iterator<String> it = dataset.listNames();
+		while (it.hasNext()) {
+			Model tim = dataset.getNamedModel(it.next());
+	
+			// add Vertices from the dataset file
+			ResIterator r = tim.listSubjects();
+			while (r.hasNext()) {
+				G.addVertex(new Vertex(r.next().toString()));
+			}
+			NodeIterator n = tim.listObjects();
+			while (n.hasNext()) {
+				G.addVertex(new Vertex(n.next().toString()));
+			}
+	
+			// add edges from the dataset file
+			StmtIterator s = tim.listStatements();
+			while (s.hasNext()) {
+				Statement stmt = s.next();
+				G.addEdge(stmt.getSubject().toString(), stmt.getObject().toString(), stmt.getPredicate().toString(), 1);
+			}
+			G.removeIsolatedVertices();
+		}
+		return G;
+	}	
 }

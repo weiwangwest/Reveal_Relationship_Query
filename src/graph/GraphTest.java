@@ -2,6 +2,8 @@ package graph;
 
 import static org.junit.Assert.*;
 
+import input.DatasetLoaderWithJena;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.PriorityQueue;
@@ -10,7 +12,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import performance.JenaPerformTestDatanq;
 
 public class GraphTest {
 
@@ -110,14 +111,14 @@ public class GraphTest {
 						System.out.println("nVertices"+nVertices+"nEdges:"+nEdges+"nTerminals:"+nTerminals+"run:"+run);
 				
 						Graph g = Graph.produceRandomConnectedUndirectedGraph(nVertices, nEdges);
-						HashSet <String> requiredVerticesSet=new HashSet<String>();
+						HashSet <Integer> requiredVerticesSet=new HashSet<Integer>();
 						while (requiredVerticesSet.size()<nTerminals){
-							requiredVerticesSet.add(String.valueOf(JenaPerformTestDatanq.randInt(0, nVertices-1)));
+							requiredVerticesSet.add(DatasetLoaderWithJena.randInt(0, nVertices-1));
 						}
 						String[] requiredVertices=new String[nTerminals];
 						int i=0;
-						for (String vStr: requiredVerticesSet){
-							requiredVertices[i++]=vStr;							
+						for (Integer vId: requiredVerticesSet){
+							requiredVertices[i++]=Vertex.vertexMap.getKey(vId);							
 						}
 				
 /*							Graph g = new Graph();
@@ -148,7 +149,7 @@ public class GraphTest {
 						//g.printTree(T);	//to do: to be deleted
 						//check result
 						for (String vertexStr: requiredVertices){
-							assertTrue(" could not be found in the tree." ,T.V.containsKey(vertexStr));
+							assertTrue(" could not be found in the tree." ,T.V.containsKey(Vertex.vertexMap.getValue(vertexStr)));
 						}
 						assertTrue("The result is not a tree!", Graph.isATree(T));
 						// since isolated vertex has been removed from the graph when it's created, following case should be considered as a unit test failure.
@@ -165,7 +166,7 @@ public class GraphTest {
 	@Test
 	public void testFindBestSteinerTreeForSpecificExample1() throws Exception {
 					for (int run = 0; run < 10000; run++) {
-						Graph g = JenaPerformTestDatanq.generateGraphFromEntitiesOfNQFile(JenaPerformTestDatanq.pathToDataFiles	+ "example.nq");
+						Graph g = DatasetLoaderWithJena.generateGraphFromEntitiesOfNQFile(DatasetLoaderWithJena.pathToDataFiles	+ "example.nq");
 						String[] requiredVertices=new String[3];						  
 						requiredVertices[2]="http://example.org/bob/";
 						requiredVertices[1]="http://xmlns.com/foaf/0.1/Person";
@@ -173,7 +174,7 @@ public class GraphTest {
 						//System.out.println("run:"+run);				
 						Graph T = g.findBestSteinerTree(requiredVertices);
 						for (String vertexStr: requiredVertices){
-							assertTrue(" could not be found in the tree." ,T.V.containsKey(vertexStr));
+							assertTrue(" could not be found in the tree." ,T.V.containsKey(Vertex.vertexMap.getValue(vertexStr)));
 						}
 						assertTrue("The result is not a tree!", Graph.isATree(T));
 						if (Double.compare(T.getWeightTree(T), 500) > 0){

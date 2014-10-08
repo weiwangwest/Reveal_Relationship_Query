@@ -3,6 +3,7 @@ package graph;
 import fundamental.Mapper;
 
 public class Edge {
+	static Mapper edgeMap=new Mapper();
 	//todo: private members, public methods.
 	Vertex src;
 	Vertex dst;
@@ -35,7 +36,7 @@ public class Edge {
 	public Edge(Vertex src, Vertex dst, String type, double w){
 		this.src=src;
 		this.dst=dst;
-		nameOfType=Mapper.defaultMap.put(type);
+		nameOfType=edgeMap.put(type);
 		weight=w;
 		isVisited=false;
 	}
@@ -49,26 +50,21 @@ public class Edge {
 	public boolean equals(Object obj){
 		//Suppose: any two vertices must have at most one edge of  a given name of type at most.
 		// Any edge has but only one Edge instance.
-		boolean result=true;
-		if (obj instanceof Edge){
-			Edge e=(Edge)obj;
-			if (e.getSource()!=null){
-				result = result && this.src.equals(e.getSource()); 
-			}
-			if (e.getDestin()!=null){
-				result = result && this.dst.equals(e.getDestin());
-			}
-			result = result && (this.nameOfType==e.getType());
-		}else{
-			result=false;
+		if (!(obj instanceof Edge)){
+			return false;
 		}
-		return result;
+		if (this==obj){
+			return true;
+		}
+		Edge that=(Edge)obj;
+		return  that.getSource().getId()==this.getSource().getId() 
+				&&that.getDestin().getId()==this.getDestin().getId();
 	}
 	public int getType(){
 		return nameOfType;
 	}
 	public String getTypeString(){
-		return Mapper.defaultMap.getKey(this.getType());
+		return edgeMap.getKey(this.getType());
 	}
 	public boolean isVisited(){
 		return this.isVisited;
@@ -80,11 +76,11 @@ public class Edge {
 		return weight;
 	}
 	public void print(){		
-		System.out.println(src.getName()+" -- ("+this.getTypeString()+", "+weight+") --> "+dst.getName());
+		System.out.println(src.getNameString()+" -- ("+this.getTypeString()+", "+weight+") --> "+dst.getNameString());
 	}
 	@Override
 	public String toString(){
-		return new String(src.getName()+" -- ("+this.getTypeString()+", "+weight+") --> "+dst.getName());
+		return new String(src.getNameString()+" -- ("+this.getTypeString()+", "+weight+") --> "+dst.getNameString());
 	}
 	public boolean isContainedByTree(Graph t){
 		return t.E.contains(this);

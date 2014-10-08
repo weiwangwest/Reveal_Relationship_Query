@@ -1,12 +1,16 @@
 package graph;
 
+import input.DatasetLoaderWithJena;
+
 import java.util.*;
 
-import performance.JenaPerformTestDatanq;
+import fundamental.Mapper;
+
 public class Vertex implements Comparable<Vertex> {
+	static public Mapper vertexMap=new Mapper();
 	//a way to switch between the current sorting method used for compareTo, which is used by PriorityQueue
 	//remember each time before we operate on Qi  (i=1,2,...), we must set CURRENT_IDEX to i.
-	String name;
+	int id;
 	boolean isTerminal;
 	boolean isVisited;
 	private static int CURRENT_INDEX;		 
@@ -47,7 +51,7 @@ public class Vertex implements Comparable<Vertex> {
 		}
 	}
 	public Vertex(String name){
-		this.name=name;
+		this.id=vertexMap.put(name);
 		this.isTerminal=false;
 		edges=new LinkedList<Edge>();
 	}
@@ -134,14 +138,14 @@ public class Vertex implements Comparable<Vertex> {
 		}
 		return null;
 	}
-	public boolean isTerminal(HashMap<String, Vertex> VPrime){
+	public boolean isTerminal(HashMap<Integer, Vertex> VPrime){
 		//return (VPrime.get(this.name)==this);
-		return VPrime.containsKey(this.getName());
+		return VPrime.containsKey(this.getId());
 	}
-	public boolean isSteiner(HashMap<String, Vertex> VPrime, Graph T){
+	public boolean isSteiner(HashMap<Integer, Vertex> VPrime, Graph T){
 		return this.isContainedBy(T) && !this.isTerminal(VPrime); 
 	}
-	public boolean isFixed(HashMap<String, Vertex> VPrime, Graph T){
+	public boolean isFixed(HashMap<Integer, Vertex> VPrime, Graph T){
 		if (this.isContainedBy(T)){	//in Steiner Tree
 			return (this.isTerminal(VPrime) || this.getDegreeInGraph(T)>=3);
 		}else{
@@ -149,22 +153,22 @@ public class Vertex implements Comparable<Vertex> {
 		}
 	}
 	public void print(){
-		System.out.println("Vertex: "+this.getName());
+		System.out.println("Vertex: "+this.getNameString());
 	}
 	@Override
 	public String toString(){
-		return this.getName();
+		return this.getNameString();
 	}
 	//return all vertices in T connected to this vertex.
 	//otherwise return an empty map;
-	public Map<String, Vertex> getAdjacentsInTree(Graph g){
-		Map<String, Vertex> adj=new HashMap<String, Vertex>();
+	public Map<Integer, Vertex> getAdjacentsInTree(Graph g){
+		Map<Integer, Vertex> adj=new HashMap<Integer, Vertex>();
 		for (Edge e: this.edges){
 			if (g.E.contains(e)){
 				if (e.src!=this){
-					adj.put(e.src.getName(), e.src);
+					adj.put(e.src.getId(), e.src);
 				}else{ 
-					adj.put(e.dst.getName(), e.dst);
+					adj.put(e.dst.getId(), e.dst);
 				}
 			}
 		}
@@ -172,16 +176,16 @@ public class Vertex implements Comparable<Vertex> {
 	}
 	//return all vertices connected to this vertex.
 	//otherwise return null;
-	public Map<String, Vertex> getAdjacents(){
-		Map<String, Vertex> adj=null;
+	public Map<Integer, Vertex> getAdjacents(){
+		Map<Integer, Vertex> adj=null;
 		for (Edge e: this.edges){
 			if (adj==null){
-				adj=new HashMap<String, Vertex>();
+				adj=new HashMap<Integer, Vertex>();
 			}
 			if (e.src!=this){
-				adj.put(e.src.getName(), e.src);
+				adj.put(e.src.getId(), e.src);
 			}else{
-				adj.put(e.dst.getName(), e.dst);
+				adj.put(e.dst.getId(), e.dst);
 			}
 		}
 		return adj;
@@ -215,15 +219,20 @@ public class Vertex implements Comparable<Vertex> {
 	}
 	@Override
 	public boolean equals(Object obj){		//We suppose: any vertex in a graph has only one Vertex instance.
-		if (obj instanceof Vertex){
-			Vertex v=(Vertex) obj;
-			return this.getName().equals(v.getName());
-		}else{
+		if (!(obj instanceof Vertex)){
 			return false;
 		}
+		if (this==obj){
+			return true;
+		}
+		Vertex that=(Vertex) obj;
+		return (this.getId()==that.getId());
 	}
-	public String getName() {
-		return this.name;
+	public int getId() {
+		return this.id;
+	}
+	public String getNameString(){
+		return vertexMap.getKey(this.id);
 	}
 	public boolean isContainedBy(Graph T){
 		//return T.V.values().contains(this);
@@ -244,7 +253,7 @@ public class Vertex implements Comparable<Vertex> {
 		}
 	}
 	public static void main(String args[]) throws Exception{
-		Graph G = JenaPerformTestDatanq.generateGraphFromEntitiesOfNQFile("/home/wang/myDocuments/UniKoblenz/STAR/"+"example.nq");
+		Graph G = DatasetLoaderWithJena.generateGraphFromEntitiesOfNQFile("/data/example.nq");
 	    Random rand = new Random();
 		for (Vertex v: G.V.values()){		//1: for all v ∈ V do
 				v.d1=rand.nextInt((1000-0) + 1) + 0;
@@ -258,13 +267,13 @@ public class Vertex implements Comparable<Vertex> {
 		}
 		while (!(Graph.Q(Q1, Q2, 1)).isEmpty()){
 			Vertex v=Graph.Q(Q1,Q2,1).poll();
-			System.out.println(v.name + "		" +v.d1);
+			System.out.println(v.getNameString() + "		" +v.d1);
 		}
 		System.out.println("---------------------");
 		Vertex.setIdx(2);		
 		while (!Graph.Q(Q1, Q2, 2).isEmpty()){
 			Vertex v=Graph.Q(Q1, Q2, 2).poll();
-			System.out.println(v.name + "		" +v.d2);
+			System.out.println(v.getNameString()+ "		" +v.d2);
 		}
 	}
 }

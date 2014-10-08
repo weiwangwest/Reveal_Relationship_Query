@@ -5,18 +5,18 @@ public class SimpleTest {
 	public static void main(String[] args) {
 		System.out.println("\n\n**********1. G: the Original Graph***************");
 		Graph G=new Graph();
-		G.addVertex("entity");
-		G.addVertex("person");
-		G.addVertex("scientist");
-		G.addVertex("organization unit");
-		G.addVertex("physicist");
-		G.addVertex("politician");
-		G.addVertex("actor");
-		G.addVertex("state");
-		G.addVertex("Max Planck");
-		G.addVertex("Arnold Schwarzenegger");
-		G.addVertex("Germany");
-		G.addVertex("Angela Merkel");
+		G.addVertex(new Vertex("entity"));
+		G.addVertex(new Vertex("person"));
+		G.addVertex(new Vertex("scientist"));
+		G.addVertex(new Vertex("organization unit"));
+		G.addVertex(new Vertex("physicist"));
+		G.addVertex(new Vertex("politician"));
+		G.addVertex(new Vertex("actor"));
+		G.addVertex(new Vertex("state"));
+		G.addVertex(new Vertex("Max Planck"));
+		G.addVertex(new Vertex("Arnold Schwarzenegger"));
+		G.addVertex(new Vertex("Germany"));
+		G.addVertex(new Vertex("Angela Merkel"));
 		G.addEdge("person", "entity", "subClassOf", 0.99);
 		G.addEdge("organization unit", "entity", "subClassOf", 0.99);
 		G.addEdge("scientist", "person", "subClassOf", 0.99);
@@ -46,9 +46,9 @@ public class SimpleTest {
 		System.out.println("\n\n********3. T: The original steiner tree,	 VPrime: the set of terminal nodes***************");
 		G.clearAll();		//clear all tags.
 		HashMap<String, Vertex> VPrime=new HashMap<String, Vertex>(); //store terminal nodes in VPrime.
-		VPrime.put("Max Planck", G.V.get("Max Planck"));
-		VPrime.put("Arnold Schwarzenegger", G.V.get("Arnold Schwarzenegger"));
-		VPrime.put("Germany", G.V.get("Germany"));
+		VPrime.put("Max Planck", G.V.get(Vertex.vertexMap.getValue("Max Planck")));
+		VPrime.put("Arnold Schwarzenegger", G.V.get(Vertex.vertexMap.getValue("Arnold Schwarzenegger")));
+		VPrime.put("Germany", G.V.get(Vertex.vertexMap.getValue("Germany")));
 		Graph T=G.getFirstSteinerTree(VPrime); //find Steiner tree.
 		T.printTree(T);
 		T.printVerticesStastisticsTree();
@@ -59,45 +59,26 @@ public class SimpleTest {
 		G.clearAll();		//clear all tags.
 		T.V.clear();
 		T.E.clear();
-			//manually build the original steiner tree.
-		T.V.put("entity", G.V.get("entity"));
-//		G.V.get("entity").setIsInTree(true);
-		T.V.put("person", G.V.get("person"));
-//		G.V.get("person").setIsInTree(true);
-		T.V.put("scientist", G.V.get("scientist"));
-//		G.V.get("scientist").setIsInTree(true);
-		T.V.put("organization unit", G.V.get("organization unit"));
-//		G.V.get("organization unit").setIsInTree(true);
-		T.V.put("physicist", G.V.get("physicist"));
-//		G.V.get("physicist").setIsInTree(true);
-		T.V.put("politician", G.V.get("politician"));
-//		G.V.get("politician").setIsInTree(true);
-		T.V.put("state", G.V.get("state"));
-//		G.V.get("state").setIsInTree(true);
-		T.V.put("Max Planck", G.V.get("Max Planck"));
-//		G.V.get("Max Planck").setIsInTree(true);
-		T.V.put("Arnold Schwarzenegger", G.V.get("Arnold Schwarzenegger"));
-//		G.V.get("Arnold Schwarzenegger").setIsInTree(true);
-		T.V.put("Germany", G.V.get("Germany"));
-//		G.V.get("Germany").setIsInTree(true);
+
+		//set terminals
+		G.V.get(Vertex.vertexMap.getValue("Max Planck")).setTerminal(true);
+		G.V.get(Vertex.vertexMap.getValue("Arnold Schwarzenegger")).setTerminal(true);
+		G.V.get(Vertex.vertexMap.getValue("Germany")).setTerminal(true);
+		
+		//manually build the original steiner tree.
+		for (String str: "entity,person,scientist,organization unit,physicist,politician,state,Max Planck,Arnold Schwarzenegger,Germany".split(",")){
+			int id=Vertex.vertexMap.getValue(str);
+			T.V.put(id, G.V.get(id));			
+		}
 		T.E.add(G.getDirectedEdge("person", "entity"));
-//		G.getDirectedEdge("person", "entity").setInTree(true);
 		T.E.add(G.getDirectedEdge("organization unit", "entity"));
-//		G.getDirectedEdge("organization unit", "entity").setInTree(true);
 		T.E.add(G.getDirectedEdge("scientist", "person"));
-//		G.getDirectedEdge("scientist", "person").setInTree(true);
 		T.E.add(G.getDirectedEdge("physicist", "scientist"));
-//		G.getDirectedEdge("physicist", "scientist").setInTree(true);
 		T.E.add(G.getDirectedEdge("politician", "person"));
-//		G.getDirectedEdge("politician", "person").setInTree(true);
 		T.E.add(G.getDirectedEdge("state", "organization unit"));
-//		G.getDirectedEdge("state", "organization unit").setInTree(true);
 		T.E.add(G.getDirectedEdge("Germany", "state"));
-//		G.getDirectedEdge("Germany", "state").setInTree(true);
 		T.E.add(G.getDirectedEdge("Max Planck", "physicist"));
-//		G.getDirectedEdge("Max Planck", "physicist").setInTree(true);
 		T.E.add(G.getDirectedEdge("Arnold Schwarzenegger", "politician"));
-//		G.getDirectedEdge("Arnold Schwarzenegger", "politician").setInTree(true);
 		T.printTree(T);
 		T.printVerticesStastisticsTree();
 		T.printEdgesStastistics();

@@ -1,33 +1,36 @@
 package graph;
 
 
+import input.DatasetLoaderWithJena;
+
 import java.util.*;
 
 
-import performance.JenaPerformTestDatanq;
 
 public class Graph {
-	public HashMap<String, Vertex> V;
+	public HashMap<Integer, Vertex> V;
 	 public ArrayList<Edge> E;
 
-	public Graph getArtificialSteinerTree(HashMap<String, Vertex> vPrime) {
+	public Graph getArtificialSteinerTree(HashMap<Integer, Vertex> vPrime) {
 		return new ArtificialSteinerTree(vPrime).getTree();
 	}
 	 private class ArtificialSteinerTree {
 		 Graph steinerTree=null;
 		 String edgeType;
 		 private boolean toBeRemoved;
-		   public ArtificialSteinerTree(HashMap<String, Vertex>VPrime){
+		   public ArtificialSteinerTree(HashMap<Integer, Vertex>VPrime){
 				//create result tree
 			   steinerTree=new Graph();
 			   edgeType="aritificialSteinerTreeEdge: "+new java.rmi.dgc.VMID().toString();
-			   steinerTree.V.putAll(VPrime);
+			   for (Integer key: VPrime.keySet()){
+				   steinerTree.V.put(key, VPrime.get(key));
+			   }
 				int k=0;
-				String previousKey="";
-				for (String key: steinerTree.V.keySet()){
+				Integer previousKey=null;
+				for (Integer key: steinerTree.V.keySet()){
 					if (k!=0){
 						//to do: add only one vertex and one edge into the program space, not two!!!
-						addEdge(V.get(key).getName(), V.get(previousKey).getName(), edgeType, 1000);
+						addEdge(V.get(key).getNameString(), V.get(previousKey).getNameString(), edgeType, 1000);
 						steinerTree.E.add(new Edge(V.get(key), V.get(previousKey), edgeType, 1000));
 					}
 					previousKey=key;
@@ -41,7 +44,7 @@ public class Graph {
 						System.err.println("outer class object can't be accessed");
 						System.exit(0);
 					}
-					Graph.this.removeEdge(e.src.toString(), e.dst.toString(), e.getTypeString());
+					Graph.this.removeEdge(e.src.getId(), e.dst.getId(), e.getTypeString());
 				}
 			}
 			@Override
@@ -60,7 +63,8 @@ public class Graph {
 	 public boolean contains(Object o){
 		 boolean result =false;
 		 if (o instanceof Vertex){
-			 result=this.V.containsKey(((Vertex)o).getName());
+			 Vertex v=(Vertex)o;
+			 result=this.V.containsKey(v.getId());
 		 }
 		 if (o instanceof Edge){
 			 Edge e= (Edge)o;
@@ -70,37 +74,37 @@ public class Graph {
 	 }
 		
 	 public Graph(){
-		V=new HashMap<String, Vertex>();
+		V=new HashMap<Integer, Vertex>();
 		E=new ArrayList<Edge>();
 	}
-	public Graph(HashMap<String, Vertex> v,  ArrayList<Edge> e){	
+	public Graph(HashMap<Integer, Vertex> v,  ArrayList<Edge> e){	
 		this.V=v;
 		this.E=e;
 	}
 	//Breadth-First traverse the graph to see whether all vertices are reachable.
 	public boolean isConnected(){
+		if (this.E.size()==0){ //only one vertex, no edge
+			return (this.V.size()==1);	
+		}
+		//at least one edge
 		this.clearVisited();
-		HashMap<String, Vertex> vistedVertices=new HashMap<String, Vertex>();
+		HashMap<Integer, Vertex> vistedVertices=new HashMap<Integer, Vertex>();
 		LinkedList<Vertex> adjacents=new LinkedList<Vertex>();
-		if (this.E.size()>0){	//at least one edge
-			adjacents.add(this.E.get(0).src);			
-			while (!adjacents.isEmpty()){
-				Vertex v=adjacents.poll();
-				vistedVertices.put(v.getName(), v); //visit the current vertex
-				v.setVisited(true);	//setVisited 
-				for (Edge e: v.edges){	
-					if (e.isContainedByTree(this)){
-						Vertex another=e.getAnotherVertex(v);
-						if (!another.isVisited()){
-							adjacents.add(another);
-						}				
-					}
+		adjacents.add(this.E.get(0).src);			
+		while (!adjacents.isEmpty()){
+			Vertex v=adjacents.poll();
+			vistedVertices.put(v.getId(), v); //visit the current vertex
+			v.setVisited(true);	//setVisited 
+			for (Edge e: v.edges){	
+				if (e.isContainedByTree(this)){
+					Vertex another=e.getAnotherVertex(v);
+					if (!another.isVisited()){
+						adjacents.add(another);
+					}				
 				}
 			}
-			return vistedVertices.equals(this.V);
-		}else{
-			return (this.V.size()==1);	//only one vertex, no edge
 		}
+		return vistedVertices.equals(this.V);
 	}
 	public boolean isATree(){
 		boolean result=true;
@@ -114,10 +118,10 @@ public class Graph {
 		}
 		//build End vertices set from edges, and it should equal V
 		if (E.size()>0){
-			HashMap<String, Vertex> vFromEdges=new HashMap<String, Vertex>();
+			HashMap<Integer, Vertex> vFromEdges=new HashMap<Integer, Vertex>();
 			for (Edge e: this.E){
-				vFromEdges.put(e.src.getName(), e.src);
-				vFromEdges.put(e.dst.getName(),e.dst);
+				vFromEdges.put(e.src.getId(), e.src);
+				vFromEdges.put(e.dst.getId(), e.dst);
 			}
 			if (!vFromEdges.equals(this.V)){
 				result=false;
@@ -125,50 +129,48 @@ public class Graph {
 		}
 		return result;
 	}
-	public boolean addVertex(String name){	//create a Vertex instance
-		boolean result=true;
-		if (V.containsKey(name)){
-			//System.err.println("Vertex name already exists!"); 
-			result=false;
+	public boolean addVertex(Vertex v){
+		if (V.containsValue(v)){
+			return false;
 		}else{
-			V.put(name, new Vertex(name));
-		}
-		return result;
+			V.put(v.getId(), v);
+			return true;
+		}		
 	}
-	public boolean addEdge(String from, String to, String type, double weight){ 
-		boolean feasible=true;
-		Vertex src=V.get(from);
-		Vertex dst=V.get(to);
+	private void addEdge(Edge e){
+		e.getSource().addAdjacency(e);				//For Steiner tree problem, degree=in degree+out degree
+		e.getDestin().addAdjacency(e);				//For Steiner tree problem, degree=in degree+out degree
+		E.add(e);
+	}
+	public boolean addEdge(String from, String to, String type, double weight){
+		Vertex src=V.get(Vertex.vertexMap.getValue(from));
+		Vertex dst=V.get(Vertex.vertexMap.getValue(to));
 		Edge e=new Edge(src, dst, type, weight);
 		if (src==null){
 			System.err.println("addEdge: Couldn't find src: "+from);
-			feasible=false;
+			return false;
 		}else{
 			if (src.edges.contains(e)){
 				System.err.println("addEdge: edge already exists in src's adjacents:" + e.toString());
-				feasible=false;			
+				return false;			
 			}			
 		}
 		if (dst==null){
 			System.err.println("addEdge: Couldn't find dst: "+to);
-			feasible=false;
+			return false;
 		}else{
 			if (dst.edges.contains(e)){
 				System.err.println("addEdge: edge already exists in dst's adjacents:" + e.toString());
-				feasible=false;
+				return false;
 			}
 		}
 		// to be done: remove the following if
 		if (from.equals(to)){
 			System.err.println("addEdge: loop edge connecting single vertex: "+to);
-			feasible=false;			
+			return false;			
 		}
-		if (feasible){
-			src.addAdjacency(e);				//For Steiner tree problem, degree=in degree+out degree
-			dst.addAdjacency(e);				//For Steiner tree problem, degree=in degree+out degree
-			E.add(e);
-		}
-		return feasible;
+		addEdge(new Edge(src, dst, type, weight));
+		return true;
 	}
 	
 	@Override
@@ -183,7 +185,7 @@ public class Graph {
 		}
 		return result;
 	}
-	public void removeEdge(String from, String to, String name){
+	public void removeEdge(int from, int to, String name){
 		Edge e=new Edge(V.get(from), V.get(to), name, 0);
 		V.get(from).edges.remove(e);		//remove edge from source Vertex's edges list
 		V.get(to).edges.remove(e);	//remove edge from dest Vertex's edges list
@@ -192,8 +194,8 @@ public class Graph {
 	public void removeEdgeFromTree(Edge e, Graph T){	
 		T.E.remove(e);	//only remove from the tree
 	}
-	public void removeVertexFromTree(String name, Graph T){
-		Vertex v=T.V.get(name);
+	public void removeVertexFromTree(Integer id, Graph T){
+		Vertex v=T.V.get(id);
 		for (Edge e: v.edges){
 			if (e.isContainedByTree(T)){
 //				e.setInTree(false);		//mark the edge as not in tree
@@ -201,11 +203,11 @@ public class Graph {
 			}
 		}
 //		v.setIsInTree(false);	//mark the vertex as not in tree
-		T.V.remove(name);	//remove the vertex from Tree
+		T.V.remove(id);	//remove the vertex from Tree
 	}
 	
-	public void removeVertex(String name){
-		Vertex v=V.get(name);
+	public void removeVertex(int vId){
+		Vertex v=V.get(vId);
 		for (Edge e: v.edges){
 			if (e.src.equals(v)){		//remove the edge from the other relative vertex's edges list.
 				e.dst.edges.remove(e);
@@ -214,11 +216,14 @@ public class Graph {
 			}
 			E.remove(e);		//remove the edge from the graph's edges list.
 		}
-		V.remove(name);	//remove the vertex from the graph's vertices list.
+		V.remove(vId);	//remove the vertex from the graph's vertices list.
 	}
 	public Edge getDirectedEdge(String start, String end){
+		return getDirectedEdge(new Vertex(start).getId(), new Vertex(end).getId());
+	}
+	public Edge getDirectedEdge(Integer start, Integer end){
 		return V.get(start).getAnyEdgeBetween(V.get(end));
-	}	
+	}
 	public void printTerminals(){
 		System.out.println("---------terminals--------");
 		for (Vertex v: V.values()){
@@ -236,11 +241,11 @@ public class Graph {
 		}
 	}
 	public void print(){	//print each node and its edges
-		Iterator<String> iterator=V.keySet().iterator();
+		Iterator<Integer> iterator=V.keySet().iterator();
 		System.out.println("\n-----------graph----------------");
 		while (iterator.hasNext()){
 			Vertex v=V.get(iterator.next());
-			System.out.println("Vertex: "+v.getName()+", degree="+v.getDegree());
+			System.out.println("Vertex: "+v.getNameString()+", degree="+v.getDegree());
 			for (Edge e: v.edges){
 					System.out.print("\t\t");
 					e.print();
@@ -305,13 +310,13 @@ public class Graph {
 		if (!v.isContainedBy(src) || dst.V.values().contains(v)){		// recurse stop condition
 			return; 	
 		}
-		dst.V.put(v.name, v);	//add this vertex
+		dst.V.put(v.getId(), v);	//add this vertex
 		for (Edge e: v.edges){	//add edges
 			if (e.isContainedByTree(src) && !dst.E.contains(e)){
 				dst.E.add(e);
 			}
 		}
-		Map<String, Vertex> adjacents=v.getAdjacentsInTree(src);
+		Map<Integer, Vertex> adjacents=v.getAdjacentsInTree(src);
 		for(Vertex child: adjacents.values()){	
 			getTreebyVertex(src, child, dst);					//recursive call
 		}
@@ -331,17 +336,17 @@ public class Graph {
 				Edge e1, e2;
 				Vertex src, dst;
 				do{
-					src=g.V.get(String.valueOf(JenaPerformTestDatanq.randInt(0, nVertices-1)));
-					dst=g.V.get(String.valueOf(JenaPerformTestDatanq.randInt(0, nVertices-1)));
+					src=g.V.get(DatasetLoaderWithJena.randInt(0, nVertices-1));
+					dst=g.V.get(DatasetLoaderWithJena.randInt(0, nVertices-1));
 					e1=new Edge(src, dst, "", 1);
 					e2=new Edge(dst, src, "", 1);
 				}while (g.contains(e1) || g.contains(e2)||src==dst);
-				g.addEdge(e1.getSource().getName(), e1.getDestin().getName(), "", 1);
+				g.addEdge(e1.getSource().getNameString(), e1.getDestin().getNameString(), "", 1);
 			}					
 		}else{	//start from a whole graph, subtract edges from it
 			g=new Graph();
 			for (int i=0; i<nVertices; i++){
-				g.addVertex(String.valueOf(i));
+				g.addVertex(new Vertex(String.valueOf(i)));
 				for (int j=0; j<i; j++){
 					g.addEdge(String.valueOf(i), String.valueOf(j), "", 1);
 				}
@@ -349,9 +354,9 @@ public class Graph {
 			while (g.E.size()>nEdges){
 				Edge e=null;
 				do{
-					e=g.E.get(JenaPerformTestDatanq.randInt(0, g.E.size()-1));
+					e=g.E.get(DatasetLoaderWithJena.randInt(0, g.E.size()-1));
 				}while (e.src.getDegree()==1 || e.dst.getDegree()==1);
-				g.removeEdge(e.src.getName(), e.dst.getName(), e.getTypeString());
+				g.removeEdge(e.src.getId(), e.dst.getId(), e.getTypeString());
 			}
 		}
 		return g;
@@ -359,10 +364,10 @@ public class Graph {
 	public static Graph produceRandomTree(int nodes){
 		Graph tree=new Graph();
 		for (int i=0; i<nodes; i++){
-			tree.addVertex(i+"");
+			tree.addVertex(new Vertex(i+""));
 			//randomly select a existing node to become parent of current node
 			if (i>0){
-				tree.addEdge(i+"", JenaPerformTestDatanq.randInt(0, i-1)+"", "", 1);
+				tree.addEdge(i+"", DatasetLoaderWithJena.randInt(0, i-1)+"", "", 1);
 			}
 		}
 		return tree;
@@ -397,11 +402,11 @@ public class Graph {
 		//randomly mark terminals
 		int nTerminals =0;
 		do{
-			int guess=JenaPerformTestDatanq.randInt(0, nodes-1);
-			if (steinerTree.V.get(new Integer(guess).toString()).isTerminal()){
+			int guess=DatasetLoaderWithJena.randInt(0, nodes-1);
+			if (steinerTree.V.get(new Integer(guess)).isTerminal()){
 				continue;
 			}else{
-				steinerTree.V.get(new Integer(guess).toString()).setTerminal(true);
+				steinerTree.V.get(new Integer(guess)).setTerminal(true);
 				nTerminals ++;
 			}
 		}while (nTerminals<terminals);
@@ -411,7 +416,7 @@ public class Graph {
 			changing=false;
 			int id=0;
 			for (Vertex v:steinerTree.V.values()){
-				id=Integer.parseInt(v.name);
+				id=Integer.parseInt(v.getNameString());
 				if (v.getDegreeInGraph(steinerTree)==1 && !v.isTerminal()){	//v is a leaf but not a terminal
 					changing = true;
 					break;
@@ -419,12 +424,12 @@ public class Graph {
 			}
 			if (changing==true){
 				//detach v and insert it into an existing path(Edge)
-				steinerTree.removeVertex(id+"");	//remove vertex and edge
-				Edge e=steinerTree.E.get(JenaPerformTestDatanq.randInt(0, steinerTree.E.size()-1));
-				steinerTree.addVertex(id+"");	//add vertex
-				steinerTree.addEdge(e.src.getName(), id+"", "", 1);	//link to src
-				steinerTree.addEdge(id+"", e.dst.getName(), "", 1);	//link to dst
-				steinerTree.removeEdge(e.src.getName(), e.dst.getName(), ""); //remove the formal edge
+				steinerTree.removeVertex(id);	//remove vertex and edge
+				Edge e=steinerTree.E.get(DatasetLoaderWithJena.randInt(0, steinerTree.E.size()-1));
+				steinerTree.addVertex(new Vertex(id+""));	//add vertex
+				steinerTree.addEdge(e.src.getNameString(), id+"", "", 1);	//link to src
+				steinerTree.addEdge(id+"", e.dst.getNameString(), "", 1);	//link to dst
+				steinerTree.removeEdge(e.src.getId(), e.dst.getId(), ""); //remove the formal edge
 			}
 		}while (changing);
 		return steinerTree;
@@ -450,7 +455,7 @@ public class Graph {
 	}
 	public static LoosePath findNextLoosePath(Graph T){
 		LoosePath lp=null;
-		for (String key: T.V.keySet()){
+		for (Integer key: T.V.keySet()){
 			Vertex v=T.V.get(key);
 			if (v.getUnvisitedDegreeInGraph(T)==1){ 	 //find the (unvisited fixed node) == (nodes' unvisited degree ==1)
 				Edge e=v.getAnyUnvisitedEdgeInGraph(T);
@@ -605,7 +610,7 @@ public class Graph {
 	public Graph clone(){
 		Graph temp=new Graph();
 		temp.E=(ArrayList<Edge>) this.E.clone();
-		temp.V=(HashMap<String, Vertex>) this.V.clone();
+		temp.V=(HashMap<Integer, Vertex>) this.V.clone();
 		return temp;
 	}
 	/** this method changes Tree T by replacing loose path lp with another shorter loose path.
@@ -613,7 +618,7 @@ public class Graph {
 	 * @param T
 	 * @return
 	 */
-	public Graph replace(LoosePath lp, Graph T){
+	public Graph replaceLoosePath(LoosePath lp, Graph T){
 		//removes the loose path lp from T, which will split T into two subtrees T1 and T2.
 		// We don't want to change T!!!
 		//so we made a copy of T, call temp
@@ -624,7 +629,7 @@ public class Graph {
 			tempTree.removeEdgeFromTree(e, tempTree);	//temp has been changed
 		}else{	//if there is more than one vertex to be deleted, just delete those vertices (edges will automatically deleted.)
 			for (Vertex v: vertices){
-				tempTree.removeVertexFromTree(v.name, tempTree);	//temp has been changed
+				tempTree.removeVertexFromTree(v.getId(), tempTree);	//temp has been changed
 			}
 		}
 		//Now temp has been divided into to parts T1 and T2. So temp is not a tree any more.
@@ -657,7 +662,7 @@ public class Graph {
 		T.V.putAll(t2.V);
 		for (Vertex v: lpNew.getVerticesWithinPath()){
 //			v.setIsInTree(true);
-			T.V.put(v.name, v);
+			T.V.put(v.getId(), v);
 		}		
 		return T;
 	}
@@ -676,7 +681,7 @@ public class Graph {
 			LoosePath lp=Q.poll();	// lp = Q.dequeue()
 			//lp.print();
 			//System.out.println("----during building tprime-------");
-			Graph TPrime = this.replace(lp, T);	// TPrime ← Replace(lp, T ) without changing T!!!
+			Graph TPrime = this.replaceLoosePath(lp, T);	// TPrime ← Replace(lp, T ) without changing T!!!
 			assert T.isATree():"T is not a tree!";
 			assert TPrime.isATree():"TPrime is not a tree";		//TPrime.isATree()
 			TPrime.clearVisited();
@@ -696,22 +701,22 @@ public class Graph {
 	 * @param E
 	 * @return Graph T
 	 */
-	public Graph getBreathFirstSpanningTree(Map<String, Vertex> V, ArrayList<Edge> E){
+	public Graph getBreathFirstSpanningTree(Map<Integer, Vertex> V, ArrayList<Edge> E){
 		LinkedList<Vertex> S=new LinkedList<Vertex>();	//vertices of T
-		HashMap<String, Vertex> VPrime=new HashMap<String, Vertex>();		//working vertices
-		Iterator<String> iterator=V.keySet().iterator();
-		String name=iterator.next();
-		Vertex vPrime=V.get(name);		//v1 is the root of the spanning tree
+		HashMap<Integer, Vertex> VPrime=new HashMap<Integer, Vertex>();		//working vertices
+		Iterator<Integer> iterator=V.keySet().iterator();
+		Integer vId=iterator.next();
+		Vertex vPrime=V.get(vId);		//v1 is the root of the spanning tree
 		S.add(vPrime); 			//ordered list of vertices of a fix level
 //		vPrime.setIsInTree(true);
-		VPrime.put(name, vPrime);
+		VPrime.put(vId, vPrime);
 		ArrayList<Edge> EPrime=new ArrayList<Edge>();		//no edges in the spanning tree yet
 		while (true){
 			boolean added=false;
 			for (Vertex x: S){		// for each x in S, in order
-				for (String y: V.keySet()){
+				for (Integer y: V.keySet()){
 					if (!VPrime.containsKey(y)){		// for each y in V - V’
-						Edge e=this.getDirectedEdge(x.getName(), y);
+						Edge e=this.getDirectedEdge(x.getId(), y);
 						if (e!=null){	//if (x,y) is an edge then
 //							e.setInTree(true);
 							EPrime.add(e);	//add edge (x,y) to E’ and vertex y to V’
@@ -749,7 +754,7 @@ public class Graph {
 				}
 			}
 			if 	(changed){
-				this.removeVertexFromTree(vmem.getName(), tree);
+				this.removeVertexFromTree(vmem.getId(), tree);
 			}
 		} while (changed);
 		return tree;
@@ -775,11 +780,11 @@ public class Graph {
 	}
 	public void printTree(Graph T){
 		System.out.println("-------tree--------");
-		Iterator<String> iterator=V.keySet().iterator();
+		Iterator<Integer> iterator=V.keySet().iterator();
 		while (iterator.hasNext()){
 			Vertex v=V.get(iterator.next());
 			if (v.isContainedBy(T)){
-				System.out.println("Vertex: "+v.getName()+", degree="+v.getDegreeInGraph(T));
+				System.out.println("Vertex: "+v.getNameString()+", degree="+v.getDegreeInGraph(T));
 				for (Edge e: v.edges){
 					if (e.isContainedByTree(T)){						
 						System.out.print("\t\t");
@@ -793,11 +798,11 @@ public class Graph {
 
 	public String printTreeToString(Graph T){
 		StringBuffer result=new StringBuffer();
-		Iterator<String> iterator=V.keySet().iterator();
+		Iterator<Integer> iterator=V.keySet().iterator();
 		while (iterator.hasNext()){
 			Vertex v=V.get(iterator.next());
 			if (v.isContainedBy(T)){				
-				result.append("Vertex: "+v.getName()+", degree="+v.getDegreeInGraph(T)+"\n");
+				result.append("Vertex: "+v.getNameString()+", degree="+v.getDegreeInGraph(T)+"\n");
 				for (Edge e: v.edges){
 					if (e.isContainedByTree(T)){						
 						result.append("\t\t");
@@ -824,12 +829,12 @@ public class Graph {
 			System.exit(-1);
 		}
 	}
-	public void addAll(Graph g) throws Exception{ 
-		for (String name: g.V.keySet()){
-			this.addVertex(name);
+	public void addAll(Graph that) throws Exception{ 
+		for (Vertex v: that.V.values()){
+			this.addVertex(v);
 		}
-		for (Edge e: g.E){	//to do: too many loops
-			this.addEdge(e.getSource().getName(), e.getDestin().getName(), e.getTypeString(), e.getWeight());
+		for (Edge e: that.E){	//to do: too many loops
+			this.addEdge(e.getSource().getNameString(), e.getDestin().getNameString(), e.getTypeString(), e.getWeight());
 		}
 	}
 	public static boolean isATree(Graph graph) {
@@ -842,15 +847,17 @@ public class Graph {
 		this.clearAll(); 
 		// store terminal nodes in VPrime.
 		//System.out.println("store terminal nodes in VPrime.");
-		HashMap<String, Vertex> VPrime = new HashMap<String, Vertex>();
+		HashMap<Integer, Vertex> VPrime = new HashMap<Integer, Vertex>();
 		for (String terminal: Terminals){
-			VPrime.put(terminal, this.V.get(terminal));
-			this.V.get(terminal).setTerminal(true);	//setTerminal
+			int vId=Vertex.vertexMap.getValue(terminal);
+			Vertex v=this.V.get(vId);
+			VPrime.put(vId, v);
+			this.V.get(vId).setTerminal(true);	//setTerminal
 		}
 		// make aritificial steiner tree.
 		//System.out.println("make aritificial steiner tree.");
 		Graph T = (new ArtificialSteinerTree(VPrime)).getTree();
-		if (!T.isATree(T)){
+		if (!Graph.isATree(T)){
 			System.err.println("artificialSteinerTree is not a tree!");
 			T.print();
 			System.exit(1);
@@ -862,5 +869,20 @@ public class Graph {
 		//T.printTree(T);
 		return T;
 	}
-
+	//remove isolated entities
+	public void removeIsolatedVertices() {
+			Vertex vToBeDelete;
+			do{
+				vToBeDelete=null;
+				for (Vertex v: this.V.values()){
+					if (v.getDegree()==0){
+						vToBeDelete=v;
+						break;
+					}
+				}
+				if (vToBeDelete!=null){
+					this.removeVertex(vToBeDelete.getId());
+				}				
+			}while (vToBeDelete!=null);
+		}
 }
