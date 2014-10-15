@@ -1,6 +1,7 @@
 package graph;
 
 
+import fundamental.Randomizer;
 import input.DatasetLoaderWithJena;
 
 import java.util.*;
@@ -336,8 +337,8 @@ public class Graph {
 				Edge e1, e2;
 				Vertex src, dst;
 				do{
-					src=g.V.get(DatasetLoaderWithJena.randInt(0, nVertices-1));
-					dst=g.V.get(DatasetLoaderWithJena.randInt(0, nVertices-1));
+					src=g.V.get(Randomizer.randInt(0, nVertices-1));
+					dst=g.V.get(Randomizer.randInt(0, nVertices-1));
 					e1=new Edge(src, dst, "", 1);
 					e2=new Edge(dst, src, "", 1);
 				}while (g.contains(e1) || g.contains(e2)||src==dst);
@@ -354,7 +355,7 @@ public class Graph {
 			while (g.E.size()>nEdges){
 				Edge e=null;
 				do{
-					e=g.E.get(DatasetLoaderWithJena.randInt(0, g.E.size()-1));
+					e=g.E.get(Randomizer.randInt(0, g.E.size()-1));
 				}while (e.src.getDegree()==1 || e.dst.getDegree()==1);
 				g.removeEdge(e.src.getId(), e.dst.getId(), e.getTypeString());
 			}
@@ -367,7 +368,7 @@ public class Graph {
 			tree.addVertex(new Vertex(i+""));
 			//randomly select a existing node to become parent of current node
 			if (i>0){
-				tree.addEdge(i+"", DatasetLoaderWithJena.randInt(0, i-1)+"", "", 1);
+				tree.addEdge(i+"", Randomizer.randInt(0, i-1)+"", "", 1);
 			}
 		}
 		return tree;
@@ -402,7 +403,7 @@ public class Graph {
 		//randomly mark terminals
 		int nTerminals =0;
 		do{
-			int guess=DatasetLoaderWithJena.randInt(0, nodes-1);
+			int guess=Randomizer.randInt(0, nodes-1);
 			if (steinerTree.V.get(new Integer(guess)).isTerminal()){
 				continue;
 			}else{
@@ -425,7 +426,7 @@ public class Graph {
 			if (changing==true){
 				//detach v and insert it into an existing path(Edge)
 				steinerTree.removeVertex(id);	//remove vertex and edge
-				Edge e=steinerTree.E.get(DatasetLoaderWithJena.randInt(0, steinerTree.E.size()-1));
+				Edge e=steinerTree.E.get(Randomizer.randInt(0, steinerTree.E.size()-1));
 				steinerTree.addVertex(new Vertex(id+""));	//add vertex
 				steinerTree.addEdge(e.src.getNameString(), id+"", "", 1);	//link to src
 				steinerTree.addEdge(id+"", e.dst.getNameString(), "", 1);	//link to dst

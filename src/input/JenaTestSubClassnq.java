@@ -18,8 +18,8 @@ public class JenaTestSubClassnq {
 		Timer.tick("1. G: the Original Graph");
 		Graph G = new Graph();
 		Dataset dataset = RDFDataMgr.loadDataset(
-						"/data/subclass.nq",
-						RDFLanguages.NQUADS);
+				DatasetLoaderWithJena.pathToDataFiles+"subclass.nq",
+				RDFLanguages.NQUADS);
 		Iterator<String> it = dataset.listNames();
 		while (it.hasNext()) {
 			Model tim = dataset.getNamedModel(it.next());
@@ -92,11 +92,13 @@ public class JenaTestSubClassnq {
 		
 		Timer.stop("");
 	}
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		Timer.start(null);
 
 		Timer.tick("1. G: the Original Graph");
-		Graph G = DatasetLoaderWithJena.generateGraphFromStmtsOfNQFile("/data/subclass.nq");
+		Graph G = new Graph();
+		DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(
+				G, DatasetLoaderWithJena.pathToDataFiles+"subclass.nq");
 
 		Timer.tick("2. T: The original steiner tree,	 VPrime: the set of terminal nodes");
 		Graph T = G.findBestSteinerTree(new String[] {"http://rdf.data-vocabulary.org/#Organization",

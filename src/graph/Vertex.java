@@ -18,7 +18,7 @@ public class Vertex implements Comparable<Vertex> {
 	double d2; //for find shortest path: distance to T2
 	Vertex predecessor1;	//each node v visited by the current iterator, we maintain its	current predecessor, that is, the node v from which the iterator reached v
 	Vertex predecessor2;	//each node v visited by the current iterator, we maintain its	current predecessor, that is, the node v from which the iterator reached v
-	LinkedList<Edge> edges;	//For Steiner tree problem, degree=in degree+out degree
+	LinkedList<Edge> edges;	//For Steiner tree problem, degree=in degree+out degree 
 	public static void setIdx(int idx){
 		Vertex.CURRENT_INDEX=idx;
 	}
@@ -253,7 +253,8 @@ public class Vertex implements Comparable<Vertex> {
 		}
 	}
 	public static void main(String args[]) throws Exception{
-		Graph G = DatasetLoaderWithJena.generateGraphFromEntitiesOfNQFile("/data/example.nq");
+		Graph G = new Graph();
+		DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(G, DatasetLoaderWithJena.pathToDataFiles+"example.nq");
 	    Random rand = new Random();
 		for (Vertex v: G.V.values()){		//1: for all v ∈ V do
 				v.d1=rand.nextInt((1000-0) + 1) + 0;

@@ -13,8 +13,8 @@ public class JenaTestExamplenq {
 		Graph G = new Graph();
 		System.out.println("\n\n**********1. G: the Original Graph***************");
 		Dataset dataset = RDFDataMgr.loadDataset(
-						"/data/example.nq",
-						RDFLanguages.NQUADS);
+				DatasetLoaderWithJena.pathToDataFiles+"example.nq",
+				RDFLanguages.NQUADS);
 		Iterator<String> it = dataset.listNames();
 		while (it.hasNext()) {
 			Model tim = dataset.getNamedModel(it.next());

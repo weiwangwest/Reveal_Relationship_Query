@@ -2,6 +2,7 @@ package graph;
 
 import static org.junit.Assert.*;
 
+import fundamental.Randomizer;
 import input.DatasetLoaderWithJena;
 
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public class GraphTest {
 						Graph g = Graph.produceRandomConnectedUndirectedGraph(nVertices, nEdges);
 						HashSet <Integer> requiredVerticesSet=new HashSet<Integer>();
 						while (requiredVerticesSet.size()<nTerminals){
-							requiredVerticesSet.add(DatasetLoaderWithJena.randInt(0, nVertices-1));
+							requiredVerticesSet.add(Randomizer.randInt(0, nVertices-1));
 						}
 						String[] requiredVertices=new String[nTerminals];
 						int i=0;
@@ -166,7 +167,9 @@ public class GraphTest {
 	@Test
 	public void testFindBestSteinerTreeForSpecificExample1() throws Exception {
 					for (int run = 0; run < 10000; run++) {
-						Graph g = DatasetLoaderWithJena.generateGraphFromEntitiesOfNQFile(DatasetLoaderWithJena.pathToDataFiles	+ "example.nq");
+						Graph g=new Graph();
+						DatasetLoaderWithJena.resetAllValues(true);
+						DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(g, DatasetLoaderWithJena.pathToDataFiles	+ "example.nq");
 						String[] requiredVertices=new String[3];						  
 						requiredVertices[2]="http://example.org/bob/";
 						requiredVertices[1]="http://xmlns.com/foaf/0.1/Person";

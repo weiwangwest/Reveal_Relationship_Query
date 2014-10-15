@@ -1,4 +1,5 @@
 package input;
+import fundamental.Randomizer;
 import graph.Graph;
 import graph.Vertex;
 
@@ -8,17 +9,14 @@ import java.util.*;
 
 import output.Timer;
 
-
 public class DatasetLoaderWithJenaTestByExample {
 	public static void main(String[] args) throws Exception {
 		Timer.start(null);
 		// append the dataset report to lines of table 2.
 		Timer.tick("example.nq");
-		Graph G = DatasetLoaderWithJena.generateGraphFromEntitiesOfNQFile(DatasetLoaderWithJena.pathToDataFiles	+ "example.nq");
-		DatasetLoaderWithJena.Entities = new HashSet<String>(); // a list of entities
-		for (Vertex v: G.V.values()){
-			DatasetLoaderWithJena.Entities.add(v.getNameString());					
-		}
+		Graph G=new Graph();
+		DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(G, DatasetLoaderWithJena.pathToDataFiles	+ "example.nq");
+		DatasetLoaderWithJena.Entities = Vertex.vertexMap; // a list of entities
 		//do performance test 3 types(queries with 2, 3, 4 entities respectively), 3 queries/type, 10 runs/query
 		for (int currentQueryType = 0; currentQueryType < 3; currentQueryType++) {
 			for (int queryId = 0; queryId < 3; queryId++) {				
@@ -27,7 +25,7 @@ public class DatasetLoaderWithJenaTestByExample {
 					continue; 
 				}
 				// generate entities for current query
-				String[] requiredVertices = DatasetLoaderWithJena.selectEntities(currentQueryType + 2); // for qtyp1 2 URIs, qtyp2 3 URIs, qtyp3 4URIs
+				String[] requiredVertices = Randomizer.getRandomSetOfEntitiesString(currentQueryType + 2); // for qtyp1 2 URIs, qtyp2 3 URIs, qtyp3 4URIs
 				String lineRequiredVertices = "";
 				boolean firstTime=true;
 				for (String vertexStr : requiredVertices) {
