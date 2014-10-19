@@ -9,7 +9,7 @@ import java.io.PrintStream;
 import output.Timer;
 import output.WikiTable;
 
-public class STARperformanceTestOnBigDataset {
+public class  STARperformanceTestOnBigDataset {
 	
 	public static void main(String[] args) throws Exception {		
 		Timer.start(null);		
@@ -35,9 +35,6 @@ public class STARperformanceTestOnBigDataset {
 			Timer.tick("data-"+idOfDataFile+".nq.gz");
 			try{
 				 DatasetLoaderWithJena.addEntitiesFromBigGzipNq(G, DatasetLoaderWithJena.pathToDataFiles+"data-"+idOfDataFile+".nq.gz");
-				 if (idOfDataFile<2){	//skip query on data-0, 1
-					 continue;
-				 }
 			 	//append the current dataset report to lines of table 2.
 				table2.appendLine(
 						new Object [] {	//dataLine
@@ -51,6 +48,15 @@ public class STARperformanceTestOnBigDataset {
 				            String.valueOf(DatasetLoaderWithJena.OverallDistinctRDFclassesSet.size()),
 				        }
 					);
+				//append the Wiki table to file and console				
+				PrintStream overviewFile=TextFileWriter.getPrintStreamToAppened("overviewOfDataSetFiles");
+				table2.print(overviewFile);
+				overviewFile.close();
+				table2.print(System.out);
+
+				 if (idOfDataFile<2){	//skip query on data-0, 1
+					 continue;
+				 }
 				//write entities into file "entitiesList0_i"
 				PrintStream entitiesFile=TextFileWriter.getPrintStreamNew("entitiesList"+"0_"+idOfDataFile);
 				long size=DatasetLoaderWithJena.Entities.size();
@@ -65,12 +71,6 @@ public class STARperformanceTestOnBigDataset {
 					}
 				}
 				entitiesFile.close();
-
-				//append the Wiki table to file and console				
-				PrintStream overviewFile=TextFileWriter.getPrintStreamToAppened("overviewOfDataSetFiles");
-				table2.print(overviewFile);
-				overviewFile.close();
-				table2.print(System.out);
 
 				 //do different types of queries
 				for (int currentQueryType = 0; currentQueryType < 3; currentQueryType++) {
