@@ -1,6 +1,7 @@
 package output;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
 
 public class WikiTable {
 	Object title;
@@ -82,40 +83,41 @@ public class WikiTable {
 		this(title, heads, data);
 		//if the given data does not have enough number of lines/columns, then insert them with null Objects.		
 	}
-	public void print(PrintStream out){
+	public void print(PrintWriter overviewFile){
 		//new line
-		out.print("\n\n");
+		overviewFile.print("\n\n");
 		//begin
-		out.print("{| ");
+		overviewFile.print("{| ");
 		//style 
-		out.println("border=\"1\" style=\"overflow:auto; border-collapse:collapse\"");
+		overviewFile.println("border=\"1\" style=\"overflow:auto; border-collapse:collapse\"");
 		//title
 		if (title!=null){
-			out.println("|+"+title);
+			overviewFile.println("|+"+title);
 		}
 		//heads
 		if (heads!=null){					
-			out.println("|-");
+			overviewFile.println("|-");
 			for (Object head: heads){				
 				String [] headParts=head.toString().split("\\|");
 				if (headParts.length==2){
-					out.print("! "+headParts[0]);
-					out.println("| "+headParts[1]);
+					overviewFile.print("! "+headParts[0]);
+					overviewFile.println("| "+headParts[1]);
 				}else{
-					out.println("| "+headParts[0]);					
+					overviewFile.println("| "+headParts[0]);					
 				}
 			}
 		}
 		//data
 		if (data!=null)
 		for (Object[] line: data){
-			out.println("|-");
+			overviewFile.println("|-");
 			for (Object element: line){
-				out.println("|"+(element!=null?element:""));
+				overviewFile.println("|"+(element!=null?element:""));
 			}
 		}
 		//end
-		out.println("|}");		
+		overviewFile.println("|}");		
+		overviewFile.flush(); //display immediately on the screen, etc.
 	}
 	public static void main(String[] args) {
 		//table 1
@@ -125,7 +127,7 @@ public class WikiTable {
 			            {"1~4", "8~16","20~30"},
 			        }
 				);
-		table1.print(System.out);
+		table1.print(new PrintWriter(System.out));
 
 		//table 2
 		System.out.println("<div id=\"Table 2. Test overview\"></div>");
@@ -139,7 +141,7 @@ public class WikiTable {
 			            {"(see [[#7|Table 7]])", "{0..6}", null, null, null, null},
 			        }
 				);
-		table2.print(System.out);
+		table2.print(new PrintWriter(System.out));
 
 		//table 3, 4, 5, 6, 7
 		for (int i=3; i<=7; i++){
@@ -162,7 +164,7 @@ public class WikiTable {
 				            {"Avg", null, null, null, null, null, null, null, null, null}
 				        }
 					);
-			table3.print(System.out);	
+			table3.print(new PrintWriter(System.out));	
 			System.out.println("(back to "+"[[#Table 2. Test overview|Table 2. Test overview]]"+")");
 		}
 	}

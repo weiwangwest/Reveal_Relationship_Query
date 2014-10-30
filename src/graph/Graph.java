@@ -42,7 +42,7 @@ public class Graph {
 				toBeRemoved=false;
 				for (Edge e: steinerTree.E){
 					if (Graph.this.E !=E){
-						System.err.println("outer class object can't be accessed");
+						System.out.println("outer class object can't be accessed");
 						System.exit(0);
 					}
 					Graph.this.removeEdge(e.src.getId(), e.dst.getId(), e.getTypeString());
@@ -148,27 +148,26 @@ public class Graph {
 		Vertex dst=V.get(Vertex.vertexMap.getValue(to));
 		Edge e=new Edge(src, dst, type, weight);
 		if (src==null){
-			System.err.println("addEdge: Couldn't find src: "+from);
+			System.out.println("addEdge: Couldn't find src: "+from);
 			return false;
 		}else{
 			if (src.edges.contains(e)){
-				System.err.println("addEdge: edge already exists in src's adjacents:" + e.toString());
+				System.out.println("addEdge: edge already exists in src's adjacents:" + e.toString());
 				return false;			
 			}			
 		}
 		if (dst==null){
-			System.err.println("addEdge: Couldn't find dst: "+to);
+			System.out.println("addEdge: Couldn't find dst: "+to);
 			return false;
 		}else{
 			if (dst.edges.contains(e)){
-				System.err.println("addEdge: edge already exists in dst's adjacents:" + e.toString());
+				System.out.println("addEdge: edge already exists in dst's adjacents:" + e.toString());
 				return false;
 			}
 		}
-		// to be done: remove the following if
 		if (from.equals(to)){
-			System.err.println("addEdge: loop edge connecting single vertex: "+to);
-			return false;			
+			//System.out.println("addEdge: loop edge connecting single vertex: "+to);
+			// return false;			
 		}
 		addEdge(new Edge(src, dst, type, weight));
 		return true;
@@ -327,7 +326,7 @@ public class Graph {
 	// nEdges <= nVertices * (nVertices - 1), a wholly connected graph
 	public static Graph produceRandomConnectedUndirectedGraph(int nVertices, int nEdges){
 		if (!(nEdges >= nVertices - 1 && nEdges <= nVertices * (nVertices - 1)/2)){
-			System.err.println("nEdges out of range [nVertices - 1,  nVertices * (nVertices - 1) / 2]");
+			System.out.println("nEdges out of range [nVertices - 1,  nVertices * (nVertices - 1) / 2]");
 			return null;
 		}
 		Graph g=null;
@@ -337,8 +336,8 @@ public class Graph {
 				Edge e1, e2;
 				Vertex src, dst;
 				do{
-					src=g.V.get(Randomizer.randInt(0, nVertices-1));
-					dst=g.V.get(Randomizer.randInt(0, nVertices-1));
+					src=g.V.get(Randomizer.randInt(1, nVertices));
+					dst=g.V.get(Randomizer.randInt(1, nVertices));
 					e1=new Edge(src, dst, "", 1);
 					e2=new Edge(dst, src, "", 1);
 				}while (g.contains(e1) || g.contains(e2)||src==dst);
@@ -346,9 +345,9 @@ public class Graph {
 			}					
 		}else{	//start from a whole graph, subtract edges from it
 			g=new Graph();
-			for (int i=0; i<nVertices; i++){
+			for (int i=1; i<=nVertices; i++){
 				g.addVertex(new Vertex(String.valueOf(i)));
-				for (int j=0; j<i; j++){
+				for (int j=1; j<i; j++){
 					g.addEdge(String.valueOf(i), String.valueOf(j), "", 1);
 				}
 			}
@@ -364,11 +363,11 @@ public class Graph {
 	}
 	public static Graph produceRandomTree(int nodes){
 		Graph tree=new Graph();
-		for (int i=0; i<nodes; i++){
+		for (int i=1; i<=nodes; i++){
 			tree.addVertex(new Vertex(i+""));
 			//randomly select a existing node to become parent of current node
-			if (i>0){
-				tree.addEdge(i+"", Randomizer.randInt(0, i-1)+"", "", 1);
+			if (i>1){
+				tree.addEdge(i+"", Randomizer.randInt(1, i-1)+"", "", 1);
 			}
 		}
 		return tree;
@@ -395,7 +394,7 @@ public class Graph {
 	}
 	public static Graph produceRandomSteinerTree(int nodes, int terminals){
 		if (terminals>nodes){
-			System.err.println("getRandomSteinerTree: more terminals than tree nodes!");
+			System.out.println("getRandomSteinerTree: more terminals than tree nodes!");
 			System.exit(1);
 		}
 		//produce a random tree with nodes
@@ -403,7 +402,7 @@ public class Graph {
 		//randomly mark terminals
 		int nTerminals =0;
 		do{
-			int guess=Randomizer.randInt(0, nodes-1);
+			int guess=Randomizer.randInt(1, nodes);
 			if (steinerTree.V.get(new Integer(guess)).isTerminal()){
 				continue;
 			}else{
@@ -825,7 +824,7 @@ public class Graph {
 			src.edges.get(idx).weight=weight;
 		}
 		if (!found){
-			System.err.println("edge not found:");
+			System.out.println("edge not found:");
 			edge.print();
 			System.exit(-1);
 		}
@@ -859,7 +858,7 @@ public class Graph {
 		//System.out.println("make aritificial steiner tree.");
 		Graph T = (new ArtificialSteinerTree(VPrime)).getTree();
 		if (!Graph.isATree(T)){
-			System.err.println("artificialSteinerTree is not a tree!");
+			System.out.println("artificialSteinerTree is not a tree!");
 			T.print();
 			System.exit(1);
 		}

@@ -2,6 +2,7 @@ package graph;
 
 import static org.junit.Assert.*;
 
+import fundamental.DBMapper;
 import fundamental.Randomizer;
 import input.DatasetLoaderWithJena;
 
@@ -12,21 +13,26 @@ import java.util.PriorityQueue;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.JUnitCore;
 
 
 public class GraphTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		new DBMapper("vertex").clear();
+		new DBMapper("edge_type").clear();
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
+		new DBMapper("vertex").clear();
+		new DBMapper("edge_type").clear();
 	}
 
 	@Test
 	public void testProduceRandomTree() {
-		for (int i = 1; i < 100; i++) {
+		for (int i = 1; i <= 10; i++) {
 			for (int run = 0; run < 100; run++) {
 				Graph tree = Graph.produceRandomTree(i);
 				assertTrue("not a tree", Graph.isATree(tree));
@@ -35,7 +41,7 @@ public class GraphTest {
 	}
 	@Test
 	public void testProduceRandomConnectedUndirectedGraph(){
-		for (int nVertices = 1; nVertices < 5; nVertices++) {
+		for (int nVertices = 1; nVertices <= 5; nVertices++) {
 			for (int nEdges = nVertices -1; nEdges<= nVertices *(nVertices -1)/2; nEdges ++){
 				for (int run = 0; run < 100; run++) {
 					Graph g = Graph.produceRandomConnectedUndirectedGraph(nVertices, nEdges);
@@ -101,7 +107,7 @@ public class GraphTest {
 
 	@Test
 	public void testFindBestSteinerTree() {
-		  for (int nVertices = 1; nVertices < 10; nVertices++) {
+		  for (int nVertices = 1; nVertices < 5; nVertices++) {
 			for (int nEdges = nVertices -1; nEdges<= nVertices *(nVertices -1)/2; nEdges ++){
 				for (int nTerminals=2; nTerminals <= 4 && nTerminals<=nVertices; nTerminals++){
 /*		  for (int nVertices = 5; nVertices < 10; nVertices++) { //to do : nVertices < 10
@@ -114,7 +120,7 @@ public class GraphTest {
 						Graph g = Graph.produceRandomConnectedUndirectedGraph(nVertices, nEdges);
 						HashSet <Integer> requiredVerticesSet=new HashSet<Integer>();
 						while (requiredVerticesSet.size()<nTerminals){
-							requiredVerticesSet.add(Randomizer.randInt(0, nVertices-1));
+							requiredVerticesSet.add(Randomizer.randInt(1, nVertices));
 						}
 						String[] requiredVertices=new String[nTerminals];
 						int i=0;
@@ -166,7 +172,7 @@ public class GraphTest {
 	}
 	@Test
 	public void testFindBestSteinerTreeForSpecificExample1() throws Exception {
-					for (int run = 0; run < 10000; run++) {
+					for (int run = 0; run < 1000; run++) {
 						Graph g=new Graph();
 						DatasetLoaderWithJena.resetAllValues(true);
 						DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(g, DatasetLoaderWithJena.pathToDataFiles	+ "example.nq");
@@ -186,4 +192,9 @@ public class GraphTest {
 						System.out.println("\n"+String.valueOf(run)+"\n" + T.printTreeToString(T));
 					}							
 				}		
+	public static void main(String[] args) throws Exception {                    
+	       JUnitCore.main(
+	         "graph.GraphTest"); 
+	}
+
 }

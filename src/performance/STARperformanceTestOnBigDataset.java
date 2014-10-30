@@ -1,11 +1,11 @@
 package performance;
 import fundamental.Randomizer;
-import fundamental.TextFileWriter;
 import graph.Graph;
 
 import input.DatasetLoaderWithJena;
 
-import java.io.PrintStream;
+import java.io.*;
+
 import output.Timer;
 import output.WikiTable;
 
@@ -49,19 +49,21 @@ public class  STARperformanceTestOnBigDataset {
 				        }
 					);
 				//append the Wiki table to file and console				
-				PrintStream overviewFile=TextFileWriter.getPrintStreamToAppened("overviewOfDataSetFiles");
+				PrintWriter overviewFile=new PrintWriter(new BufferedWriter(new FileWriter("overviewOfDataSetFiles", true)));
 				table2.print(overviewFile);
 				overviewFile.close();
-				table2.print(System.out);
+				table2.print(new PrintWriter(System.out));
 
 				 if (idOfDataFile<2){	//skip query on data-0, 1
 					 continue;
 				 }
 				//write entities into file "entitiesList0_i"
-				PrintStream entitiesFile=TextFileWriter.getPrintStreamNew("entitiesList"+"0_"+idOfDataFile);
+				PrintWriter entitiesFile=new PrintWriter(new BufferedWriter(new FileWriter("entitiesList"+"0_"+idOfDataFile)));
 				long size=DatasetLoaderWithJena.Entities.size();
 				if (size>Integer.MAX_VALUE){
-					TextFileWriter.appendToTxtFile("data-"+idOfDataFile+".bigPerform.error", "size out of range of integer: " + size);
+					PrintWriter writer=new PrintWriter(new BufferedWriter(new FileWriter("data-"+idOfDataFile+".bigPerform.error", true)));
+					writer.println("size out of range of integer: " + size);
+					writer.close();
 				}
 				for (int value=0; value<size; value++){
 					if (value==0){
@@ -105,13 +107,13 @@ public class  STARperformanceTestOnBigDataset {
 						} // for queryRun
 						
 						//store queryRecord into a file
-						PrintStream queryEntitiesFile=TextFileWriter.getPrintStreamNew("queryRecord"+idOfDataFile+"."+(currentQueryType+1)+"."+(queryId+1));
+						PrintWriter queryEntitiesFile=new PrintWriter(new BufferedWriter(new FileWriter("queryRecord"+idOfDataFile+"."+(currentQueryType+1)+"."+(queryId+1))));
 						queryEntitiesFile.println(queryRecordTxt);
 						queryEntitiesFile.close();
 	
 						runTimeOfCurrentQueryId /= 10; //average time of each run
 						//store 10 and the average runtime into a file each.
-						PrintStream queryTimeFile=TextFileWriter.getPrintStreamNew("queryRunTime"+idOfDataFile+"."+(currentQueryType+1)+"."+(queryId+1));
+						PrintWriter queryTimeFile=new PrintWriter(new BufferedWriter(new FileWriter("queryRunTime"+idOfDataFile+"."+(currentQueryType+1)+"."+(queryId+1))));
 						queryTimeFile.println(requiredVertices);
 						for (int queryRun=0; queryRun<10; queryRun++){
 							queryTimeFile.println(runTimes[queryRun]);
@@ -121,7 +123,7 @@ public class  STARperformanceTestOnBigDataset {
 					} // for queryID
 				} // for currentQueryType
 			}catch(Exception e){
-				PrintStream errFile=TextFileWriter.getPrintStreamNew("data-"+idOfDataFile+".bigPerform.error");
+				PrintWriter errFile=new PrintWriter(new BufferedWriter(new FileWriter("data-"+idOfDataFile+".bigPerform.error")));
 				errFile.println(e.getMessage());
 				e.printStackTrace(errFile);
 				errFile.close();

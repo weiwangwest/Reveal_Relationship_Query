@@ -10,14 +10,13 @@ import com.hp.hpl.jena.query.Dataset;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
 
-import fundamental.Mapper;
-import fundamental.TextFileWriter;
+import fundamental.DBMapper;
 import graph.Graph;
 import graph.Vertex;
 
 public class DatasetLoaderWithJena {
 	public static String pathToDataFiles="/data/";
-	public static Mapper Entities; // a list of entities, when load Entities into a graph, Entities==Vertex.VertexMap
+	public static DBMapper Entities;  // a list of entities, when load Entities into a graph, Entities==Vertex.VertexMap
 	private static boolean isInTrans=false;	//transaction status
 	public static long Numberoftriples;
 	private static long NumberoftriplesTemp;		//temporary storage used by transaction
@@ -29,7 +28,7 @@ public class DatasetLoaderWithJena {
 		if (IsEntitiesBoundToGraph){
 			Entities=Vertex.vertexMap;
 		}else{
-			Entities=new Mapper(); // a list of entities
+			Entities=new DBMapper("entity"); // a list of entities  TODO: table entity doesn't exist!
 		}
 		Numberoftriples=0;
 		DistinctRdfsSubclassOfStmtsSet=new HashSet<String>();
@@ -165,7 +164,7 @@ public class DatasetLoaderWithJena {
 					}
 					line = bigFileReader.readLine(); 
 //					if (line!=null && !line.endsWith("> .")){
-//						System.err.println(line);
+//						System.out.println(line);
 //						assert(false);
 //					}
 				}
@@ -192,17 +191,22 @@ public class DatasetLoaderWithJena {
 					int currentLineIdPartFile=0;
 					for (String StrlineOfPartFile = partFileReader.readLine(); StrlineOfPartFile !=null; StrlineOfPartFile = partFileReader.readLine()){
 						currentLineIdPartFile++;
-						new File(fileName+".part.part").delete();
-						TextFileWriter.appendToTxtFile(fileName+".part.part", StrlineOfPartFile);
+						PrintWriter writer=new PrintWriter(new BufferedWriter(new FileWriter(fileName+".part.part")));
+						writer.println(StrlineOfPartFile);
+						writer.close();
 						try{
 							addEntitiesFromNqNoExcetionProcessor(G, fileName+".part.part"); //add the dataset into G, catch outOfMemory exception								
 						}catch(Exception e1){
-							TextFileWriter.appendToTxtFile(fileName+".toadd", (lineIdNqFile-linesPartFile+currentLineIdPartFile)+": "+StrlineOfPartFile);
-							TextFileWriter.appendToTxtFile(fileName+".stacktrace", (lineIdNqFile-linesPartFile+currentLineIdPartFile)+": ");
-							TextFileWriter.appendToTxtFile(fileName+".stacktrace", e1.getMessage());
+							writer=new PrintWriter(new BufferedWriter(new FileWriter(fileName+".toadd")));
+							writer.println((lineIdNqFile-linesPartFile+currentLineIdPartFile)+": "+StrlineOfPartFile);
+							writer.close();
+							writer=new PrintWriter(new BufferedWriter(new FileWriter(fileName+".stacktrace")));
+							writer.println((lineIdNqFile-linesPartFile+currentLineIdPartFile)+": ");
+							writer.println(e1.getMessage());
 							StringWriter stackTraceSW= new StringWriter();
 							e1.printStackTrace(new PrintWriter(stackTraceSW));
-							TextFileWriter.appendToTxtFile(fileName+".stacktrace", stackTraceSW.toString());
+							writer.println(stackTraceSW.toString());
+							writer.close();
 						}
 					}
 					partFileReader.close();
@@ -247,7 +251,7 @@ public class DatasetLoaderWithJena {
 				StmtIterator s = tim.listStatements();
 				while (s.hasNext()) {
 					Statement stmt = s.next();
-					doStatisticByTriple(stmt);
+					doStatisticByTriple(stmt); 
 					if (isEntity(stmt.getSubject())&&isEntity(stmt.getObject())){
 						G.addEdge(stmt.getSubject().toString(), stmt.getObject().toString(), stmt.getPredicate().toString(), 1);
 					}

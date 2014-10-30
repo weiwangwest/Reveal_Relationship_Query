@@ -1,9 +1,9 @@
 package graph;
 
-import fundamental.Mapper;
+import fundamental.DBMapper;
 
 public class Edge {
-	static Mapper edgeMap=new Mapper();
+	static DBMapper edgeMap=new DBMapper("edge_type");
 	//todo: private members, public methods.
 	Vertex src;
 	Vertex dst;

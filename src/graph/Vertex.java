@@ -1,13 +1,12 @@
 package graph;
 
 import input.DatasetLoaderWithJena;
-
 import java.util.*;
+import fundamental.DBMapper;
 
-import fundamental.Mapper;
 
 public class Vertex implements Comparable<Vertex> {
-	static public Mapper vertexMap=new Mapper();
+	static public DBMapper vertexMap=new DBMapper("vertex");
 	//a way to switch between the current sorting method used for compareTo, which is used by PriorityQueue
 	//remember each time before we operate on Qi  (i=1,2,...), we must set CURRENT_IDEX to i.
 	int id;
@@ -50,7 +49,7 @@ public class Vertex implements Comparable<Vertex> {
 			return d2;
 		}
 	}
-	public Vertex(String name){
+	public Vertex(String name) {
 		this.id=vertexMap.put(name);
 		this.isTerminal=false;
 		edges=new LinkedList<Edge>();
@@ -152,12 +151,19 @@ public class Vertex implements Comparable<Vertex> {
 			return false;
 		}
 	}
-	public void print(){
+	public void print() {
 		System.out.println("Vertex: "+this.getNameString());
 	}
 	@Override
 	public String toString(){
-		return this.getNameString();
+		try{
+			return this.getNameString();
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+			System.out.println(e.getCause());
+			e.printStackTrace();
+			return null;
+		}
 	}
 	//return all vertices in T connected to this vertex.
 	//otherwise return an empty map;
@@ -231,7 +237,7 @@ public class Vertex implements Comparable<Vertex> {
 	public int getId() {
 		return this.id;
 	}
-	public String getNameString(){
+	public String getNameString() {
 		return vertexMap.getKey(this.id);
 	}
 	public boolean isContainedBy(Graph T){
