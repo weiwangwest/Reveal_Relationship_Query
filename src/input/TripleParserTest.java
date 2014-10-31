@@ -1,11 +1,40 @@
 package input;
 
+import static org.junit.Assert.*;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.zip.GZIPOutputStream;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 public class TripleParserTest {
-	public static void main(String[] args) throws Exception {                    
+
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception {
+	}
+
+	@Test
+	public void testTriplesPartiallyReplacedByInteger() throws Exception {
+		String line="subject predicate object subgraph .";
+		TripleParser parser=new TripleParser(line);
+		assertEquals(parser.getDot(), ".");
+		assertEquals(parser.getSubject(), "subject");
+		assertEquals(parser.getPredicate(),"predicate");
+		assertEquals(parser.getObject(),"object");
+		assertEquals(parser.getSubGraph(), "subgraph");
+		assertEquals(parser.getLine(),"subject predicate object subgraph .");
+	}
+	@Test
+	public void testFile() throws Exception {                    
 		for (int i=0; i<=6; i++){
 			String nqFileName="/data/data-"+i+".nq";
 			GzipNqFileReader in=new GzipNqFileReader(nqFileName+".gz");			

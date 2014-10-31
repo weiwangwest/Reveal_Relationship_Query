@@ -8,6 +8,53 @@ import output.BulkLinesWriter;
 
 public class NqToGraphConverter {
 	/**
+	 * Scans all RDF parts in file B, when any part of a RDF can be found as a key of A, 
+	 * the part is replaced with corresponding value. Writes the resulting file into mappedFile.
+	 * 
+	 * @param A map of keyword and Integer.
+	 * @param B original file from which the resulting file is to be generated.
+	 * @param mappedFile resulting file.
+	 * @return total number of lines replaced.
+	 * @throws Exception 
+	 */
+	public static long generateMappReplacedFile(HashMap<String, Integer>A, Scanner B, String mappedFile) throws Exception{
+		long numberOfLines=0;
+		long numberOfLinesReplaced=0;
+		//PrintWriter diff=new PrintWriter (new BufferedWriter (new OutputStreamWriter (new GZIPOutputStream(new FileOutputStream(differenceFile)))));
+		PrintWriter mapped=new PrintWriter (new BufferedWriter(new FileWriter(mappedFile)));
+		while (B.hasNextLine()){
+			String line=B.nextLine();
+			boolean changed=false;
+			TripleParser parser=new TripleParser(line);
+			if (A.containsKey(parser.getSubject())){
+				parser.setSubject(A.get(parser.getSubject()).toString());
+				changed=true;
+			}
+			if (A.containsKey(parser.getPredicate())){
+				parser.setPredicate(A.get(parser.getPredicate()).toString());
+				changed=true;
+			}
+			if (A.containsKey(parser.getObject())){
+				parser.setObject(A.get(parser.getObject()).toString());
+				changed=true;
+			}
+			if (A.containsKey(parser.getSubGraph())){
+				parser.setSubGraph(A.get(parser.getSubGraph()).toString());
+				changed=true;
+			}
+			if (numberOfLines>0){
+				mapped.println();
+			}
+			mapped.print(parser.getLine());
+			numberOfLines++;
+			if (changed){
+				numberOfLinesReplaced++;
+			}
+		}
+		mapped.close();
+		return numberOfLinesReplaced;
+	}	
+	/**
 	 * Generates a difference file of  a set of elements of B - A.
 	 * 
 	 * @param A set of elements that should not appear in the resulted difference file
@@ -74,5 +121,103 @@ public class NqToGraphConverter {
 				fId=fId+1;
 			}
 		}
+	}
+	/**
+	 * @param mapFiles must be provided in ascending order according to their data set IDs
+	 * @param srcFiles must be provided in ascending order according to their data set IDs
+	 * @throws Exception
+	 */
+	public static void generateMapsReplacedFiles(String [] mapFiles, String [] srcFiles) throws Exception{
+		int lapsOfCut=0;
+		for (String file: srcFiles){
+			new File(file).renameTo(new File(file+".toReplace."+lapsOfCut));
+		}
+		final int maxSize=100000;
+		BulkFilesMapReader reader=new BulkFilesMapReader(mapFiles);
+		while (reader.hasNextLine()){
+			HashMap<String, Integer> A=reader.nextMap(maxSize);
+			lapsOfCut++;
+			for (int i=reader.getCurrentMapFileId(); i<srcFiles.length; i++){
+				String file=srcFiles[i];
+				NqToGraphConverter.generateMappReplacedFile(A, new Scanner(new File(file)), file+".toReplace."+lapsOfCut);				
+				new File(file+".toReplace."+lapsOfCut).delete();
+			}
+			reader.close();	
+			for (String file: srcFiles){
+				for (int i=0; i<=lapsOfCut; i++){
+					new File(file+".toReplace."+i).renameTo(new File(file+".final"));					
+				}
+			}
+		}
+	}
+	/**
+	 * @param fileName Text file that needs to have line numbers added
+	 * @param previousIndex for the first line of this file, index=previousIndex + 1 
+	 * @return total number of lines in the file
+	 * @throws IOException
+	 */
+	public static int generateMapFile(String fileName, int previousIndex) throws IOException{
+		Scanner in=new Scanner(fileName);
+		PrintWriter out=new PrintWriter(new BufferedWriter(new FileWriter(fileName+".map.temp")));
+		int index;
+		for (index=previousIndex+1; in.hasNextLine(); index++){
+			String line=in.nextLine();
+			line = line + " "+index;
+			if (index>previousIndex+1){
+				out.println();
+			}
+			out.print(line);
+		}
+		out.close();
+		new File(fileName+".map.temp").renameTo(new File(fileName+".map.final"));
+		return index-previousIndex-1;
+	}
+	/**
+	 * @param fileNames Files to be continuously numbered together
+	 * @param previousIndex index for the first line of the first file = perviousIndex + 1
+	 * @return total number of lines.
+	 * @throws IOException
+	 */
+	public static int generateMultipleMapFiles(String [] fileNames, int previousIndex) throws IOException{
+		int index=previousIndex+1;
+		for (String file: fileNames){
+			int increment=generateMapFile(file, index);
+			index += increment;
+		}
+		return index;
+	}
+	/**
+	 * @param nqFile the nq file to be checked.
+	 * @return true if every sub-pred-obj-subgraph of the nqFile has been mapped into integers.	 * 	
+	 * @throws Exception
+	 */
+	public static boolean isNqFileMapped(String nqFile) throws Exception{
+		boolean isMapped=true;
+		NqFileReader in=new NqFileReader(nqFile);
+		while (in.hasNext()){
+			String line=in.next();
+			TripleParser parser=new TripleParser(line);
+			try{
+				Integer.valueOf(parser.getSubject());
+				Integer.valueOf(parser.getPredicate());
+				Integer.valueOf(parser.getObject());
+				Integer.valueOf(parser.getSubGraph());
+			}catch(NumberFormatException e){
+				isMapped=false;
+				break;
+			}
+		}
+		in.close();
+		return isMapped;
+	}
+	public static boolean areNqFilesTotallyMapped(String [] nqFiles) throws Exception{
+		boolean isMapped=true;
+		for (String file: nqFiles){
+			if (!isNqFileMapped(file)){
+				isMapped=false;
+				break;
+			}
+		}
+		return isMapped; 
 	}
 }
