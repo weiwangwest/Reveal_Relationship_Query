@@ -139,8 +139,8 @@ public class NqToGraphConverter {
 			lapsOfCut++;
 			for (int i=reader.getCurrentMapFileId(); i<srcFiles.length; i++){
 				String file=srcFiles[i];
-				NqToGraphConverter.generateMappReplacedFile(A, new Scanner(new File(file)), file+".toReplace."+lapsOfCut);				
-				new File(file+".toReplace."+lapsOfCut).delete();
+				NqToGraphConverter.generateMappReplacedFile(A, new Scanner(new File(file+".toReplace."+(lapsOfCut-1))), file+".toReplace."+lapsOfCut);				
+				new File(file+".toReplace."+(lapsOfCut-1)).delete();
 			}
 			reader.close();	
 			for (String file: srcFiles){

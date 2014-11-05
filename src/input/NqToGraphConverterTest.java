@@ -24,12 +24,16 @@ public class NqToGraphConverterTest {
 	@Test
 	public void generateFilesDifferentEachOtherTest() throws Exception {
 		int index=0;
+		//generate difference files and map files
 		NqToGraphConverter.generateFilesDifferentEachOther(StringArrayOfFileNames.getFileNames("vertex", 0, 2));		
-		index += NqToGraphConverter.generateMultipleMapFiles(StringArrayOfFileNames.getFileNames("vertex", 0, 2), index);
+		index = NqToGraphConverter.generateMultipleMapFiles(StringArrayOfFileNames.getFileNames("vertex", 0, 2), index);
+		System.out.println("maxmun index="+index);
 		NqToGraphConverter.generateFilesDifferentEachOther(StringArrayOfFileNames.getFileNames("predicate", 0, 2));
 		index +=NqToGraphConverter.generateMultipleMapFiles(StringArrayOfFileNames.getFileNames("predicate", 0, 2), index);
+		System.out.println("maxmun index="+index);
 		NqToGraphConverter.generateFilesDifferentEachOther(StringArrayOfFileNames.getFileNames("subgraph", 0, 2));
-		NqToGraphConverter.generateMultipleMapFiles(StringArrayOfFileNames.getFileNames("subgraph", 0, 2), index);
+		index +=NqToGraphConverter.generateMultipleMapFiles(StringArrayOfFileNames.getFileNames("subgraph", 0, 2), index);
+		System.out.println("maxmun index="+index);
 		//use the map to replace the nq lines file
 		NqToGraphConverter.generateMapsReplacedFiles(StringArrayOfFileNames.getFileNames("vertex.map.final", 0, 2), 
 				StringArrayOfFileNames.getFileNames("line", 0, 2));
@@ -37,6 +41,7 @@ public class NqToGraphConverterTest {
 				StringArrayOfFileNames.getFileNames("line", 0, 2));
 		NqToGraphConverter.generateMapsReplacedFiles(StringArrayOfFileNames.getFileNames("subgraph.map.final", 0, 2), 
 				StringArrayOfFileNames.getFileNames("line", 0, 2));
+		//check if they are totally mapped.
 		assertTrue(NqToGraphConverter.areNqFilesTotallyMapped(StringArrayOfFileNames.getFileNames("line.final", 0, 2)));
 	}
 }
