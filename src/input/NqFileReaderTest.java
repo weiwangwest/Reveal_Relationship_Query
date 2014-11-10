@@ -1,16 +1,12 @@
 package input;
 
-import static org.junit.Assert.*;
-
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import output.NqFileWriter;
 
 public class NqFileReaderTest {
 
@@ -27,9 +23,9 @@ public class NqFileReaderTest {
 		for (int i=0; i<3; i++){
 			String fileName="/data/data-"+i+".nq";
 			NqFileReader reader= new NqFileReader(fileName);
-			PrintWriter writer=new PrintWriter(new BufferedWriter(new FileWriter(fileName+".temp", false)));
+			NqFileWriter writer=new NqFileWriter(fileName+".temp");
 			while (reader.hasNext()){
-				writer.println(reader.next());
+				writer.writeLine(reader.next());
 			}
 			writer.close();
 			reader.close();
@@ -41,9 +37,9 @@ public class NqFileReaderTest {
 		for (int i=0; i<3; i++){
 			String fileName="/data/data-"+i+".nq.gz";
 			GzipNqFileReader reader= new GzipNqFileReader(fileName);
-			PrintWriter writer=new PrintWriter(new BufferedWriter(new FileWriter(fileName+".temp", false)));
+			NqFileWriter writer=new NqFileWriter(fileName+".temp");
 			while (reader.hasNext()){
-				writer.println(reader.next());
+				writer.writeLine(reader.next());
 			}
 			writer.close();
 			reader.close();

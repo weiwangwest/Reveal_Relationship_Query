@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
@@ -15,17 +16,17 @@ import java.util.zip.GZIPInputStream;
 public class NqFileReader {
 	Scanner scanner;
 	public NqFileReader(GZIPInputStream gzipInputStream){
-		scanner=new Scanner(gzipInputStream);
-		scanner.useDelimiter(" .\n");
-		//String line = Scanner(file).useDelimiter("\r\n").next();		
+		this((InputStream)gzipInputStream);
 	}
 	public NqFileReader(String file) throws FileNotFoundException{
-		scanner=new Scanner(new File(file));
-		scanner.useDelimiter(" .\n");
-		//String line = Scanner(file).useDelimiter("\r\n").next();
+		this(new FileInputStream(file));
+	}
+	public NqFileReader(InputStream in){
+		scanner=new Scanner(in);
+		scanner.useDelimiter(" .\n");		
 	}
 	public String next (){
-		return scanner.next()+" .";
+		return scanner.next();
 	}
 	public boolean hasNext(){
 		return scanner.hasNext();
