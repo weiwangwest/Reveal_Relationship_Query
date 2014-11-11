@@ -1,17 +1,13 @@
 package input;
 
 import static org.junit.Assert.*;
-
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.util.zip.GZIPOutputStream;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 
-import output.NqFileWriter;
+import fundamental.FileNameManager;
+import output.GzipNqFileWriter;
 
 public class TripleParserTest {
 
@@ -35,17 +31,16 @@ public class TripleParserTest {
 	}
 	@Test
 	public void testFile() throws Exception {              
-		for (int i=0; i<=6; i++){	//TODO: i=0; i<=6
-			String nqFileName="/data/data-"+i+".nq";
+		for (int i=0; i<=6; i++){
+			String nqFileName=FileNameManager.fileNamePrefix+i+FileNameManager.fileNameSuffix;
 			GzipNqFileReader in=new GzipNqFileReader(nqFileName+".gz");			
-			//NqFileWriter lineWriter=new NqFileWriter(nqFileName+".parser.line");
-			NqFileWriter lineWriter=new NqFileWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(nqFileName+".parser.line.gz"))));
-			NqFileWriter subjectWriter=new NqFileWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(nqFileName+".parser.subject.gz"))));
-			NqFileWriter predicateWriter=new NqFileWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(nqFileName+".parser.predicate.gz"))));
-			NqFileWriter objectWriter=new NqFileWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(nqFileName+".parser.object.gz"))));
-			NqFileWriter vertexWriter=new NqFileWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(nqFileName+".parser.vertex.gz"))));			
-			NqFileWriter subgraphWriter=new NqFileWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(nqFileName+".parser.subgraph.gz"))));
-			NqFileWriter errorWriter=new NqFileWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(nqFileName+".parser.error.gz"))));
+			GzipNqFileWriter lineWriter=new GzipNqFileWriter(nqFileName+".parser.line.gz");
+			GzipNqFileWriter subjectWriter=new GzipNqFileWriter(nqFileName+".parser.subject.gz");
+			GzipNqFileWriter predicateWriter=new GzipNqFileWriter(nqFileName+".parser.predicate.gz");
+			GzipNqFileWriter objectWriter=new GzipNqFileWriter(nqFileName+".parser.object.gz");
+			GzipNqFileWriter vertexWriter=new GzipNqFileWriter(nqFileName+".parser.vertex.gz");			
+			GzipNqFileWriter subgraphWriter=new GzipNqFileWriter(nqFileName+".parser.subgraph.gz");
+			GzipNqFileWriter errorWriter=new GzipNqFileWriter(nqFileName+".parser.error.gz");
 			while (in.hasNext()){
 				String line=null;
 				try{

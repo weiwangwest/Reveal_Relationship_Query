@@ -2,9 +2,10 @@ package input;
 
 import java.io.*;
 import java.util.*;
-import java.util.zip.GZIPInputStream;
 
-import output.NqFileWriter;
+import fundamental.FileNameManager;
+
+import output.GzipNqFileWriter;
 
 public class NqToGraphConverter {
 	public static final int VERTEX_TYPE_OF_REPLACEMENT=0;
@@ -20,10 +21,10 @@ public class NqToGraphConverter {
 	 * @return total number of lines replaced.
 	 * @throws Exception 
 	 */
-	public static long generateMapReplacedFile(HashMap<String, Integer>A, NqFileReader nqFileReader, String mappedFile, int typeOfReplacement) throws Exception{
+	public static long generateMapReplacedFile(HashMap<String, Integer>A, GzipNqFileReader nqFileReader, String mappedFile, int typeOfReplacement) throws Exception{
 		long numberOfLinesReplaced=0;
 		//NqFileWriter diff=new NqFileWriter (new GZIPOutputStream(new FileOutputStream(differenceFile));
-		NqFileWriter mapped=new NqFileWriter (mappedFile);
+		GzipNqFileWriter mapped=new GzipNqFileWriter (mappedFile);
 		while (nqFileReader.hasNext()){
 			String line=nqFileReader.next();
 			TripleParser parser=new TripleParser(line);
@@ -71,10 +72,10 @@ public class NqToGraphConverter {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	public static long generateFileDifference(HashSet<String>A, NqFileReader nqFileReader, String differenceFile) throws FileNotFoundException, IOException{
+	public static long generateFileDifference(HashSet<String>A, GzipNqFileReader nqFileReader, String differenceFile) throws FileNotFoundException, IOException{
 		long numberOfLines=0;
 		//NqFileWriter diff=new NqFileWriter (new OutputStreamWriter (new GZIPOutputStream(new FileOutputStream(differenceFile)));
-		NqFileWriter diff=new NqFileWriter(differenceFile);
+		GzipNqFileWriter diff=new GzipNqFileWriter(differenceFile);
 		while (nqFileReader.hasNext()){
 			String line=nqFileReader.next();
 			if (!A.contains(line)){
@@ -90,40 +91,42 @@ public class NqToGraphConverter {
 			new File(srcFiles[fId]).renameTo(new File(srcFiles[fId]+".toCut.0"));
 		}
 		final int maxSize=100000;
+		GzipNqFileWriter writer=null;
 		for (int fId=0,  lapsOfCut=0; fId<srcFiles.length;){
+			if (writer==null){
+				writer=new GzipNqFileWriter(srcFiles[fId]+".toJoin");
+			}
 			BulkLinesReader reader=new BulkLinesReader(srcFiles[fId]+".toCut."+lapsOfCut);	
 			HashSet<String> A=reader.nextDistinctLines(maxSize);
 			if (A==null){
 				reader.close();
-				new File(srcFiles[fId]+".toCut."+lapsOfCut).delete();
-				fId=fId+1;
-				continue;
-			}
-			//reader.hasNextLine() && A!=null
-			// append A  into current .toJoine file
-			NqFileWriter writer=new NqFileWriter(new FileWriter(srcFiles[fId]+".toJoin", true));
-			writer.writeLines(A);	
-			writer.close();
-			lapsOfCut++;
-			//shrink each srcFile with A into a new "srcFile[j].toCut.lapsOfCut", delete ".toCut.lapsOfCut-1"
-			long numberOfLines=0;
-			for (int j=fId; j<srcFiles.length; j++){
-				if (j==fId){
-					numberOfLines=generateFileDifference(A, reader.getScanner(), srcFiles[fId]+".toCut."+lapsOfCut);					
-					reader.close();
-				}else{
-					generateFileDifference(A, new NqFileReader(srcFiles[j]+".toCut."+(lapsOfCut-1)), srcFiles[j]+".toCut."+lapsOfCut);					
-				}
-				new File(srcFiles[j]+".toCut."+(lapsOfCut-1)).delete();
-			} 
-			//	 delete the current "toCut.x" if no line left to be cut. 
-			if (numberOfLines==0){
+				//	 delete the current "toCut.x" if no line left to be cut. 
 				//delete current "srcFiles[fId].toCut.x" files
 				new File(srcFiles[fId]+".toCut."+lapsOfCut).delete();
 				//rename ".toJoin" to ".final"
-				new File(srcFiles[fId]+".toJoin").renameTo(new File(srcFiles[fId]+".final"));
+				if (writer!=null){
+					writer.close();
+					writer=null;
+				}
+				new File(srcFiles[fId]+".toJoin").renameTo(new File(FileNameManager.getGzipFileName(srcFiles[fId], ".final")));
 				fId=fId+1;
+				continue;
 			}
+			//append A  into current .toJoin file
+			writer.writeLines(A);	
+			lapsOfCut++;
+			//shrink each srcFile with A into a new "srcFile[j].toCut.lapsOfCut", delete ".toCut.lapsOfCut-1"
+			//long numberOfLines=0;
+			for (int j=fId; j<srcFiles.length; j++){
+				if (j==fId){
+					//numberOfLines=
+					generateFileDifference(A, reader.getScanner(), srcFiles[fId]+".toCut."+lapsOfCut);					
+					reader.close();
+				}else{
+					generateFileDifference(A, new GzipNqFileReader(srcFiles[j]+".toCut."+(lapsOfCut-1)), srcFiles[j]+".toCut."+lapsOfCut);					
+				}
+				new File(srcFiles[j]+".toCut."+(lapsOfCut-1)).delete();
+			} 
 		}
 	}
 	/**
@@ -143,7 +146,7 @@ public class NqToGraphConverter {
 			lapsOfCut++;
 			for (int i=0; i<srcFiles.length; i++){
 				String file=srcFiles[i];
-				NqToGraphConverter.generateMapReplacedFile(A, new NqFileReader(file+".toReplace."+(lapsOfCut-1)), file+".toReplace."+lapsOfCut, typeOfReplacement);				
+				NqToGraphConverter.generateMapReplacedFile(A, new GzipNqFileReader(file+".toReplace."+(lapsOfCut-1)), file+".toReplace."+lapsOfCut, typeOfReplacement);				
 				new File(file+".toReplace."+(lapsOfCut-1)).delete();
 			}
 		}
@@ -161,8 +164,8 @@ public class NqToGraphConverter {
 	 * @throws IOException
 	 */
 	public static int generateMapFile(String fileName, int previousIndex) throws IOException{
-		NqFileReader in=new NqFileReader(fileName);
-		NqFileWriter out=new NqFileWriter(fileName+".map.temp");
+		GzipNqFileReader in=new GzipNqFileReader(fileName);
+		GzipNqFileWriter out=new GzipNqFileWriter(fileName+".map.temp");
 		int index;
 		for (index=previousIndex+1; in.hasNext(); index++){
 			String line=in.next();
@@ -170,7 +173,7 @@ public class NqToGraphConverter {
 			out.writeLine(line);
 		}
 		out.close();
-		new File(fileName+".map.temp").renameTo(new File(fileName+".map.final"));
+		new File(fileName+".map.temp").renameTo(new File(FileNameManager.getGzipFileName(fileName, ".map.final")));
 		return index-previousIndex-1;
 	}
 	/**
@@ -193,11 +196,11 @@ public class NqToGraphConverter {
 	 */
 	public static boolean isNqFileMapped(String nqFile, boolean isGzip) throws Exception{
 		boolean isMapped=true;
-		NqFileReader in;
+		GzipNqFileReader in;
 		if (isGzip){
-			in=new NqFileReader(new GZIPInputStream(new FileInputStream(nqFile)));
+			in=new GzipNqFileReader(nqFile);
 		}else{
-			in=new NqFileReader(nqFile);
+			in=new GzipNqFileReader(nqFile);
 		}
 		while (in.hasNext()){
 			String line=in.next();

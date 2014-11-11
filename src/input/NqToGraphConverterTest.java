@@ -7,7 +7,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 
-import fundamental.StringArrayOfFileNames;
+import fundamental.FileNameManager;
 
 public class NqToGraphConverterTest {
 	@BeforeClass
@@ -21,27 +21,27 @@ public class NqToGraphConverterTest {
 		int index=0;
 		int lastFileNo=6;
 		//generate difference files and map files
-		NqToGraphConverter.generateFilesDifferentEachOther(StringArrayOfFileNames.getFileNames("vertex", 0, lastFileNo));		
-		index = NqToGraphConverter.generateMultipleMapFiles(StringArrayOfFileNames.getFileNames("vertex.final", 0, lastFileNo), index);
+		NqToGraphConverter.generateFilesDifferentEachOther(FileNameManager.getGzipFileNames("vertex", 0, lastFileNo));		
+		index = NqToGraphConverter.generateMultipleMapFiles(FileNameManager.getGzipFileNames("vertex.final", 0, lastFileNo), index);
 		System.out.println("maxmun index="+index);
 
-		NqToGraphConverter.generateFilesDifferentEachOther(StringArrayOfFileNames.getFileNames("predicate", 0, lastFileNo));
-		index =NqToGraphConverter.generateMultipleMapFiles(StringArrayOfFileNames.getFileNames("predicate.final", 0, lastFileNo), index);
+		NqToGraphConverter.generateFilesDifferentEachOther(FileNameManager.getGzipFileNames("predicate", 0, lastFileNo));
+		index =NqToGraphConverter.generateMultipleMapFiles(FileNameManager.getGzipFileNames("predicate.final", 0, lastFileNo), index);
 		System.out.println("maxmun index="+index);
 
-		NqToGraphConverter.generateFilesDifferentEachOther(StringArrayOfFileNames.getFileNames("subgraph", 0, lastFileNo));
-		index =NqToGraphConverter.generateMultipleMapFiles(StringArrayOfFileNames.getFileNames("subgraph.final", 0, lastFileNo), index);
+		NqToGraphConverter.generateFilesDifferentEachOther(FileNameManager.getGzipFileNames("subgraph", 0, lastFileNo));
+		index =NqToGraphConverter.generateMultipleMapFiles(FileNameManager.getGzipFileNames("subgraph.final", 0, lastFileNo), index);
 		System.out.println("maxmun index="+index);
 
 		//use the map to replace the lines file
-		NqToGraphConverter.generateMapsReplacedFiles(StringArrayOfFileNames.getFileNames("vertex.final.map.final", 0, lastFileNo), 
-				StringArrayOfFileNames.getFileNames("line", 0, lastFileNo), NqToGraphConverter.VERTEX_TYPE_OF_REPLACEMENT);
-		NqToGraphConverter.generateMapsReplacedFiles(StringArrayOfFileNames.getFileNames("predicate.final.map.final", 0, lastFileNo), 
-				StringArrayOfFileNames.getFileNames("line", 0, lastFileNo), NqToGraphConverter.PREDICATE_TYPE_OF_REPLACEMENT);
-		NqToGraphConverter.generateMapsReplacedFiles(StringArrayOfFileNames.getFileNames("subgraph.final.map.final", 0, lastFileNo), 
-				StringArrayOfFileNames.getFileNames("line", 0, lastFileNo), NqToGraphConverter.SUBGRAPH_TYPE_OF_REPLACEMENT);
+		NqToGraphConverter.generateMapsReplacedFiles(FileNameManager.getGzipFileNames("vertex.final.map.final", 0, lastFileNo), 
+				FileNameManager.getGzipFileNames("line", 0, lastFileNo), NqToGraphConverter.VERTEX_TYPE_OF_REPLACEMENT);
+		NqToGraphConverter.generateMapsReplacedFiles(FileNameManager.getGzipFileNames("predicate.final.map.final", 0, lastFileNo), 
+				FileNameManager.getGzipFileNames("line", 0, lastFileNo), NqToGraphConverter.PREDICATE_TYPE_OF_REPLACEMENT);
+		NqToGraphConverter.generateMapsReplacedFiles(FileNameManager.getGzipFileNames("subgraph.final.map.final", 0, lastFileNo), 
+				FileNameManager.getGzipFileNames("line", 0, lastFileNo), NqToGraphConverter.SUBGRAPH_TYPE_OF_REPLACEMENT);
 		//check if they are totally mapped.
-		assertTrue(NqToGraphConverter.areNqFilesTotallyMapped(StringArrayOfFileNames.getFileNames("line", 0, lastFileNo)));
+		assertTrue(NqToGraphConverter.areNqFilesTotallyMapped(FileNameManager.getGzipFileNames("line", 0, lastFileNo)));
 	}
 	public static void main(String[] args) throws Exception {                    
 	       JUnitCore.main("input.NqToGraphConverterTest"); 

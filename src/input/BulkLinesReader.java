@@ -1,6 +1,7 @@
 package input;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,16 +12,11 @@ import java.util.HashSet;
  *
  */
 public class BulkLinesReader {
-	NqFileReader reader;
+	GzipNqFileReader reader;
 	boolean active;
-	public BulkLinesReader(String fileName) throws FileNotFoundException{
-			reader=new NqFileReader(fileName);
+	public BulkLinesReader(String fileName) throws IOException{
+			reader=new GzipNqFileReader(fileName);
 			active=true;
-	}
-	//Used for uncompressed stream, and other inputStreams
-	public BulkLinesReader(InputStream in){
-		reader=new NqFileReader(in);
-		active=true;
 	}
 	public void close(){
 		reader.close();
@@ -47,7 +43,7 @@ public class BulkLinesReader {
 			return null;
 		}
 	}
-	public NqFileReader getScanner(){
+	public GzipNqFileReader getScanner(){
 		return this.reader;
 	}
 	public ArrayList<String> nextLines(int maxSize) {
