@@ -6,7 +6,7 @@ public class FileNameManager {
 	
 	//private static final String fileNamePrefix="/data/dataStorage/temp/data-";	//for r50:
 	public static final String fileNamePrefix="/data/data-";		//for reveal
-	public static final String fileNameSuffix=".nq.parser.";
+	public static final String fileNameSuffix=".nq";
 	public static final String gzipFileNameSuffix=".gz";
 
 	public static String getFileName(String whichPart, int idx){

@@ -90,7 +90,7 @@ public class NqToGraphConverter {
 		for (int fId=0; fId<srcFiles.length; fId++){
 			new File(srcFiles[fId]).renameTo(new File(srcFiles[fId]+".toCut.0"));
 		}
-		final int maxSize=100000;
+		final int maxSize=100000000;
 		GzipNqFileWriter writer=null;
 		for (int fId=0,  lapsOfCut=0; fId<srcFiles.length;){
 			if (writer==null){
@@ -139,7 +139,7 @@ public class NqToGraphConverter {
 		for (String file: srcFiles){
 			new File(file).renameTo(new File(file+".toReplace."+lapsOfCut));
 		}
-		final int maxSize=100000;
+		final int maxSize=100000000;	//	max int (32bit) = 2,147,483,647
 		BulkFilesMapReader reader=new BulkFilesMapReader(mapFiles);
 		while (reader.hasNextLine()){
 			HashMap<String, Integer> A=reader.nextMap(maxSize);
@@ -163,10 +163,10 @@ public class NqToGraphConverter {
 	 * @return total number of lines in the file
 	 * @throws IOException
 	 */
-	public static int generateMapFile(String fileName, int previousIndex) throws IOException{
+	public static long generateMapFile(String fileName, long previousIndex) throws IOException{
 		GzipNqFileReader in=new GzipNqFileReader(fileName);
 		GzipNqFileWriter out=new GzipNqFileWriter(fileName+".map.temp");
-		int index;
+		long index;
 		for (index=previousIndex+1; in.hasNext(); index++){
 			String line=in.next();
 			line = line + " "+index;
@@ -182,8 +182,8 @@ public class NqToGraphConverter {
 	 * @return total number of lines.
 	 * @throws IOException
 	 */
-	public static int generateMultipleMapFiles(String [] fileNames, int previousIndex) throws IOException{
-		int index=previousIndex;
+	public static long generateMultipleMapFiles(String [] fileNames, long previousIndex) throws IOException{
+		long index=previousIndex;
 		for (String file: fileNames){
 			index += generateMapFile(file, index);
 		}
