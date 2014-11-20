@@ -11,6 +11,10 @@ public class NqToGraphConverter {
 	public static final int VERTEX_TYPE_OF_REPLACEMENT=0;
 	public static final int PREDICATE_TYPE_OF_REPLACEMENT=1;
 	public static final int SUBGRAPH_TYPE_OF_REPLACEMENT=2;
+
+	//related to java.lang.OutOfMemoryError: Java heap space
+	static final int  maxSize=5000000;	//	max int (32bit) = 2,147,483,647
+
 	/**
 	 * Scans all RDF parts in file B, when any part of a RDF can be found as a key of A, 
 	 * the part is replaced with corresponding value. Writes the resulting file into mappedFile.
@@ -90,7 +94,6 @@ public class NqToGraphConverter {
 		for (int fId=0; fId<srcFiles.length; fId++){
 			new File(srcFiles[fId]).renameTo(new File(srcFiles[fId]+".toCut.0"));
 		}
-		final int maxSize=100000000;
 		GzipNqFileWriter writer=null;
 		for (int fId=0,  lapsOfCut=0; fId<srcFiles.length;){
 			if (writer==null){
@@ -108,7 +111,7 @@ public class NqToGraphConverter {
 					writer.close();
 					writer=null;
 				}
-				new File(srcFiles[fId]+".toJoin").renameTo(new File(FileNameManager.getGzipFileName(srcFiles[fId], ".final")));
+				new File(srcFiles[fId]+".toJoin").renameTo(new File(FileNameManager.getChangedGzipFileName(srcFiles[fId], ".final")));
 				fId=fId+1;
 				continue;
 			}
@@ -139,7 +142,6 @@ public class NqToGraphConverter {
 		for (String file: srcFiles){
 			new File(file).renameTo(new File(file+".toReplace."+lapsOfCut));
 		}
-		final int maxSize=100000000;	//	max int (32bit) = 2,147,483,647
 		BulkFilesMapReader reader=new BulkFilesMapReader(mapFiles);
 		while (reader.hasNextLine()){
 			HashMap<String, Integer> A=reader.nextMap(maxSize);
@@ -173,7 +175,7 @@ public class NqToGraphConverter {
 			out.writeLine(line);
 		}
 		out.close();
-		new File(fileName+".map.temp").renameTo(new File(FileNameManager.getGzipFileName(fileName, ".map.final")));
+		new File(fileName+".map.temp").renameTo(new File(FileNameManager.getChangedGzipFileName(fileName, ".map.final")));
 		return index-previousIndex-1;
 	}
 	/**
