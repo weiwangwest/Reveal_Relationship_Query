@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import graph.Edge;
 import graph.Graph;
+import graph.Vertex;
 import performance.*;
 
 import input.DatasetLoaderWithJena;
@@ -43,18 +44,20 @@ public class CompressedHashBiMapperTest {
 	}
 	@Test
 	public void uriTest() throws Exception {
-		 Graph g=new Graph();
+		 Graph g=new Graph(Graph.GRAPH_CAPACITY);
 		 DatasetLoaderWithJena.resetAllValues(true);
 		 DatasetLoaderWithJena.addEntitiesFromBigGzipNq(g, DatasetLoaderWithJena.pathToDataFiles+"data-2.nq.gz");
 		 HashSet <String> predicates=new HashSet<String>();	// a list of edges
 		 CompressedHashBiMapper map=new CompressedHashBiMapper();
-		for (Edge e: g.E){
-			predicates.add(e.getTypeString());	//add edge type into HashSet
-			if (map.getValue(e.getTypeString())==-1){
-				map.put(e.getTypeString());	//add edge type into map 
-			}
-		}
-		System.out.println("number of edges ="+g.E.size());
+		 for (Vertex v: g.vertexValues()){
+			 for (Edge e: v.getEdges()){
+					predicates.add(e.getTypeString());	//add edge type into HashSet
+					if (map.getValue(e.getTypeString())==-1){
+						map.put(e.getTypeString());	//add edge type into map 
+					}
+				}			 
+		 }
+		System.out.println("number of edges ="+g.getEdgeNumber());
 		System.out.println("types of edges in predicate="+predicates.size());
 		System.out.println("types of edges in mapper="+map.size());
 		assertEquals(map.size(), predicates.size());

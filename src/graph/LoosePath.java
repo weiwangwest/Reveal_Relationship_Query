@@ -9,7 +9,7 @@ public class LoosePath implements Comparable<LoosePath>{
 		this.weight=0;
 		for (Edge e: edges){
 			this.edges.add(e);
-			this.weight += e.weight;
+			this.weight += e.getWeight();
 		}
 	}
 	public void print(){
@@ -33,50 +33,50 @@ public class LoosePath implements Comparable<LoosePath>{
 	public int compareTo(LoosePath lp) {
 		return Double.compare(lp.getWeight(), this.weight);		//longer paths before shorter ones in priority queue.
 	}
-	public Vertex getStartVertex(){
+	public Vertex getStartVertex(Graph g){
 		if (edges.size()==0){
 			return null;
 		}
 		Edge e0=edges.get(0);
 		if (edges.size()==1){
-			return e0.src;			
+			return g.getVertex(e0.getSource());			
 		}else{
 			Edge e1=edges.get(1);
-			if (e0.dst==e1.src||e0.dst==e1.dst){
-				return e0.src;
+			if (e0.getDestin()==e1.getSource()||e0.getDestin()==e1.getDestin()){
+				return g.getVertex(e0.getSource());
 			}else{
-				return e0.dst;
+				return g.getVertex(e0.getDestin());
 			}
 		}
 	}
-	public Vertex getEndVertex(){
+	public Vertex getEndVertex(Graph g){
 		if (edges.size()==0){
 			return null;
 		}
 		Edge e0=edges.get(edges.size()-1);
 		if (edges.size()==1){
-			return e0.dst;			
+			return g.getVertex(e0.getDestin());			
 		}else{
 			Edge e1=edges.get(edges.size()-2);
-			if (e0.src==e1.src||e0.src==e1.dst){
-				return e0.dst;
+			if (e0.getSource()==e1.getSource()||e0.getSource()==e1.getDestin()){
+				return g.getVertex(e0.getDestin());
 			}else{
-				return e0.src;
+				return g.getVertex(e0.getSource());
 			}
 		}
 	}
 	/**Returns vertices within a loose path, not including the start and end vertices.
 	 * When the loose path consists of a single edge, returns an empty ArrayList<Vertex>.
 	 */
-	public ArrayList<Vertex> getVerticesWithinPath(){
+	public ArrayList<Vertex> getVerticesWithinPath(Graph g){
 		ArrayList<Vertex>	vertices=new ArrayList<Vertex>();
 		Edge previous=null;
 		for(Edge current: edges){
 				if (previous !=null){
-					if (current.src==previous.src||current.src==previous.dst){
-						vertices.add(current.src);
+					if (current.getSource()==previous.getSource()||current.getSource()==previous.getDestin()){
+						vertices.add(g.getVertex(current.getSource()));
 					}else{ // (current.dst==previous.src||current.dst==previous.dst)
-						vertices.add(current.dst);
+						vertices.add(g.getVertex(current.getDestin()));
 					}
 				}
 				previous=current;
@@ -88,11 +88,11 @@ public class LoosePath implements Comparable<LoosePath>{
 		return new HashSet<Edge>(this.edges);
 	}
 	
-	public ArrayList<Vertex> getVertices(){	//list of vertices in the path, excluding the source and destination vertices.
+	public ArrayList<Vertex> getVertices(Graph g){	//list of vertices in the path, excluding the source and destination vertices.
 		ArrayList<Vertex>	vertices=new ArrayList<Vertex>();
-		vertices.add(this.getStartVertex());
-		vertices.addAll(this.getVerticesWithinPath());
-		vertices.add(this.getEndVertex());
+		vertices.add(this.getStartVertex(g));
+		vertices.addAll(this.getVerticesWithinPath(g));
+		vertices.add(this.getEndVertex(g));
 		return vertices;
 	}
 }

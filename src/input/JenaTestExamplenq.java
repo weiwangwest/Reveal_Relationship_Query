@@ -1,5 +1,7 @@
 package input;
 import graph.Graph;
+import graph.GraphManager;
+import graph.Tree;
 import graph.Vertex;
 
 import java.util.*;
@@ -10,7 +12,7 @@ import org.apache.jena.riot.RDFLanguages;
 
 public class JenaTestExamplenq {
 	public static void main(String[] args) {
-		Graph G = new Graph();
+		Graph G = new Graph(Graph.GRAPH_CAPACITY);
 		System.out.println("\n\n**********1. G: the Original Graph***************");
 		Dataset dataset = RDFDataMgr.loadDataset(
 				DatasetLoaderWithJena.pathToDataFiles+"example.nq",
@@ -44,39 +46,39 @@ public class JenaTestExamplenq {
 		G.print();
 		G.printVerticesStastisticsGraph();
 		G.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(G));
+		System.out.println("--------test: is it a tree?----------\n"+ GraphManager.isATree(G));
 
 		System.out.println("\n\n**********2. The Breath First Spanning Tree***************");
-		Graph g = G.getBreathFirstSpanningTree(G.V, G.E);
-		g.printTree(g);
+		Tree g = GraphManager.getBreathFirstSpanningTree(G);
+		g.print();
 		G.printVerticesStastisticsGraph();
 		g.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(g));
+		System.out.println("--------test: is it a tree?----------\n"+ GraphManager.isATree(g));
 
 		System.out.println("\n\n********3. T: The original steiner tree,	 VPrime: the set of terminal nodes***************");
 		G.clearAll(); // clear all tags.
 		
 		// store terminal(required)  nodes in VPrime.
 		HashMap<String, Vertex> VPrime = new HashMap<String, Vertex>(); 
-		VPrime.put("http://example.org/bob/foaf.rdf", G.V.get("http://example.org/bob/foaf.rdf"));
-		VPrime.put("http://example.org/bob/", G.V.get("http://example.org/bob/"));
-		VPrime.put("http://xmlns.com/foaf/0.1/Person", G.V.get("http://xmlns.com/foaf/0.1/Person"));
+		VPrime.put("http://example.org/bob/foaf.rdf", G.getVertex(Vertex.vertexMap.getValue("http://example.org/bob/foaf.rdf")));
+		VPrime.put("http://example.org/bob/", G.getVertex(Vertex.vertexMap.getValue("http://example.org/bob/")));
+		VPrime.put("http://xmlns.com/foaf/0.1/Person", G.getVertex(Vertex.vertexMap.getValue("http://xmlns.com/foaf/0.1/Person")));
 		
 		// find first Steiner tree.
-		Graph T = G.getFirstSteinerTree(VPrime); 
-		T.printTree(T);
-		T.printVerticesStastisticsTree();
+		Tree T = GraphManager.getFirstSteinerTree(G, VPrime); 
+		T.print();
+		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(T));
+		System.out.println("--------test: is it a tree?----------\n"+ GraphManager.isATree(T));
 
 		// improve the Steiner tree
 		System.out.println("\n\n********5. The BEST steiner tree***************");
-		T = G.improveTree(T); // Of course T has been changed during improveTree(T)
+		T = GraphManager.improveTree(G, T); // Of course T has been changed during improveTree(T)
 		
 		System.out.println("\n\n*******************The Final tree*******************");
-		T.printTree(T);
-		T.printVerticesStastisticsTree();
+		T.print();
+		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(T));
+		System.out.println("--------test: is it a tree?----------\n"+ GraphManager.isATree(T));
 	}
 }

@@ -4,7 +4,7 @@ import java.util.*;
 public class SimpleTest {
 	public static void main(String[] args) {
 		System.out.println("\n\n**********1. G: the Original Graph***************");
-		Graph G=new Graph();
+		Graph G=new Graph(Graph.GRAPH_CAPACITY);
 		G.addVertex(new Vertex("entity"));
 		G.addVertex(new Vertex("person"));
 		G.addVertex(new Vertex("scientist"));
@@ -32,64 +32,64 @@ public class SimpleTest {
 		G.addEdge("Arnold Schwarzenegger", "actor", "type", 0.95);		
 		G.addEdge("Angela Merkel", "Germany", "chancellorOf", 0.96);		
 		G.print();
-		G.printVerticesStastisticsTree();
+		G.printVerticesStastisticsGraph();
 		G.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+Graph.isATree(G));
+		System.out.println("--------test: is it a tree?----------\n"+GraphManager.isATree(G));
 
 		System.out.println("\n\n**********2. The Breath First Spanning Tree***************");
-		Graph g=G.getBreathFirstSpanningTree(G.V, G.E);
-		g.printTree(g);
-		G.printVerticesStastisticsTree();
+		Tree g=GraphManager.getBreathFirstSpanningTree(G);
+		g.print();
+		G.printVerticesStastisticsGraph();
 		g.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+Graph.isATree(g));
+		System.out.println("--------test: is it a tree?----------\n"+GraphManager.isATree(g));
 		
 		System.out.println("\n\n********3. T: The original steiner tree,	 VPrime: the set of terminal nodes***************");
 		G.clearAll();		//clear all tags.
 		HashMap<String, Vertex> VPrime=new HashMap<String, Vertex>(); //store terminal nodes in VPrime.
-		VPrime.put("Max Planck", G.V.get(Vertex.vertexMap.getValue("Max Planck")));
-		VPrime.put("Arnold Schwarzenegger", G.V.get(Vertex.vertexMap.getValue("Arnold Schwarzenegger")));
-		VPrime.put("Germany", G.V.get(Vertex.vertexMap.getValue("Germany")));
-		Graph T=G.getFirstSteinerTree(VPrime); //find Steiner tree.
-		T.printTree(T);
-		T.printVerticesStastisticsTree();
+		VPrime.put("Max Planck", G.getVertex(Vertex.vertexMap.getValue("Max Planck")));
+		VPrime.put("Arnold Schwarzenegger", G.getVertex(Vertex.vertexMap.getValue("Arnold Schwarzenegger")));
+		VPrime.put("Germany", G.getVertex(Vertex.vertexMap.getValue("Germany")));
+		Tree T=GraphManager.getFirstSteinerTree(G, VPrime); //find Steiner tree.
+		T.print();
+		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+Graph.isATree(T));
+		System.out.println("--------test: is it a tree?----------\n"+GraphManager.isATree(T));
 
 		System.out.println("\n\n********4. T: the manually built steiner tree***************");
 		G.clearAll();		//clear all tags.
-		T.V.clear();
+		T.clearVertex();
 		T.E.clear();
 
 		//set terminals
-		G.V.get(Vertex.vertexMap.getValue("Max Planck")).setTerminal(true);
-		G.V.get(Vertex.vertexMap.getValue("Arnold Schwarzenegger")).setTerminal(true);
-		G.V.get(Vertex.vertexMap.getValue("Germany")).setTerminal(true);
+		G.getVertex(Vertex.vertexMap.getValue("Max Planck")).setTerminal(true, T);
+		G.getVertex(Vertex.vertexMap.getValue("Arnold Schwarzenegger")).setTerminal(true, T);
+		G.getVertex(Vertex.vertexMap.getValue("Germany")).setTerminal(true, T);
 		
 		//manually build the original steiner tree.
 		for (String str: "entity,person,scientist,organization unit,physicist,politician,state,Max Planck,Arnold Schwarzenegger,Germany".split(",")){
 			int id=Vertex.vertexMap.getValue(str);
-			T.V.put(id, G.V.get(id));			
+			T.addVertex (G.getVertex(id));			
 		}
-		T.E.add(G.getDirectedEdge("person", "entity"));
-		T.E.add(G.getDirectedEdge("organization unit", "entity"));
-		T.E.add(G.getDirectedEdge("scientist", "person"));
-		T.E.add(G.getDirectedEdge("physicist", "scientist"));
-		T.E.add(G.getDirectedEdge("politician", "person"));
-		T.E.add(G.getDirectedEdge("state", "organization unit"));
-		T.E.add(G.getDirectedEdge("Germany", "state"));
-		T.E.add(G.getDirectedEdge("Max Planck", "physicist"));
-		T.E.add(G.getDirectedEdge("Arnold Schwarzenegger", "politician"));
-		T.printTree(T);
-		T.printVerticesStastisticsTree();
+		T.E.add(G.getAnyEdgeBetween("person", "entity"));
+		T.E.add(G.getAnyEdgeBetween("organization unit", "entity"));
+		T.E.add(G.getAnyEdgeBetween("scientist", "person"));
+		T.E.add(G.getAnyEdgeBetween("physicist", "scientist"));
+		T.E.add(G.getAnyEdgeBetween("politician", "person"));
+		T.E.add(G.getAnyEdgeBetween("state", "organization unit"));
+		T.E.add(G.getAnyEdgeBetween("Germany", "state"));
+		T.E.add(G.getAnyEdgeBetween("Max Planck", "physicist"));
+		T.E.add(G.getAnyEdgeBetween("Arnold Schwarzenegger", "politician"));
+		T.print();
+		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+Graph.isATree(T));
+		System.out.println("--------test: is it a tree?----------\n"+GraphManager.isATree(T));
 
 		System.out.println("\n\n********5. The BEST steiner tree***************");
-		T=G.improveTree(T);	//Of course T has been changed during improveTree(T)
+		T=GraphManager.improveTree(G, T);	//Of course T has been changed during improveTree(T)
 		System.out.println("\n\n*******************The Final tree*******************");
-		T.printTree(T);
-		T.printVerticesStastisticsTree();
+		T.print();
+		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+Graph.isATree(T));
+		System.out.println("--------test: is it a tree?----------\n"+GraphManager.isATree(T));
 	}
 }

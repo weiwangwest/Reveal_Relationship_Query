@@ -1,5 +1,7 @@
 package input;
 import graph.Graph;
+import graph.GraphManager;
+import graph.Tree;
 import graph.Vertex;
 
 import java.util.*;
@@ -16,7 +18,7 @@ public class JenaTestSubClassnq {
 		Timer.start(null);
 
 		Timer.tick("1. G: the Original Graph");
-		Graph G = new Graph();
+		Graph G = new Graph(Graph.GRAPH_CAPACITY);
 		Dataset dataset = RDFDataMgr.loadDataset(
 				DatasetLoaderWithJena.pathToDataFiles+"subclass.nq",
 				RDFLanguages.NQUADS);
@@ -65,30 +67,30 @@ public class JenaTestSubClassnq {
 		// store terminal nodes in VPrime.
 		HashMap<Integer, Vertex> VPrime = new HashMap<Integer, Vertex>(); 
 		int id;
-		VPrime.put(id=Vertex.vertexMap.getValue("http://rdf.data-vocabulary.org/#Organization"), G.V.get(id));
-		VPrime.put(id=Vertex.vertexMap.getValue("http://aims.fao.org/aos/geopolitical.owl#territory"), G.V.get(id));
+		VPrime.put(id=Vertex.vertexMap.getValue("http://rdf.data-vocabulary.org/#Organization"), G.getVertex(id));
+		VPrime.put(id=Vertex.vertexMap.getValue("http://aims.fao.org/aos/geopolitical.owl#territory"), G.getVertex(id));
 //		<http://aims.fao.org/aos/geopolitical.owl#territory> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://aims.fao.org/aos/geopolitical.owl#area> <http://aims.fao.org/aos/geopolitical.owl> .
 //		<http://aims.fao.org/aos/geopolitical.owl#territory> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://aims.fao.org/aos/geopolitical.owl#area> <http://aims.fao.org/geopolitical.owl> .
 //		<http://aims.fao.org/aos/geopolitical.owl#area> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://www.w3.org/2002/07/owl#Thing> <http://aims.fao.org/aos/geopolitical.owl> .
 //		<http://aims.fao.org/aos/geopolitical.owl#area> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://www.w3.org/2002/07/owl#Thing> <http://aims.fao.org/geopolitical.owl> .
-		VPrime.put(id=Vertex.vertexMap.getValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#Resource"), G.V.get(id));
+		VPrime.put(id=Vertex.vertexMap.getValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#Resource"), G.getVertex(id));
 
 		// find Steiner tree.
-		Graph T = G.getArtificialSteinerTree(VPrime); 
-		T.printTree(T);
-		T.printVerticesStastisticsTree();
+		Tree T = GraphManager.getArtificialSteinerTree(G, VPrime); 
+		T.print();
+		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		Timer.tick("--------test: is it a tree?----------\n"+ Graph.isATree(T));
+		Timer.tick("--------test: is it a tree?----------\n"+ GraphManager.isATree(T));
 		
 		// Of course T has been changed during improveTree(T)
 		Timer.tick("5. The BEST steiner tree");
-		T = G.improveTree(T); 
+		T = GraphManager.improveTree(G, T); 
 	
 		Timer.tick("The Final tree");
-		T.printTree(T);
-		T.printVerticesStastisticsTree();
+		T.print();
+		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		Timer.tick("--------test: is it a tree?----------\n"+ Graph.isATree(T));
+		Timer.tick("--------test: is it a tree?----------\n"+ GraphManager.isATree(T));
 		
 		Timer.stop("");
 	}
@@ -96,20 +98,20 @@ public class JenaTestSubClassnq {
 		Timer.start(null);
 
 		Timer.tick("1. G: the Original Graph");
-		Graph G = new Graph();
+		Graph G = new Graph(Graph.GRAPH_CAPACITY);
 		DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(
 				G, DatasetLoaderWithJena.pathToDataFiles+"subclass.nq");
 
 		Timer.tick("2. T: The original steiner tree,	 VPrime: the set of terminal nodes");
-		Graph T = G.findBestSteinerTree(new String[] {"http://rdf.data-vocabulary.org/#Organization",
+		Tree T = GraphManager.findBestSteinerTree(G, new String[] {"http://rdf.data-vocabulary.org/#Organization",
 				"http://aims.fao.org/aos/geopolitical.owl#territory",
 				"http://www.w3.org/1999/02/22-rdf-syntax-ns#Resource"
 				});
 		Timer.tick("3. The Final tree");
-		T.printTree(T);
-		T.printVerticesStastisticsTree();
+		T.print();
+		T.printVerticesStastistics();
 		T.printEdgesStastistics();
-		Timer.tick("--------test: is it a tree?----------\n"+ Graph.isATree(T));		
+		Timer.tick("--------test: is it a tree?----------\n"+ GraphManager.isATree(T));		
 		Timer.stop("");
 	}
 }

@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import graph.Edge;
 import graph.Graph;
+import graph.Vertex;
 import input.DatasetLoaderWithJena;
 
 import java.util.ArrayList;
@@ -88,20 +89,22 @@ public class DBMapperTest {
 	}
 	@Test
 	public void uriTest() throws Exception{
-		 Graph g=new Graph();
+		 Graph g=new Graph(Graph.GRAPH_CAPACITY);
 		 DatasetLoaderWithJena.resetAllValues(true);
 		 DatasetLoaderWithJena.addEntitiesFromBigGzipNq(g, DatasetLoaderWithJena.pathToDataFiles+"data-2.nq.gz");
 		 HashSet <String> predicates=new HashSet<String>();	// a list of edges
 		 DBMapper map=new DBMapper("vertex");
 		 map.clear();
 		 ArrayList<String>missedStrings=new ArrayList<String>();
-		for (Edge e: g.E){
-			predicates.add(e.getTypeString());	//add edge type into HashSet
-			if (map.getValue(e.getTypeString())==-1){
-					map.put(e.getTypeString());
-			}
-		}
-		System.out.println("number of edges ="+g.E.size());
+		 for (Vertex v: g.vertexValues()){
+			 for (Edge e: v.getEdges()){
+					predicates.add(e.getTypeString());	//add edge type into HashSet
+					if (map.getValue(e.getTypeString())==-1){
+							map.put(e.getTypeString());
+					}
+				}			 
+		 }
+		System.out.println("number of edges ="+g.getEdgeNumber());
 		System.out.println("types of edges in predicate="+predicates.size());
 		System.out.println("types of edges in mapper="+map.size());
 		System.out.println(missedStrings);

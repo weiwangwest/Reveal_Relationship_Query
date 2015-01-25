@@ -2,22 +2,27 @@ package graph;
 
 import input.DatasetLoaderWithJena;
 import java.util.*;
+
 import fundamental.DBMapper;
 
 
 public class Vertex implements Comparable<Vertex> {
+	//static public DBMapper vertexMap=new DBMapper("vertex");
 	static public DBMapper vertexMap=new DBMapper("vertex");
 	//a way to switch between the current sorting method used for compareTo, which is used by PriorityQueue
 	//remember each time before we operate on Qi  (i=1,2,...), we must set CURRENT_IDEX to i.
+	private static int CURRENT_INDEX;	
 	int id;
-	boolean isTerminal;
 	boolean isVisited;
-	private static int CURRENT_INDEX;		 
 	double d1; //for find shortest path: distance to T1 
 	double d2; //for find shortest path: distance to T2
 	Vertex predecessor1;	//each node v visited by the current iterator, we maintain its	current predecessor, that is, the node v from which the iterator reached v
 	Vertex predecessor2;	//each node v visited by the current iterator, we maintain its	current predecessor, that is, the node v from which the iterator reached v
-	LinkedList<Edge> edges;	//For Steiner tree problem, degree=in degree+out degree 
+	ArrayList<Edge> edges;	//For Steiner tree problem, degree=in degree+out degree
+
+	public List<Edge> getEdges(){
+		return this.edges;
+	}
 	public static void setIdx(int idx){
 		Vertex.CURRENT_INDEX=idx;
 	}
@@ -49,10 +54,24 @@ public class Vertex implements Comparable<Vertex> {
 			return d2;
 		}
 	}
-	public Vertex(String name) {
-		this.id=vertexMap.put(name);
-		this.isTerminal=false;
-		edges=new LinkedList<Edge>();
+	public Vertex(String name){
+		this(vertexMap.put(name));
+	}
+	public Vertex(Vertex v){	// deep copy from an existing vertex
+		this.d1=v.d1;
+		this.d2=v.d2;
+		this.edges=new ArrayList<Edge>();
+		for (Edge e: v.edges){
+			this.edges.add(new Edge(e));
+		}
+		this.id=v.id;
+		this.isVisited=v.isVisited;
+		this.predecessor1=v.predecessor1;
+		this.predecessor2=v.predecessor2;
+	}
+	public Vertex(int id) {
+		this.id=id;
+		edges=new ArrayList<Edge>();
 	}
 	//return values of getUnvisitedDegree()
 	//0 -- it's a isolated vertex(all edges have been visited) 
@@ -77,7 +96,7 @@ public class Vertex implements Comparable<Vertex> {
 		}
 		return unvisited;
 	}
-	public int getUnvisitedDegreeInTree(Graph T){
+	public int getUnvisitedDegreeInTree(Tree T){
 		int unvisited=0;
 		for (Edge e: this.edges){
 			if (T.E.contains(e) && !e.isVisited()){
@@ -95,16 +114,32 @@ public class Vertex implements Comparable<Vertex> {
 	//returns any Edge connecting the this vertex and v
 	public Edge getAnyEdgeBetween(Vertex v){
 		for (Edge e: this.edges){
-			if (e.getSource()==v||e.getDestin()==v){
+			if (e.getSource()==v.getId()||e.getDestin()==v.getId()){
 				return e;
 			}
+		}
+		return null;
+	}
+	public Edge getDirectedEdgeTo(Vertex dst){
+		for (Edge e: this.edges){
+			if (e.getDestin()==dst.getId()){
+				return e;
+			}		
+		}
+		return null;
+	}
+	public Edge getDirectedEdgeFrom(Vertex src){
+		for (Edge e: this.edges){
+			if (e.getSource()==src.getId()){
+				return e;
+			}		
 		}
 		return null;
 	}
 	public Edge getTheLeastWeightEdgeBetween(Vertex v){
 		Edge result=null;
 		for (Edge e: this.edges){
-			if (e.getSource()==v||e.getDestin()==v){
+			if (e.getSource()==v.getId()||e.getDestin()==v.getId()){
 				if (result==null || Double.compare(e.getWeight(), result.getWeight())<0){
 					result = e;
 				}
@@ -112,7 +147,7 @@ public class Vertex implements Comparable<Vertex> {
 		}
 		return result;
 	}
-	public Edge getAnyUnvisitedEdgeInTree(Graph T){
+	public Edge getAnyUnvisitedEdgeInTree(Tree T){
 		for (Edge e: this.edges){
 			if (T.E.contains(e)&& !e.isVisited()){
 				return e;
@@ -129,7 +164,7 @@ public class Vertex implements Comparable<Vertex> {
 		return null;
 	}
 	//get any other edge connected to this vertex in T to build a loose path.
-	public Edge getAnyOtherEdgeInLoosePath(Edge e, Graph T){
+	public Edge getAnyOtherEdgeInLoosePath(Edge e, Tree T){
 		for (Edge edge: this.edges){
 			if (T.E.contains(edge) && edge != e){
 				return edge;
@@ -157,7 +192,7 @@ public class Vertex implements Comparable<Vertex> {
 	@Override
 	public String toString(){
 		try{
-			return this.getNameString();
+			return String.valueOf(this.id);
 		}catch(Exception e){
 			System.out.println(e.getMessage());
 			System.out.println(e.getCause());
@@ -167,14 +202,14 @@ public class Vertex implements Comparable<Vertex> {
 	}
 	//return all vertices in T connected to this vertex.
 	//otherwise return an empty map;
-	public Map<Integer, Vertex> getAdjacentsInTree(Graph g){
+	public Map<Integer, Vertex> getAdjacentsInTree(Tree g){
 		Map<Integer, Vertex> adj=new HashMap<Integer, Vertex>();
 		for (Edge e: this.edges){
 			if (g.E.contains(e)){
-				if (e.src!=this){
-					adj.put(e.src.getId(), e.src);
+				if (e.getSource()!=this.getId()){
+					adj.put(e.getSource(), g.getVertex(e.getSource()));
 				}else{ 
-					adj.put(e.dst.getId(), e.dst);
+					adj.put(e.getDestin(), g.getVertex(e.getDestin()));
 				}
 			}
 		}
@@ -182,16 +217,16 @@ public class Vertex implements Comparable<Vertex> {
 	}
 	//return all vertices connected to this vertex.
 	//otherwise return null;
-	public Map<Integer, Vertex> getAdjacents(){
+	public Map<Integer, Vertex> getAdjacents(Graph g){
 		Map<Integer, Vertex> adj=null;
 		for (Edge e: this.edges){
 			if (adj==null){
 				adj=new HashMap<Integer, Vertex>();
 			}
-			if (e.src!=this){
-				adj.put(e.src.getId(), e.src);
+			if (e.getSource()!=this.getId()){
+				adj.put(e.getSource(), g.getVertex(e.getSource()));
 			}else{
-				adj.put(e.dst.getId(), e.dst);
+				adj.put(e.getDestin(), g.getVertex(e.getDestin()));
 			}
 		}
 		return adj;
@@ -208,7 +243,7 @@ public class Vertex implements Comparable<Vertex> {
 		}
 		return degree;
 	}
-	public int getDegreeInTree(Graph T){
+	public int getDegreeInTree(Tree T){
 		int degree=0;
 		for (Edge e: this.edges){
 			if (T.E.contains(e)){
@@ -225,11 +260,11 @@ public class Vertex implements Comparable<Vertex> {
 	}
 	@Override
 	public boolean equals(Object obj){		//We suppose: any vertex in a graph has only one Vertex instance.
-		if (!(obj instanceof Vertex)){
+		if (obj==null){
 			return false;
 		}
-		if (this==obj){
-			return true;
+		if (!(obj instanceof Vertex)){
+			return false;
 		}
 		Vertex that=(Vertex) obj;
 		return (this.getId()==that.getId());
@@ -237,18 +272,23 @@ public class Vertex implements Comparable<Vertex> {
 	public int getId() {
 		return this.id;
 	}
-	public String getNameString() {
-		return vertexMap.getKey(this.id);
+	public int getNameString() {
+		//return vertexMap.getKey(this.id);
+		return this.id;
 	}
 	public boolean isContainedBy(Graph T){
 		//return T.V.values().contains(this);
 		return T.contains(this);
 	}
-	public boolean isTerminal(){
-		return this.isTerminal;
+	public boolean isTerminal(Tree tree){
+		return tree.hasTerminal(this);
 	}
-	public void setTerminal(boolean t){
-		this.isTerminal=t;
+	public void setTerminal(boolean t, Tree tree){
+		if (t==false){
+			tree.removeTerminal(this);
+		}else{
+			tree.addTerminal(this);
+		}
 	}
 	@Override
 	public int compareTo(Vertex v) {
@@ -259,27 +299,27 @@ public class Vertex implements Comparable<Vertex> {
 		}
 	}
 	public static void main(String args[]) throws Exception{
-		Graph G = new Graph();
+		Graph G = new Graph(Graph.GRAPH_CAPACITY);
 		DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(G, DatasetLoaderWithJena.pathToDataFiles+"example.nq");
 	    Random rand = new Random();
-		for (Vertex v: G.V.values()){		//1: for all v ∈ V do
+		for (Vertex v: G.vertexValues()){		//1: for all v ∈ V do
 				v.d1=rand.nextInt((1000-0) + 1) + 0;
 				v.d2=rand.nextInt((1000-0) + 1) + 0;
 		}	//4: end for
 		PriorityQueue <Vertex> Q1=new PriorityQueue <Vertex>();
 		PriorityQueue <Vertex> Q2=new PriorityQueue <Vertex>();
-		for (Vertex v: G.V.values()){
-			Graph.Q(Q1, Q2, 1).add(v);
-			Graph.Q(Q1, Q2, 2).add(v);
+		for (Vertex v: G.vertexValues()){
+			GraphManager.Q(Q1, Q2, 1).add(v);
+			GraphManager.Q(Q1, Q2, 2).add(v);
 		}
-		while (!(Graph.Q(Q1, Q2, 1)).isEmpty()){
-			Vertex v=Graph.Q(Q1,Q2,1).poll();
+		while (!(GraphManager.Q(Q1, Q2, 1)).isEmpty()){
+			Vertex v=GraphManager.Q(Q1,Q2,1).poll();
 			System.out.println(v.getNameString() + "		" +v.d1);
 		}
 		System.out.println("---------------------");
 		Vertex.setIdx(2);		
-		while (!Graph.Q(Q1, Q2, 2).isEmpty()){
-			Vertex v=Graph.Q(Q1, Q2, 2).poll();
+		while (!GraphManager.Q(Q1, Q2, 2).isEmpty()){
+			Vertex v=GraphManager.Q(Q1, Q2, 2).poll();
 			System.out.println(v.getNameString()+ "		" +v.d2);
 		}
 	}

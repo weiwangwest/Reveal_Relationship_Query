@@ -1,6 +1,8 @@
 package performance;
 import fundamental.Randomizer;
 import graph.Graph;
+import graph.GraphManager;
+import graph.Tree;
 
 import input.DatasetLoaderWithJena;
 
@@ -13,7 +15,7 @@ public class  STARperformanceTestOnBigDataset {
 	
 	public static void main(String[] args) throws Exception {		
 		Timer.start(null);		
-		Graph G=new Graph();
+		Graph G=new Graph(Graph.GRAPH_CAPACITY);
 		// entities list
 		DatasetLoaderWithJena.resetAllValues(true);	//DatasetLoaderWithJena.Entities=Vertex.vertexMap;	
 
@@ -95,14 +97,14 @@ public class  STARperformanceTestOnBigDataset {
 							}
 							queryRecordTxt = lineRequiredVertices;
 							Timer.tick(lineRequiredVertices);
-							Graph T=G.findBestSteinerTree(requiredVertices);
+							Tree T=GraphManager.findBestSteinerTree(G, requiredVertices);
 	/*						if (T.getWeight(T) >= 1000){	//if there is at least one isolated vertex in the tree.
 								queryId --;		//select another set of entities.
 								continue QUERYID ;
 							}
 	*/
 							runTimes[queryRun]=Timer.tick(null);
-							queryRecordTxt += "\n"+T.printTreeToString(T)+"\n";
+							queryRecordTxt += "\n"+T.printTreeToString()+"\n";
 							runTimeOfCurrentQueryId +=runTimes[queryRun];
 						} // for queryRun
 						

@@ -1,5 +1,6 @@
 package input;
 import graph.Graph;
+import graph.GraphManager;
 import graph.Vertex;
 
 import java.util.*;
@@ -10,7 +11,7 @@ import org.apache.jena.riot.RDFLanguages;
 
 public class JenaTest {
 	public static void main(String[] args) {
-		Graph G = new Graph();
+		Graph G = new Graph(Graph.GRAPH_CAPACITY);
 		System.out.println("\n\n**********1. G: the Original Graph***************");
 		Dataset dataset = RDFDataMgr.loadDataset(
 				DatasetLoaderWithJena.pathToDataFiles+"subclass.nq",
@@ -44,14 +45,14 @@ public class JenaTest {
 		//G.print();
 		//G.printVerticesStastistics();
 		//G.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(G));
+		System.out.println("--------test: is it a tree?----------\n"+ GraphManager.isATree(G));
 
 		System.out.println("\n\n**********2. The Breath First Spanning Tree***************");
-		Graph g = G.getBreathFirstSpanningTree(G.V, G.E);
+		Graph g = GraphManager.getBreathFirstSpanningTree(G);
 		//g.printTree(g);
 		//G.printVerticesStastistics();
 		//g.printEdgesStastistics();
-		System.out.println("--------test: is it a tree?----------\n"+ Graph.isATree(g));
+		System.out.println("--------test: is it a tree?----------\n"+ GraphManager.isATree(g));
 
 		System.out.println("\n\n********3. T: The original steiner tree,	 VPrime: the set of terminal nodes***************");
 		G.clearAll(); // clear all tags.

@@ -19,6 +19,9 @@ public class CompressedString {
     }
 	@Override
 	public boolean equals(Object o){
+		if (o==null){
+			return false;
+		}
 		if (!(o instanceof CompressedString)){
 			return false;
 		}

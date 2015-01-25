@@ -3,53 +3,68 @@ package graph;
 import fundamental.DBMapper;
 
 public class Edge {
-	static DBMapper edgeMap=new DBMapper("edge_type");
-	//todo: private members, public methods.
-	Vertex src;
-	Vertex dst;
-	int nameOfType;
-	double weight;
-	boolean isVisited;
-	public Vertex getAnotherVertex(Vertex v){
-		if (this.src==v){
-			return this.dst;
-		}else if (this.dst==v){
-			return this.src;
+	private static DBMapper edgeMap=new DBMapper("edge_type");
+	private int src;
+	private int dst;
+	private int typeOfEdge;
+	private double weight;
+	private boolean isVisited;
+	public Vertex getAnotherVertex(Vertex v, Graph g){
+		if (this.src==v.getId()){
+			return g.getVertex(this.dst);
+		}else if (this.dst==v.getId()){
+			return g.getVertex(this.src);
 		}else{
 			return null;
 		}
 	}
-	public Edge getNextEdgeInLoosePath(Vertex v, Graph g){ //get another edge of the vertex in loose path
-		Vertex v1=this.getAnotherVertex(v);
+	public void setWeight(double weight){
+		this.weight=weight;
+	}
+	public static DBMapper getEdgeMap(){
+		return Edge.edgeMap;
+	}
+	public Edge getNextEdgeInLoosePath(Vertex v, Tree g){ //get another edge of the vertex in loose path
+		Vertex v1=this.getAnotherVertex(v, g);
 		return v1.getAnyOtherEdgeInLoosePath(this, g);
 	}
 	public Edge clone(){
 		return new Edge(this);
 	}
 	public Edge(Edge e){
-		this.src=e.src;
-		this.dst=e.dst;
-		this.nameOfType=e.nameOfType;
-		this.weight=e.weight;
+		this(e.src, e.dst, e.typeOfEdge, e.weight);
 		this.isVisited=e.isVisited;
 	}
 	public Edge(Vertex src, Vertex dst, String type, double w){
-		this.src=src;
-		this.dst=dst;
-		nameOfType=edgeMap.put(type);
+		this(src, dst, edgeMap.put(type),w);		
+	}
+	public Edge(Vertex src, Vertex dst, int type, double w){
+		this.src=src.getId();
+		this.dst=dst.getId();
+		typeOfEdge=type;
 		weight=w;
 		isVisited=false;
 	}
-	public Vertex getSource(){
+	public Edge(int src, int dst, int type , double w){
+		this.src=new Vertex(src).getId();
+		this.dst=new Vertex(dst).getId();
+		typeOfEdge=type;
+		weight=w;
+		isVisited=false;
+	}
+	public int getSource(){
 		return this.src;
 	}
-	public Vertex getDestin(){
+	public int getDestin(){
 		return this.dst;
 	}
 	@Override
 	public boolean equals(Object obj){
 		//Suppose: any two vertices must have at most one edge of  a given name of type at most.
 		// Any edge has but only one Edge instance.
+		if (obj==null){
+			return false;
+		}
 		if (!(obj instanceof Edge)){
 			return false;
 		}
@@ -57,14 +72,16 @@ public class Edge {
 			return true;
 		}
 		Edge that=(Edge)obj;
-		return  that.getSource().getId()==this.getSource().getId() 
-				&&that.getDestin().getId()==this.getDestin().getId();
+		return  that.getSource()==this.getSource()
+				&&that.getDestin()==this.getDestin()
+				&&that.getType()==this.getType();
 	}
 	public int getType(){
-		return nameOfType;
+		return typeOfEdge;
 	}
 	public String getTypeString(){
-		return edgeMap.getKey(this.getType());
+		//return edgeMap.getKey(this.getType());
+		return String.valueOf(this.typeOfEdge);
 	}
 	public boolean isVisited(){
 		return this.isVisited;
@@ -76,16 +93,19 @@ public class Edge {
 		return weight;
 	}
 	public void print(){		
-		System.out.println(src.getNameString()+" -- ("+this.getTypeString()+", "+weight+") --> "+dst.getNameString());
+		System.out.println(src +" -- ("+this.getTypeString()+", "+weight+") --> "+dst);
 	}
 	@Override
 	public String toString(){
-		return new String(src.getNameString()+" -- ("+this.getTypeString()+", "+weight+") --> "+dst.getNameString());
+		return new String(src +" -- ("+this.getTypeString()+", "+weight+") --> "+dst);
 	}
-	public boolean isContainedByTree(Graph t){
-		return t.E.contains(this);
+	public boolean isContainedByTree(Graph graph){
+		return graph.contains(this);
 	}
 	public boolean isContainedBy(Graph g) {
 		return g.contains(this);
 	}
-}
+}	
+
+
+

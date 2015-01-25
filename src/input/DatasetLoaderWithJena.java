@@ -127,23 +127,6 @@ public class DatasetLoaderWithJena {
 			//A+B+C+D distinct		
 	}
 	
-	public void unGunzipFile(String compressedFile, String decompressedFile) {
-		byte[] buffer = new byte[1024];
-		try {
-			FileInputStream fileIn = new FileInputStream(compressedFile);
-			GZIPInputStream gZIPInputStream = new GZIPInputStream(fileIn);
-			FileOutputStream fileOutputStream = new FileOutputStream(decompressedFile);
-			int bytes_read;
-			while ((bytes_read = gZIPInputStream.read(buffer)) > 0) {
-				fileOutputStream.write(buffer, 0, bytes_read);
-			}
-			gZIPInputStream.close();
-			fileOutputStream.close();
-			System.out.println("The file was decompressed successfully!");
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-	}
 	public static void addEntitiesFromInputStreamExceptionHandler(Graph G, InputStream inputStream, String fileName) throws IOException {
 		final int lineCapacityOfPartFile=2500; 
 		BufferedReader bigFileReader = new BufferedReader(new InputStreamReader(inputStream));
