@@ -3,6 +3,7 @@ package graph;
 import static org.junit.Assert.*;
 
 import fundamental.DBMapper;
+import fundamental.FileNameManager;
 import fundamental.Randomizer;
 import input.DatasetLoaderWithJena;
 
@@ -34,14 +35,18 @@ public class GraphManagerTest {
 		for (int i = 1; i <= 10; i++) {
 			for (int run = 0; run < 100; run++) {
 				Graph tree = GraphManager.produceRandomTree(i);
-				assertTrue("not a tree", GraphManager.isATree(tree));
+				assertTrue(tree.shadowEdges().size()==0);				
+				boolean b=GraphManager.isATree(tree);
+				if (b==false){
+					assertTrue("not a tree", GraphManager.isATree(tree));					
+				}
 			}
 		}
 	}
 	@Test
 	public void testProduceRandomConnectedUndirectedGraph(){
 		for (int nVertices = 1; nVertices <= 5; nVertices++) {
-			for (int nEdges = nVertices -1; nEdges<= nVertices *(nVertices -1)/2; nEdges ++){
+			for (int nEdges = nVertices -1 ; nEdges<= nVertices *(nVertices -1)/2; nEdges ++){ 
 				for (int run = 0; run < 100; run++) {
 					Graph g = GraphManager.produceRandomConnectedUndirectedGraph(nVertices, nEdges);
 					assertTrue("not a connected graph", GraphManager.isConnected(g));
@@ -55,54 +60,11 @@ public class GraphManagerTest {
 			for (int terminals = 2; terminals <= nodes; terminals++) {
 				for (int run = 0; run < 100; run++) {
 					Tree tree = GraphManager.produceRandomSteinerTree(nodes, terminals);
-					boolean t=GraphManager.isATree(tree);	//TODO
-					if (t==false){	//TODO
-						t=GraphManager.isATree(tree);	
-					}	//TODO
-					assertTrue("not a tree", GraphManager.isATree(tree));
-				}
-			}
-		}
-	}
-
-	@Test
-	public void testGetLoosePaths() {
-		for (int nodes = 3; nodes < 10; nodes++) {
-			for (int terminals = 3; terminals <= nodes; terminals++) {
-				for (int i = 0; i < 100; i++) {
-					Tree tree = GraphManager.produceRandomSteinerTree(nodes,
-							terminals);
-					PriorityQueue<LoosePath> lps = tree.getLoosePaths();
-					HashSet<Edge> edgeSet = new HashSet<Edge>();
-					for (LoosePath lp : lps) {
-						ArrayList<Vertex> vtcs = lp.getVertices(tree);
-						Vertex v1 = vtcs.get(0);
-						Vertex v2 = vtcs.get(vtcs.size() - 1);
-						// both end nodes must be fixed nodes
-						Vertex start = lp.getStartVertex(tree);
-						Vertex end = lp.getEndVertex(tree);
-						assertTrue("endpoint not match",
-								(v1 == start || v1 == end)
-										&& (v2 == start || v2 == end));
-						assertTrue("start point is not a fixed node",
-								start.isTerminal(tree)
-										|| start.getDegreeInGraph(tree) >= 3);
-						assertTrue("end point is not a fixed node",
-								end.isTerminal(tree)
-										|| end.getDegreeInGraph(tree) >= 3);
-						// no fixed node within the path
-						vtcs = lp.getVerticesWithinPath(tree);
-						for (Vertex v : vtcs) {
-							assertTrue("fixed node within a loosepath",
-									!v.isTerminal(tree)
-											&& v.getDegreeInGraph(tree) < 3);
-						}
-						edgeSet.addAll(lp.getEdges());
+					assertTrue(tree.shadowEdges().size()==0);					
+					boolean t=GraphManager.isATree(tree);
+					if (t==false){
+						assertTrue("not a tree", t=GraphManager.isATree(tree));
 					}
-					// check {edges in the Steiner tree} =={edges in the lps }
-					HashSet<Edge> treeEdges = new HashSet<Edge>(tree.E);
-					assertTrue("steiner tree edges not contain ",
-							edgeSet.equals(treeEdges));
 				}
 			}
 		}
@@ -179,7 +141,7 @@ public class GraphManagerTest {
 					for (int run = 0; run < 1000; run++) {
 						Graph g=new Graph(Graph.TREE_CAPACITY);
 						DatasetLoaderWithJena.resetAllValues(true);
-						DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(g, DatasetLoaderWithJena.pathToDataFiles	+ "example.nq");
+						DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(g, FileNameManager.pathToDataFiles	+ "example.nq");
 						String[] requiredVertices=new String[3];						  
 						requiredVertices[2]="http://example.org/bob/";
 						requiredVertices[1]="http://xmlns.com/foaf/0.1/Person";
@@ -193,7 +155,7 @@ public class GraphManagerTest {
 						if (Double.compare(T.getWeight(), 500) > 0){
 							fail("failed to find a tree,  about to select another set of entities");
 						}
-						System.out.println("\n"+String.valueOf(run)+"\n" + T.printTreeToString());
+						System.out.println("\n"+String.valueOf(run)+"\n" + T.toString());
 					}							
 				}		
 	public static void main(String[] args) throws Exception {                    

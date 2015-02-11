@@ -1,6 +1,7 @@
 package graph;
 
 import fundamental.DBMapper;
+import fundamental.MyLinkedList;
 
 import java.util.*;
 
@@ -22,14 +23,14 @@ public class Graph implements Iterable<Edge> {
 	}
 
 	public int vertexCapacity() {
-		return this.V.capacity() - 1;
+		return this.V.capacity();
 	}
 
 	public int vertexNumber() {
 		return this.V.size();
 	}
 
-	public Collection <Vertex> vertexValues() {
+	public Collection <Vertex> vertices() {
 		return this.V.values();
 	}
 
@@ -41,6 +42,15 @@ public class Graph implements Iterable<Edge> {
 		return this.V.get(key);
 	}
 
+	public HashSet<Vertex> getVertices(Collection<Vertex>verticesSet){
+		HashSet<Vertex> result=new HashSet<Vertex>();
+		for (Vertex v:verticesSet){
+			if (this.contains(v)){
+				result.add(this.getVertex(v.getId()));
+			}
+		}
+		return result;
+	}
 	@SuppressWarnings("hiding")
 	private class EdgeIterator<Edge> implements Iterator<Edge> {
 
@@ -105,7 +115,7 @@ public class Graph implements Iterable<Edge> {
 					return true;
 				}
 				// current vertex has no available edge
-				for (vIdNext = vIdNext + 1; vIdNext < Graph.this.V.capacity(); vIdNext++) {
+				for (vIdNext = vIdNext + 1; vIdNext <= Graph.this.V.capacity(); vIdNext++) {
 					eIdNext = availableEdgeId(vIdNext, 0);
 					if (eIdNext != -1) { // found next vertex and next edge
 						return true;
@@ -151,24 +161,22 @@ public class Graph implements Iterable<Edge> {
 		private boolean toBeRemoved;
 
 		public ArtificialSteinerTree(HashMap<Integer, Vertex> VPrime) {
-			// create result tree
 			steinerTree = new Tree(TREE_CAPACITY);
-			edgeType = Integer.MAX_VALUE; // "aritificialSteinerTreeEdge: "+new
-											// java.rmi.dgc.VMID().toString();
-			for (Integer key : VPrime.keySet()) { // add vertices from VPrime
-				steinerTree.addVertex(key, VPrime.get(key));
-				steinerTree.addTerminal(VPrime.get(key));	//add terminals
+			edgeType = Integer.MAX_VALUE; // "aritificialSteinerTreeEdge: "+new java.rmi.dgc.VMID().toString();
+			// add vertices & terminals from VPrime
+			for (Integer key : VPrime.keySet()) { 
+				steinerTree.addVertex(key);
+				steinerTree.addTerminal(steinerTree.getVertex(key));
 			}
+			// create aritificial edges
 			int k = 0;
 			Integer previousKey = null;
 			for (Integer key : steinerTree.vertexKeySet()) {
 				if (k != 0) {
-					// to do: add only one vertex and one edge into the program
-					// space, not two!!!
-					addEdge(V.get(key).getId(), V.get(previousKey).getId(),
-							edgeType, 1000);
-					steinerTree.E.add(new Edge(V.get(key), V.get(previousKey),
-							edgeType, 1000));
+					// to do: add only one vertex and one edge into the program space, not two!!!
+					Graph.this.addEdge(V.get(key).getId(), V.get(previousKey).getId(),	edgeType, 1000);
+					steinerTree.addEdge(new Edge(V.get(key), V.get(previousKey), 	edgeType, 1000));
+					Graph.this.edgeNumber++;
 				}
 				previousKey = key;
 				k++;
@@ -177,12 +185,17 @@ public class Graph implements Iterable<Edge> {
 
 		public void removeArificialSteinerTree() {
 			toBeRemoved = false;
-			for (Edge e : steinerTree.E) {
+			HashSet <Edge> edgesToBeRemoved=new HashSet<Edge>();
+			Iterator<Edge> iter=steinerTree.iterator();
+			while (iter.hasNext()){
+				edgesToBeRemoved.add(iter.next());
+			}
+			for (Edge e : edgesToBeRemoved) {
 				/*
 				 * if (Graph.this.E !=E){
 				 * System.out.println("outer class object can't be accessed");
 				 * System.exit(0); }
-				 */Graph.this.removeEdge(e.getSource(), e.getDestin(), e.getType());
+				 */Graph.this.removeEdge(e);
 			}
 		}
 
@@ -198,7 +211,7 @@ public class Graph implements Iterable<Edge> {
 		}
 	}
 
-	public boolean containsAll(List<Edge> ea) {
+	public boolean containsAll(MyLinkedList<Edge> ea) {
 		boolean result = true;
 		for (Edge e : ea) {
 			if (!this.containsEdge(e)) {
@@ -232,24 +245,30 @@ public class Graph implements Iterable<Edge> {
 	}
 	
 	private boolean containsEdge(Edge e) {
-		return (this.getVertex(e.getSource()).getEdges().contains(e) 
-				|| (this.getVertex(e.getDestin()).getEdges().contains(e)));
+		Vertex src=this.getVertex(e.getSource());
+		Vertex dst=this.getVertex(e.getDestin());
+		if (src==null || dst==null){
+			return false;
+		}
+		return (src.getEdges().contains(e) 
+				|| (dst.getEdges().contains(e)));
 	}
 
 	public Graph(Graph g) {
 		this.V = (VertexArray) g.V.clone();
+		this.removeShadowEdges();	//solve the problem that duplicate edges referenced by src and dst vertices.
 		this.edgeNumber = g.edgeNumber;
 	}
 
 	public Graph(int capacityOfVertex) { // 32553223
-		V = new VertexArray(capacityOfVertex + 1); // sometimes node id starts from 1, instead of 0
+		V = new VertexArray(capacityOfVertex); // sometimes node id starts from 1, instead of 0
 		// V=new HashMap<Integer, Vertex>();
 		// E=new ArrayList<Edge>();
 		this.edgeNumber = 0;
 	}
 
 	public Graph(VertexArray v, ArrayList<Edge> e) {
-		this.V = v;
+		this.V = v;	//not deep copy
 		this.edgeNumber = 0;
 		for (Edge edge : e) {
 			this.addEdge(edge);
@@ -259,7 +278,7 @@ public class Graph implements Iterable<Edge> {
 	public Graph(HashMap<Integer, Vertex> vPrime, ArrayList<Edge> ePrime) {
 		this.V = new VertexArray(NORMAL_CAPACITY);
 		for (Integer i : vPrime.keySet()) {
-			V.put(i, vPrime.get(i));
+			V.put(i, vPrime.get(i));	//not deep copy
 		}
 		this.edgeNumber = 0;
 		for (Edge edge : ePrime) {
@@ -267,7 +286,7 @@ public class Graph implements Iterable<Edge> {
 		}
 	}
 
-	public boolean addVertex(Vertex v) {
+	public boolean addExistingVertex(Vertex v) {
 		if (V.get(v.getId()) == null) {
 			V.put(v.getId(), v);
 			return true;
@@ -275,14 +294,13 @@ public class Graph implements Iterable<Edge> {
 			return false;
 		}
 	}
-
-	public boolean addVertex(Integer i, Vertex v) {
+	public boolean addVertex(int i){
 		if (V.get(i) == null) {
-			this.V.put(i, v);
+			this.V.put(i, new Vertex(i));
 			return true;
 		} else {
 			return false;
-		}
+		}		
 	}
 
 	public boolean addEdge(String from, String to, String type, double weight) {
@@ -303,14 +321,15 @@ public class Graph implements Iterable<Edge> {
 	}
 
 	protected void addEdge(Edge e) {
-		this.getVertex(e.getSource()).addAdjacency(e); // For Steiner tree problem, degree=in
-										// degree+out degree
-		this.getVertex(e.getDestin()).addAdjacency(e); // For Steiner tree problem, degree=in
-										// degree+out degree
+		this.getVertex(e.getSource()).addAdjacency(e); // For Steiner tree problem, degree=in degree+out degree
+		this.getVertex(e.getDestin()).addAdjacency(e); // For Steiner tree problem, degree=in degree+out degree
 		this.edgeNumber++;
-		// E.add(e);
 	}
 
+	@Override
+	public int hashCode(){
+		return this.V.size()+this.edgeNumber;
+	}
 	@Override
 	public boolean equals(Object obj) {
 		if (obj==null){
@@ -338,23 +357,73 @@ public class Graph implements Iterable<Edge> {
 		this.removeEdge(new Edge(V.get(from), V.get(to), name, 0));
 	}
 
-	public void removeEdge(graph.Edge e) {
+	public void removeEdge(Edge e) {
 		if (e != null) {
-			this.getVertex(e.getSource()).getEdges().remove(e);
-			this.getVertex(e.getDestin()).getEdges().remove(e);
+			if (!this.getVertex(e.getSource()).getEdges().remove(e)){
+				System.out.println("edge not found exception!");
+				System.exit(-1);
+			}
+			if (!this.getVertex(e.getDestin()).getEdges().remove(e)){
+				System.out.println("edge not found exception!");
+				System.exit(-1);
+			}
 			this.edgeNumber--;
 		}
 	}
-
+	private void removeShadowEdges(){
+		for (int i=0; i<=V.capacity(); i++){
+			Vertex v=V.get(i);
+			if (v!=null){
+				for (Edge e: v.edges){
+					if  (e.getSource()==v.getId()){	//let the Edge in src list replace the Edge in dst list
+						V.get(e.getDestin()).edges.remove(e);
+						V.get(e.getDestin()).edges.add(e);
+					}
+				}
+			}
+		}
+	}
+	public void checkShadowEdges(){
+		if (this.shadowEdges().size()>0){
+			throw new ArrayIndexOutOfBoundsException();
+		}
+	}
+	public ArrayList<Edge> shadowEdges(){
+		int matchedEdgeNumber=0; 
+		int mismatchEdEdgeNumber=0;
+		ArrayList<Edge>edges=new ArrayList<Edge>();
+		for (int i=0; i<=V.capacity(); i++){
+			Vertex v=V.get(i);
+			if (v!=null){
+				for (Edge e: v.edges){
+					int idx=edges.indexOf(e);
+					if (idx==-1){		//new edge
+						edges.add(e);
+						mismatchEdEdgeNumber ++;
+					}else{
+						if (e==edges.get(idx)){	//edges pair
+							edges.remove(idx);
+							mismatchEdEdgeNumber --;
+							matchedEdgeNumber ++;
+						}else{		// equal edges not match each other 
+							edges.add(e);
+							mismatchEdEdgeNumber ++;
+						}
+					}
+				}
+			}
+		}
+		return edges;
+	}
 	public void removeVertex(int vId) {
-		Vertex v = V.get(vId);
+		Vertex v = this.getVertex(vId);
 		if (v != null) {
-			HashSet<Edge>es=new HashSet<Edge>();
+			HashSet <Edge>es=new HashSet<Edge>();		//use HashSet to prevent selfcircle Edge added twice
 			for (Edge e : v.edges)
 					es.add(e);
 			for (Edge e: es)
 					this.removeEdge(e);
-			V.remove(vId); // remove the vertex from the graph's vertices list.
+			this.V.remove(vId); // remove the vertex from the graph's vertices list.
 		}
 	}
 
@@ -367,6 +436,14 @@ public class Graph implements Iterable<Edge> {
 		return V.get(v1Id).getAnyEdgeBetween(V.get(v2Id));
 	}
 
+	public double getWeight(){
+		double weight=0;
+		Iterator<Edge> it=this.iterator();
+		while (it.hasNext()){
+			weight += it.next().getWeight();
+		}
+		return weight;
+	}
 	public Edge getDirectedEdgeBetween(Integer start, Integer end) {
 		return V.get(start).getDirectedEdgeTo(V.get(end));
 	}
@@ -385,8 +462,7 @@ public class Graph implements Iterable<Edge> {
 		}
 	}
 
-	public void printVerticesStastisticsGraph() { // print overall analysis on
-													// edges types.
+	public void printVerticesStastistics() { // print overall analysis on edges types.
 		int maxDegree = -1;
 		for (Vertex v : V.values()) {
 			int degree = 0;
@@ -447,11 +523,6 @@ public class Graph implements Iterable<Edge> {
 		}
 	}
 
-
-	public void clearAll() {
-		this.clearVisited();
-	}
-
 	public void setEdgeWeight(String from, String to, String name, double weight) { // to
 																					// do:
 																					// test
@@ -485,7 +556,8 @@ public class Graph implements Iterable<Edge> {
 
 	public void addAll(Graph that){
 		for (Vertex v : that.V.values()) {
-			this.addVertex(v);
+			//this.addExistingVertex(v);
+			this.addVertex(v.id);	//TODO: or addExistingVertex()?
 		}
 		Iterator<Edge> it = that.iterator();
 		while (it.hasNext()) {
@@ -517,5 +589,40 @@ public class Graph implements Iterable<Edge> {
 	@Override
 	public Iterator<Edge> iterator() {
 		return new EdgeIterator<Edge>();
+	}
+	public String toString(){
+		StringBuffer result=new StringBuffer();
+		Iterator<Integer> iterator=this.vertexKeySet().iterator();
+		while (iterator.hasNext()){
+			Vertex v=this.getVertex(iterator.next());
+			if (v.isContainedBy(this)){				
+				result.append("Vertex: "+v.getNameString()+", degree="+v.getDegreeInGraph(this)+"\n");
+				for (Edge e: v.edges){
+					if (e.isContainedBy(this)){						
+						result.append("\t\t");
+						result.append(e.toString()+"\n");
+					}
+				}
+			}
+		}
+		result.append("total weight of edges: "+this.getWeight()+"\n");
+		result.append(this.shadowEdges()+"\b");
+		return result.toString();
+	}
+	public HashSet<Edge> edgeSet(){
+		HashSet<Edge> edges = new HashSet<Edge>();
+		Iterator <Edge>it=this.iterator();
+		while(it.hasNext()){
+			edges.add(it.next());
+		}
+		return edges;
+	}
+	public ArrayList<Edge> edgeArray(){
+		ArrayList<Edge> edges = new ArrayList<Edge>();
+		Iterator <Edge>it=this.iterator();
+		while(it.hasNext()){
+			edges.add(it.next());
+		}
+		return edges;
 	}
 }

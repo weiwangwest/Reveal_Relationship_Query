@@ -58,7 +58,7 @@ public class NqToGraphConverter {
 					break;
 				default:					
 			}
-			mapped.writeLine(parser.getLine());
+			mapped.writeLine(parser.getNQuad());
 			if (changed){
 				numberOfLinesReplaced++;
 			}

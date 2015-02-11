@@ -1,4 +1,5 @@
 package input;
+import fundamental.FileNameManager;
 import graph.Graph;
 import graph.GraphManager;
 import graph.Tree;
@@ -20,7 +21,7 @@ public class JenaTestSubClassnq {
 		Timer.tick("1. G: the Original Graph");
 		Graph G = new Graph(Graph.GRAPH_CAPACITY);
 		Dataset dataset = RDFDataMgr.loadDataset(
-				DatasetLoaderWithJena.pathToDataFiles+"subclass.nq",
+				FileNameManager.pathToDataFiles+"subclass.nq",
 				RDFLanguages.NQUADS);
 		Iterator<String> it = dataset.listNames();
 		while (it.hasNext()) {
@@ -29,11 +30,11 @@ public class JenaTestSubClassnq {
 			// add Vertices from the dataset file
 			ResIterator r = tim.listSubjects();
 			while (r.hasNext()) {
-				G.addVertex(new Vertex(r.next().toString()));
+				G.addExistingVertex(new Vertex(r.next().toString()));
 			}
 			NodeIterator n = tim.listObjects();
 			while (n.hasNext()) {
-				G.addVertex(new Vertex(n.next().toString()));
+				G.addExistingVertex(new Vertex(n.next().toString()));
 			}
 
 			// add edges from the dataset file
@@ -63,7 +64,7 @@ public class JenaTestSubClassnq {
 */
 		Timer.tick("3. T: The original steiner tree,	 VPrime: the set of terminal nodes");
 		// clear all tags.
-		G.clearAll(); 
+		G.clearVisited(); 
 		// store terminal nodes in VPrime.
 		HashMap<Integer, Vertex> VPrime = new HashMap<Integer, Vertex>(); 
 		int id;
@@ -100,7 +101,7 @@ public class JenaTestSubClassnq {
 		Timer.tick("1. G: the Original Graph");
 		Graph G = new Graph(Graph.GRAPH_CAPACITY);
 		DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(
-				G, DatasetLoaderWithJena.pathToDataFiles+"subclass.nq");
+				G, FileNameManager.pathToDataFiles+"subclass.nq");
 
 		Timer.tick("2. T: The original steiner tree,	 VPrime: the set of terminal nodes");
 		Tree T = GraphManager.findBestSteinerTree(G, new String[] {"http://rdf.data-vocabulary.org/#Organization",

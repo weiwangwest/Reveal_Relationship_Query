@@ -1,4 +1,5 @@
 package input;
+import fundamental.FileNameManager;
 import graph.Graph;
 import graph.GraphManager;
 import graph.Tree;
@@ -15,7 +16,7 @@ public class JenaTestExamplenq {
 		Graph G = new Graph(Graph.GRAPH_CAPACITY);
 		System.out.println("\n\n**********1. G: the Original Graph***************");
 		Dataset dataset = RDFDataMgr.loadDataset(
-				DatasetLoaderWithJena.pathToDataFiles+"example.nq",
+				FileNameManager.pathToDataFiles+"example.nq",
 				RDFLanguages.NQUADS);
 		Iterator<String> it = dataset.listNames();
 		while (it.hasNext()) {
@@ -24,11 +25,11 @@ public class JenaTestExamplenq {
 			// add Vertices
 			ResIterator r = tim.listSubjects();
 			while (r.hasNext()) {
-				G.addVertex(new Vertex(r.next().toString()));
+				G.addExistingVertex(new Vertex(r.next().toString()));
 			}
 			NodeIterator n = tim.listObjects();
 			while (n.hasNext()) {
-				G.addVertex(new Vertex(n.next().toString()));
+				G.addExistingVertex(new Vertex(n.next().toString()));
 			}
 
 			// add edges
@@ -44,19 +45,19 @@ public class JenaTestExamplenq {
 		G.setEdgeWeight("http://example.org/bob/foaf.rdf#me", "http://xmlns.com/foaf/0.1/Person", null, 0.8);
 
 		G.print();
-		G.printVerticesStastisticsGraph();
+		G.printVerticesStastistics();
 		G.printEdgesStastistics();
 		System.out.println("--------test: is it a tree?----------\n"+ GraphManager.isATree(G));
 
 		System.out.println("\n\n**********2. The Breath First Spanning Tree***************");
 		Tree g = GraphManager.getBreathFirstSpanningTree(G);
 		g.print();
-		G.printVerticesStastisticsGraph();
+		G.printVerticesStastistics();
 		g.printEdgesStastistics();
 		System.out.println("--------test: is it a tree?----------\n"+ GraphManager.isATree(g));
 
 		System.out.println("\n\n********3. T: The original steiner tree,	 VPrime: the set of terminal nodes***************");
-		G.clearAll(); // clear all tags.
+		G.clearVisited(); // clear all tags.
 		
 		// store terminal(required)  nodes in VPrime.
 		HashMap<String, Vertex> VPrime = new HashMap<String, Vertex>(); 

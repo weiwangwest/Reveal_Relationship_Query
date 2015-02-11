@@ -1,4 +1,5 @@
 package performance;
+import fundamental.FileNameManager;
 import fundamental.Randomizer;
 import graph.Graph;
 import graph.GraphManager;
@@ -36,7 +37,7 @@ public class  STARperformanceTestOnBigDataset {
 		for (int  idOfDataFile=0; idOfDataFile<=6; idOfDataFile++){	//todo: i<=6			
 			Timer.tick("data-"+idOfDataFile+".nq.gz");
 			try{
-				 DatasetLoaderWithJena.addEntitiesFromBigGzipNq(G, DatasetLoaderWithJena.pathToDataFiles+"data-"+idOfDataFile+".nq.gz");
+				 DatasetLoaderWithJena.addEntitiesFromBigGzipNq(G, FileNameManager.pathToDataFiles+"data-"+idOfDataFile+".nq.gz");
 			 	//append the current dataset report to lines of table 2.
 				table2.appendLine(
 						new Object [] {	//dataLine
@@ -104,7 +105,7 @@ public class  STARperformanceTestOnBigDataset {
 							}
 	*/
 							runTimes[queryRun]=Timer.tick(null);
-							queryRecordTxt += "\n"+T.printTreeToString()+"\n";
+							queryRecordTxt += "\n"+T.toString()+"\n";
 							runTimeOfCurrentQueryId +=runTimes[queryRun];
 						} // for queryRun
 						

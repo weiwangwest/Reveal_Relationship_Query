@@ -27,12 +27,12 @@ public class TripleParserTest {
 		assertEquals(parser.getPredicate(),"predicate");
 		assertEquals(parser.getObject(),"object");
 		assertEquals(parser.getSubGraph(), "subgraph");
-		assertEquals(parser.getWholeLine(),"subject predicate object subgraph .");
+		assertEquals(parser.getLine(),"subject predicate object subgraph .");
 	}
 	@Test
 	public void testFile() throws Exception {              
 		for (int i=0; i<=3; i++){
-			String nqFileName=FileNameManager.fileNamePrefix+i+FileNameManager.fileNameSuffix;
+			String nqFileName=FileNameManager.getNqDataFilePlusName(i, "");
 			GzipNqFileReader in=new GzipNqFileReader(nqFileName+".gz");			
 			GzipNqFileWriter lineWriter=new GzipNqFileWriter(nqFileName+".parser.line.gz");
 			GzipNqFileWriter subjectWriter=new GzipNqFileWriter(nqFileName+".parser.subject.gz");
@@ -47,7 +47,7 @@ public class TripleParserTest {
 					line=in.next();
 					TripleParser parser=new TripleParser(line);
 					//System.out.println(parser.getLine());
-					lineWriter.writeLine(parser.getLine());	
+					lineWriter.writeLine(parser.getNQuad());	
 					subjectWriter.writeLine(parser.getSubject());	
 					predicateWriter.writeLine(parser.getPredicate());
 					objectWriter.writeLine(parser.getObject());	

@@ -64,12 +64,26 @@ public class TripleParser {
 	public void setSubGraph(String subg){
 		this.subGraph=subg;
 	}
-	//return the line excluding the ending " "+"."
-	public String getLine(){
-		return subject+" "+predicate+" "+object+" "+subGraph;
+	//return the triple, without the subgraph
+	//triple has the form: <subject> <predicate> <object> .
+	public String getTriple(){
+		return subject+" "+predicate+" "+object+" "+".";
+	}
+	//return the NQuard
+	//NQuard has the form: <subject> <predicate> <object> <context> .
+	public String getNQuad(){
+		if (subGraph==null || subGraph.equals("")){
+			return subject+" "+predicate+" "+object +" "+".";
+		}else{
+			return subject+" "+predicate+" "+object +" "+subGraph+" "+".";
+		}
 	}
 	//return the whole line including the ending " ."
-	public String getWholeLine(){
-		return subject+" "+predicate+" "+object+" "+subGraph+" "+".";
+	public String getLine(){
+		return this.getNQuad();
+	}
+	@Override
+	public String toString(){
+		return this.getLine();
 	}
 }

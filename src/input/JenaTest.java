@@ -1,4 +1,5 @@
 package input;
+import fundamental.FileNameManager;
 import graph.Graph;
 import graph.GraphManager;
 import graph.Vertex;
@@ -14,7 +15,7 @@ public class JenaTest {
 		Graph G = new Graph(Graph.GRAPH_CAPACITY);
 		System.out.println("\n\n**********1. G: the Original Graph***************");
 		Dataset dataset = RDFDataMgr.loadDataset(
-				DatasetLoaderWithJena.pathToDataFiles+"subclass.nq",
+				FileNameManager.pathToDataFiles+"subclass.nq",
 				RDFLanguages.NQUADS);
 		Iterator<String> it = dataset.listNames();
 		while (it.hasNext()) {
@@ -23,11 +24,11 @@ public class JenaTest {
 			// add Vertices
 			ResIterator r = tim.listSubjects();
 			while (r.hasNext()) {
-				G.addVertex(new Vertex(r.next().toString()));
+				G.addExistingVertex(new Vertex(r.next().toString()));
 			}
 			NodeIterator n = tim.listObjects();
 			while (n.hasNext()) {
-				G.addVertex(new Vertex(n.next().toString()));
+				G.addExistingVertex(new Vertex(n.next().toString()));
 			}
 
 			// add edges
@@ -55,7 +56,7 @@ public class JenaTest {
 		System.out.println("--------test: is it a tree?----------\n"+ GraphManager.isATree(g));
 
 		System.out.println("\n\n********3. T: The original steiner tree,	 VPrime: the set of terminal nodes***************");
-		G.clearAll(); // clear all tags.
+		G.clearVisited(); // clear all tags.
 		HashMap<Integer, Vertex> VPrime = new HashMap<Integer, Vertex>(); // store terminal nodes in VPrime.
 		//VPrime.put("http://example.org/bob/foaf.rdf", G.V.get("http://example.org/bob/foaf.rdf"));
 		//VPrime.put("http://example.org/bob/", G.V.get("http://example.org/bob/"));

@@ -15,7 +15,6 @@ import graph.Graph;
 import graph.Vertex;
 
 public class DatasetLoaderWithJena {
-	public static String pathToDataFiles="/data/";
 	public static DBMapper Entities;  // a list of entities, when load Entities into a graph, Entities==Vertex.VertexMap
 	private static boolean isInTrans=false;	//transaction status
 	public static long Numberoftriples;
@@ -58,7 +57,7 @@ public class DatasetLoaderWithJena {
 		return (str.startsWith("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")||str.startsWith("rdf:type"));		
 	}
 	public static boolean isEntity(RDFNode node) throws Exception{
-			return node.toString().startsWith("http")&&!(isBlankNode(node.toString())||node.isLiteral()||isRdfClassType(node.toString()));
+		return node.toString().startsWith("http")&&!(isBlankNode(node.toString())||node.isLiteral()||isRdfClassType(node.toString()));
 	}
 
 	public static void startTrans(){		
@@ -219,7 +218,7 @@ public class DatasetLoaderWithJena {
 				while (r.hasNext()) {
 					Resource rsc=r.next();	//add entities only into the Graph
 					if (isEntity(rsc)){
-						G.addVertex(new Vertex(rsc.toString()));
+						G.addExistingVertex(new Vertex(rsc.toString()));
 					}
 				}
 				// add objects entities into Vertices
@@ -227,7 +226,7 @@ public class DatasetLoaderWithJena {
 				while (n.hasNext()) {
 					RDFNode rdfnd=n.next();
 					if (isEntity(rdfnd)){
-						G.addVertex(new Vertex(rdfnd.toString()));						
+						G.addExistingVertex(new Vertex(rdfnd.toString()));						
 					}
 				}
 				// add  statements connecting two entities into edges
@@ -259,11 +258,11 @@ public class DatasetLoaderWithJena {
 			// add Vertices from the dataset file
 			ResIterator r = tim.listSubjects();
 			while (r.hasNext()) {
-				G.addVertex(new Vertex(r.next().toString()));
+				G.addExistingVertex(new Vertex(r.next().toString()));
 			}
 			NodeIterator n = tim.listObjects();
 			while (n.hasNext()) {
-				G.addVertex(new Vertex(n.next().toString()));
+				G.addExistingVertex(new Vertex(n.next().toString()));
 			}
 	
 			// add edges from the dataset file

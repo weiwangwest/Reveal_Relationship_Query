@@ -4,6 +4,8 @@ import input.DatasetLoaderWithJena;
 import java.util.*;
 
 import fundamental.DBMapper;
+import fundamental.FileNameManager;
+import fundamental.MyLinkedList;
 
 
 public class Vertex implements Comparable<Vertex> {
@@ -18,9 +20,9 @@ public class Vertex implements Comparable<Vertex> {
 	double d2; //for find shortest path: distance to T2
 	Vertex predecessor1;	//each node v visited by the current iterator, we maintain its	current predecessor, that is, the node v from which the iterator reached v
 	Vertex predecessor2;	//each node v visited by the current iterator, we maintain its	current predecessor, that is, the node v from which the iterator reached v
-	ArrayList<Edge> edges;	//For Steiner tree problem, degree=in degree+out degree
+	MyLinkedList<Edge> edges;	//For Steiner tree problem, degree=in degree+out degree
 
-	public List<Edge> getEdges(){
+	public MyLinkedList<Edge> getEdges(){
 		return this.edges;
 	}
 	public static void setIdx(int idx){
@@ -60,9 +62,9 @@ public class Vertex implements Comparable<Vertex> {
 	public Vertex(Vertex v){	// deep copy from an existing vertex
 		this.d1=v.d1;
 		this.d2=v.d2;
-		this.edges=new ArrayList<Edge>();
+		this.edges=new MyLinkedList<Edge>();
 		for (Edge e: v.edges){
-			this.edges.add(new Edge(e));
+			this.edges.add(new Edge(e)); //TODO: Problem!!! src vertex and dst vertex have different Edge objects
 		}
 		this.id=v.id;
 		this.isVisited=v.isVisited;
@@ -71,35 +73,17 @@ public class Vertex implements Comparable<Vertex> {
 	}
 	public Vertex(int id) {
 		this.id=id;
-		edges=new ArrayList<Edge>();
+		edges=new MyLinkedList<Edge>();
 	}
 	//return values of getUnvisitedDegree()
 	//0 -- it's a isolated vertex(all edges have been visited) 
 	//1 -- it's a leaf(only connected to another one vertex)
 	//2 -- it's within a loose path.
 	//3 -- it's has more that one loose paths crossed.
-	public int getUnvisitedDegree(){		 
-		int unvisited=0;
-		for (Edge e: this.edges){
-			if (!e.isVisited()){
-				unvisited ++;
-			}
-		}
-		return unvisited;
-	}
 	public int getUnvisitedDegreeInGraph(Graph g){
 		int unvisited=0;
 		for (Edge e: this.edges){
 			if (g.contains(e) && !e.isVisited()){
-				unvisited ++;
-			}
-		}
-		return unvisited;
-	}
-	public int getUnvisitedDegreeInTree(Tree T){
-		int unvisited=0;
-		for (Edge e: this.edges){
-			if (T.E.contains(e) && !e.isVisited()){
 				unvisited ++;
 			}
 		}
@@ -147,14 +131,6 @@ public class Vertex implements Comparable<Vertex> {
 		}
 		return result;
 	}
-	public Edge getAnyUnvisitedEdgeInTree(Tree T){
-		for (Edge e: this.edges){
-			if (T.E.contains(e)&& !e.isVisited()){
-				return e;
-			}
-		}
-		return null;
-	}
 	public Edge getAnyUnvisitedEdgeInGraph(Graph g){
 		for (Edge e: this.edges){
 			if (g.contains(e)&& !e.isVisited()){
@@ -166,7 +142,7 @@ public class Vertex implements Comparable<Vertex> {
 	//get any other edge connected to this vertex in T to build a loose path.
 	public Edge getAnyOtherEdgeInLoosePath(Edge e, Tree T){
 		for (Edge edge: this.edges){
-			if (T.E.contains(edge) && edge != e){
+			if (T.contains(edge) && edge != e){
 				return edge;
 			}
 		}
@@ -200,24 +176,9 @@ public class Vertex implements Comparable<Vertex> {
 			return null;
 		}
 	}
-	//return all vertices in T connected to this vertex.
-	//otherwise return an empty map;
-	public Map<Integer, Vertex> getAdjacentsInTree(Tree g){
-		Map<Integer, Vertex> adj=new HashMap<Integer, Vertex>();
-		for (Edge e: this.edges){
-			if (g.E.contains(e)){
-				if (e.getSource()!=this.getId()){
-					adj.put(e.getSource(), g.getVertex(e.getSource()));
-				}else{ 
-					adj.put(e.getDestin(), g.getVertex(e.getDestin()));
-				}
-			}
-		}
-		return adj;
-	}
 	//return all vertices connected to this vertex.
 	//otherwise return null;
-	public Map<Integer, Vertex> getAdjacents(Graph g){
+	public Map<Integer, Vertex> getAdjacentsInGraph(Graph g){
 		Map<Integer, Vertex> adj=null;
 		for (Edge e: this.edges){
 			if (adj==null){
@@ -243,20 +204,15 @@ public class Vertex implements Comparable<Vertex> {
 		}
 		return degree;
 	}
-	public int getDegreeInTree(Tree T){
-		int degree=0;
-		for (Edge e: this.edges){
-			if (T.E.contains(e)){
-				degree ++;
-			}
-		}
-		return degree;
-	}
 	public boolean isVisited(){
 		return this.isVisited;
 	}
 	public void setVisited(boolean  v){
 		this.isVisited=v;
+	}
+	@Override
+	public int hashCode(){
+		return this.getId();
 	}
 	@Override
 	public boolean equals(Object obj){		//We suppose: any vertex in a graph has only one Vertex instance.
@@ -300,15 +256,15 @@ public class Vertex implements Comparable<Vertex> {
 	}
 	public static void main(String args[]) throws Exception{
 		Graph G = new Graph(Graph.GRAPH_CAPACITY);
-		DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(G, DatasetLoaderWithJena.pathToDataFiles+"example.nq");
+		DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(G, FileNameManager.pathToDataFiles+"example.nq");
 	    Random rand = new Random();
-		for (Vertex v: G.vertexValues()){		//1: for all v ∈ V do
+		for (Vertex v: G.vertices()){		//1: for all v ∈ V do
 				v.d1=rand.nextInt((1000-0) + 1) + 0;
 				v.d2=rand.nextInt((1000-0) + 1) + 0;
 		}	//4: end for
 		PriorityQueue <Vertex> Q1=new PriorityQueue <Vertex>();
 		PriorityQueue <Vertex> Q2=new PriorityQueue <Vertex>();
-		for (Vertex v: G.vertexValues()){
+		for (Vertex v: G.vertices()){
 			GraphManager.Q(Q1, Q2, 1).add(v);
 			GraphManager.Q(Q1, Q2, 2).add(v);
 		}

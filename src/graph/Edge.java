@@ -3,7 +3,7 @@ package graph;
 import fundamental.DBMapper;
 
 public class Edge {
-	private static DBMapper edgeMap=new DBMapper("edge_type");
+	private static DBMapper edgeMap; 	//TODO: complement this line with "=new DBMapper("edge_type"); " 
 	private int src;
 	private int dst;
 	private int typeOfEdge;
@@ -59,6 +59,10 @@ public class Edge {
 		return this.dst;
 	}
 	@Override
+	public int hashCode(){
+		return this.getSource()+this.getDestin()+this.getType();
+	}
+	@Override
 	public boolean equals(Object obj){
 		//Suppose: any two vertices must have at most one edge of  a given name of type at most.
 		// Any edge has but only one Edge instance.
@@ -98,9 +102,6 @@ public class Edge {
 	@Override
 	public String toString(){
 		return new String(src +" -- ("+this.getTypeString()+", "+weight+") --> "+dst);
-	}
-	public boolean isContainedByTree(Graph graph){
-		return graph.contains(this);
 	}
 	public boolean isContainedBy(Graph g) {
 		return g.contains(this);

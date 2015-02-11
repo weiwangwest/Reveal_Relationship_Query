@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 
 import fundamental.DBMapper;
+import fundamental.FileNameManager;
 import graph.Graph;
 
 import org.junit.AfterClass;
@@ -37,11 +38,11 @@ public class DatasetLoaderWithJenaTest {
 		//append the dataset report to lines of table 2.
 		Graph g1 = new Graph(Graph.GRAPH_CAPACITY);
 		DatasetLoaderWithJena.resetAllValues(true);
-		DatasetLoaderWithJena.addEntitiesFromBigGzipNq(g1, DatasetLoaderWithJena.pathToDataFiles+"data-0.nq.gz");
-		DatasetLoaderWithJena.addEntitiesFromBigGzipNq(g1, DatasetLoaderWithJena.pathToDataFiles+"data-1.nq.gz");
-		DatasetLoaderWithJena.addEntitiesFromBigGzipNq(g1, DatasetLoaderWithJena.pathToDataFiles+"data-2.nq.gz");
+		DatasetLoaderWithJena.addEntitiesFromBigGzipNq(g1, FileNameManager.getNqGzipDataFileName(0, ""));
+		DatasetLoaderWithJena.addEntitiesFromBigGzipNq(g1, FileNameManager.getNqGzipDataFileName(1, ""));
+		DatasetLoaderWithJena.addEntitiesFromBigGzipNq(g1, FileNameManager.getNqGzipDataFileName(2, ""));
 		Graph g2= new Graph(Graph.GRAPH_CAPACITY);
-		DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(g2, DatasetLoaderWithJena.pathToDataFiles+"data-0_2.nq");
+		DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(g2, FileNameManager.pathToDataFiles+"data-0_2.nq");
 		assertTrue("", g1.equals(g2));
 	}	
 
@@ -54,10 +55,10 @@ public class DatasetLoaderWithJenaTest {
 		//append the dataset report to lines of table 2.
 		for (int  i=1; i<=2; i++){	//todo: i<=6
 			Graph g1 = new Graph(Graph.GRAPH_CAPACITY);
-			DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(g1, DatasetLoaderWithJena.pathToDataFiles+"data-0_"+i+".nq");
+			DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(g1, FileNameManager.pathToDataFiles+"data-0_"+i+".nq");
 			//Graph g2 = JenaPerformTestDatanq.generateGraphFromEntitiesOfNQFile(JenaPerformTestDatanq.pathToDataFiles+"data-0_"+i+".nq");
 			Graph g2= new Graph(Graph.GRAPH_CAPACITY);
-			DatasetLoaderWithJena.addEntitiesFromBigNq(g2, DatasetLoaderWithJena.pathToDataFiles+"data-0_"+i+".nq");
+			DatasetLoaderWithJena.addEntitiesFromBigNq(g2, FileNameManager.pathToDataFiles+"data-0_"+i+".nq");
 			assertTrue("", g1.equals(g2));
 		} 	// for each aggregated dataset
 	}
@@ -76,7 +77,7 @@ public class DatasetLoaderWithJenaTest {
 		new DBMapper("edge").clear();
 		new DBMapper("edge_type").clear();
 		DatasetLoaderWithJena.resetAllValues(true);
-		DatasetLoaderWithJena.addEntitiesFromBigNq(new Graph(Graph.GRAPH_CAPACITY), DatasetLoaderWithJena.pathToDataFiles+"example.nq.wrong");
+		DatasetLoaderWithJena.addEntitiesFromBigNq(new Graph(Graph.GRAPH_CAPACITY), FileNameManager.pathToDataFiles+"example.nq.wrong");
 	}
 
 public static void main(String[] args) throws Exception {                  

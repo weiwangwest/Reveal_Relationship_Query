@@ -34,9 +34,9 @@ public class GraphTest {
 		assertFalse(g.containsEdge(2,2,3,4.0));
 
 		//add vertex
-		g.addVertex(v1);
-		g.addVertex(v2);
-		g.addVertex(v3);
+		g.addExistingVertex(v1);
+		g.addExistingVertex(v2);
+		g.addExistingVertex(v3);
 		assertTrue(g.contains(new Vertex(1)));
 		assertTrue(g.contains(v2));
 		assertTrue(g.contains(v3));
@@ -56,7 +56,7 @@ public class GraphTest {
 		assertEquals(h.vertexCapacity(),g.vertexCapacity());
 		assertEquals(h.vertexNumber(),g.vertexNumber());
 		assertEquals(h.vertexKeySet(),g.vertexKeySet());
-		assertEquals(h.vertexValues(),g.vertexValues());
+		assertEquals(h.vertices(),g.vertices());
 		assertEquals(h.getEdgeNumber(),g.getEdgeNumber());
 		assertEquals(h,g);
 		
@@ -70,14 +70,14 @@ public class GraphTest {
 		assertEquals(h.vertexCapacity(),g.vertexCapacity());
 		assertThat (h.vertexNumber(), is(not(equalTo(g.vertexNumber()))));
 		assertThat(h.vertexKeySet(), is(not(equalTo(g.vertexKeySet()))));
-		assertThat(h.vertexValues(), is(not(equalTo(g.vertexValues()))));
+		assertThat(h.vertices(), is(not(equalTo(g.vertices()))));
 		assertEquals(h.getEdgeNumber(),g.getEdgeNumber());
 		assertThat(h, is(not(equalTo(g))));		
 		
 		//change g by removing vertex 3
 		g.removeVertex(3);
 		assertEquals(g, h);
-		assertThat(h.vertexValues(), is((equalTo(g.vertexValues()))));
+		assertThat(h.vertices(), is((equalTo(g.vertices()))));
 		
 		//removing vertex 1 from g and h, removing vertex 1-->2 from g
 		assertNotNull(g.getAnyEdgeBetween(1, 2));
@@ -95,11 +95,11 @@ public class GraphTest {
 	@Test
 	public void testAddAll() {
 		Graph g=new Graph(Graph.TREE_CAPACITY);
-		g.addVertex(new Vertex(1));
-		g.addVertex(new Vertex(2));
-		g.addVertex(new Vertex(3));
-		g.addVertex(new Vertex(4));
-		g.addEdge(1, 1, 1, 0.1);
+		g.addExistingVertex(new Vertex(1));
+		g.addExistingVertex(new Vertex(2));
+		g.addExistingVertex(new Vertex(3));
+		g.addExistingVertex(new Vertex(4));
+		g.addEdge(1, 1, 1, 0.1);		// selfcircle edge, whose src==dst
 		assertEquals(g.getEdgeNumber(), 1);
 		assertNotNull(g.getAnyEdgeBetween(1, 1));
 		g.addEdge(2, 3, 1,0.2);
@@ -117,10 +117,6 @@ public class GraphTest {
 	}
 
 	@Test
-	public void testRemoveIsolatedVertices() {
-	}
-
-	@Test
 	public void testIterator() {		
 		//empty graph
 		Graph g=new Graph(Graph.TREE_CAPACITY);
@@ -132,10 +128,10 @@ public class GraphTest {
 		assertNull(it.next());
 		
 		//add 2 vertices
-		g.addVertex(new Vertex(1));
-		g.addVertex(new Vertex(2));
+		g.addExistingVertex(new Vertex(1));
+		g.addExistingVertex(new Vertex(2));
 		assertEquals(g.vertexNumber(), 2);
-		assertFalse(g.addVertex(new Vertex(2)));
+		assertFalse(g.addExistingVertex(new Vertex(2)));
 		assertEquals(g.vertexNumber(), 2);
 		it=g.iterator();
 		assertFalse(it.hasNext());

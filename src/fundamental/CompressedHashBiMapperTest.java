@@ -46,10 +46,10 @@ public class CompressedHashBiMapperTest {
 	public void uriTest() throws Exception {
 		 Graph g=new Graph(Graph.GRAPH_CAPACITY);
 		 DatasetLoaderWithJena.resetAllValues(true);
-		 DatasetLoaderWithJena.addEntitiesFromBigGzipNq(g, DatasetLoaderWithJena.pathToDataFiles+"data-2.nq.gz");
+		 DatasetLoaderWithJena.addEntitiesFromBigGzipNq(g, FileNameManager.pathToDataFiles+"data-2.nq.gz");
 		 HashSet <String> predicates=new HashSet<String>();	// a list of edges
 		 CompressedHashBiMapper map=new CompressedHashBiMapper();
-		 for (Vertex v: g.vertexValues()){
+		 for (Vertex v: g.vertices()){
 			 for (Edge e: v.getEdges()){
 					predicates.add(e.getTypeString());	//add edge type into HashSet
 					if (map.getValue(e.getTypeString())==-1){

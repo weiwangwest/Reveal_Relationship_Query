@@ -1,4 +1,5 @@
 package input;
+import fundamental.FileNameManager;
 import fundamental.Randomizer;
 import graph.Graph;
 import graph.GraphManager;
@@ -17,7 +18,7 @@ public class DatasetLoaderWithJenaTestByExample {
 		// append the dataset report to lines of table 2.
 		Timer.tick("example.nq");
 		Graph G=new Graph(Graph.GRAPH_CAPACITY);
-		DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(G, DatasetLoaderWithJena.pathToDataFiles	+ "example.nq");
+		DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(G, FileNameManager.pathToDataFiles	+ "example.nq");
 		DatasetLoaderWithJena.Entities = Vertex.vertexMap; // a list of entities
 		//do performance test 3 types(queries with 2, 3, 4 entities respectively), 3 queries/type, 10 runs/query
 		for (int currentQueryType = 0; currentQueryType < 3; currentQueryType++) {
@@ -47,7 +48,7 @@ public class DatasetLoaderWithJenaTestByExample {
 					Timer.tick(String.valueOf(queryRun));
 					Tree T = GraphManager.findBestSteinerTree(G, requiredVertices);					
 					runTimes[queryRun] = Timer.tick(null);
-					queryRecordTxt +=  "\n"+String.valueOf(queryRun)+"\n" + T.printTreeToString();
+					queryRecordTxt +=  "\n"+String.valueOf(queryRun)+"\n" + T.toString();
 					runTimeOfCurrentQueryId += runTimes[queryRun];
 				} 
 				// store queryRecord into a file
