@@ -92,11 +92,11 @@ public class NqToGraphConverterTest  {
 		OSCommander.exec("cp", "/data/data-?.nq.predicate.gz /data/");
 		OSCommander.exec("cp", "/data/data-?.nq.subgraph.gz /data/");
 		//data-i.nq.vertex.gz -> data-i.nq.vertex.final.gz
-		NqToGraphConverter.generateFilesDifferentEachOther(FileNameManager.getGzipDataFileNames(0, lastFileNo, ".vertex"));		
+		NqToGraphConverter.generateFilesDifferentEachOther(FileNameManager.getNqGzipDataFilePlusNames(0, lastFileNo, ".vertex"));		
 		//data-i.nq.predicate.gz -> data-i.nq.predicate.final.gz
-		NqToGraphConverter.generateFilesDifferentEachOther(FileNameManager.getGzipDataFileNames(0, lastFileNo, ".predicate"));
+		NqToGraphConverter.generateFilesDifferentEachOther(FileNameManager.getNqGzipDataFilePlusNames(0, lastFileNo, ".predicate"));
 		//data-i.nq.subgraph.gz -> data-i.nq.subgraph.final.gz
-		NqToGraphConverter.generateFilesDifferentEachOther(FileNameManager.getGzipDataFileNames(0, lastFileNo, ".subgraph"));
+		NqToGraphConverter.generateFilesDifferentEachOther(FileNameManager.getNqGzipDataFilePlusNames(0, lastFileNo, ".subgraph"));
 		OSCommander.exec("mv", "/data/data-?.nq.*.gz /data/storage/");	
 		log.debug(new Date() +" " + "differenceFiles ends.");
 	}
@@ -108,15 +108,15 @@ public class NqToGraphConverterTest  {
 		//OSCommander.exec("cp", "/data/storage/data-?.nq.*.final.gz /data/");	
 		long index=0;
 		//data-i.nq.vertex.final.gz -> data-i.nq.vertex.final.map.final.gz
-		index = NqToGraphConverter.generateMultipleMapFiles(FileNameManager.getGzipDataFileNames(0, lastFileNo, ".vertex.final"), index);
+		index = NqToGraphConverter.generateMultipleMapFiles(FileNameManager.getNqGzipDataFilePlusNames(0, lastFileNo, ".vertex.final"), index);
 		System.out.println("maxmun index="+index);
 		log.debug(new Date()+ " vertex map generated, maxmun index="+index);
 		//data-i.nq.predicate.final.final.gz -> data-i.nq.predicate.final.map.final.gz
-		index =NqToGraphConverter.generateMultipleMapFiles(FileNameManager.getGzipDataFileNames(0, lastFileNo, ".predicate.final"), index);
+		index =NqToGraphConverter.generateMultipleMapFiles(FileNameManager.getNqGzipDataFilePlusNames(0, lastFileNo, ".predicate.final"), index);
 		System.out.println("maxmun index="+index);
 		log.debug(new Date()+ " predicate map generated, maxmun index="+index);
 		//data-i.nq.subgraph.final.gz -> data-i.nq.subgraph.final.map.final.gz
-		index =NqToGraphConverter.generateMultipleMapFiles(FileNameManager.getGzipDataFileNames(0, lastFileNo, ".subgraph.final"), index);
+		index =NqToGraphConverter.generateMultipleMapFiles(FileNameManager.getNqGzipDataFilePlusNames(0, lastFileNo, ".subgraph.final"), index);
 		System.out.println("maxmun index="+index);
 		//OSCommander.exec("mv", "/data/data-?.nq.*.final.map.final.gz /data/storage/");	
 		log.debug(new Date()+ " subgraph map generated, maxmun index="+index);
@@ -129,23 +129,23 @@ public class NqToGraphConverterTest  {
 		// "cp /data/storage/*.map.final.gz /data/"
 		// "cp /data/storage/data-?.nq.gz /data/"
 		// data-i.nq.gz ------(data-i.nq.vertex.final.map.final.gz)------> data-i.nq.gz
-		NqToGraphConverter.generateMapsReplacedFiles(FileNameManager.getGzipDataFileNames(0, lastFileNo, ".vertex.final.map.final"), 
-				FileNameManager.getGzipDataFileNames(0, lastFileNo, ""), NqToGraphConverter.VERTEX_TYPE_OF_REPLACEMENT);
+		NqToGraphConverter.generateMapsReplacedFiles(FileNameManager.getNqGzipDataFilePlusNames(0, lastFileNo, ".vertex.final.map.final"), 
+				FileNameManager.getNqGzipDataFilePlusNames(0, lastFileNo, ""), NqToGraphConverter.VERTEX_TYPE_OF_REPLACEMENT);
 		log.debug(new Date()+ " lines have been replaced by vertex map");
 		// data-i.nq.gz ------(data-i.nq.predicate.final.map.final.gz)------> data-i.nq.gz
-		NqToGraphConverter.generateMapsReplacedFiles(FileNameManager.getGzipDataFileNames(0, lastFileNo, ".predicate.final.map.final"), 
-				FileNameManager.getGzipDataFileNames(0, lastFileNo, ""), NqToGraphConverter.PREDICATE_TYPE_OF_REPLACEMENT);
+		NqToGraphConverter.generateMapsReplacedFiles(FileNameManager.getNqGzipDataFilePlusNames(0, lastFileNo, ".predicate.final.map.final"), 
+				FileNameManager.getNqGzipDataFilePlusNames(0, lastFileNo, ""), NqToGraphConverter.PREDICATE_TYPE_OF_REPLACEMENT);
 		log.debug(new Date()+ " lines have been replaced by predicate map");
 		// data-i.nq.gz ------(data-i.nq.subgraph.final.map.final.gz)------> data-i.nq.gz
-		NqToGraphConverter.generateMapsReplacedFiles(FileNameManager.getGzipDataFileNames(0, lastFileNo, ".subgraph.final.map.final"), 
-				FileNameManager.getGzipDataFileNames(0, lastFileNo, ""), NqToGraphConverter.SUBGRAPH_TYPE_OF_REPLACEMENT);
+		NqToGraphConverter.generateMapsReplacedFiles(FileNameManager.getNqGzipDataFilePlusNames(0, lastFileNo, ".subgraph.final.map.final"), 
+				FileNameManager.getNqGzipDataFilePlusNames(0, lastFileNo, ""), NqToGraphConverter.SUBGRAPH_TYPE_OF_REPLACEMENT);
 		log.debug(new Date()+ " lines have been replaced by subgraph map");
 		// data-i.nq.gz -> data-i.nq.int.gz
 		for (int i=0; i<=lastFileNo; i++){
-			new File(FileNameManager.getNqGzipDataFileName(i, "")).renameTo(new File(FileNameManager.getNqGzipDataFileName(i, ".int")));
+			new File(FileNameManager.getNqGzipDataFilePlusName(i, "")).renameTo(new File(FileNameManager.getNqGzipDataFilePlusName(i, ".int")));
 		}
 		//check whether every part of data-i.nq.int.gz is mapped into an integer.
-		assertTrue(NqToGraphConverter.areNqFilesTotallyMapped(FileNameManager.getGzipDataFileNames(0, lastFileNo, ".int")));
+		assertTrue(NqToGraphConverter.areNqFilesTotallyMapped(FileNameManager.getNqGzipDataFilePlusNames(0, lastFileNo, ".int")));
 		log.debug(new Date()+ " lines have been totally replaced by maps");
 	}
 /*	@Test

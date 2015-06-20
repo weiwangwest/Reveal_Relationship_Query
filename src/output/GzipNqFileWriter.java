@@ -1,7 +1,6 @@
 package output;
 
 import input.GzipNqFileReader;
-import input.Storable;
 
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -11,6 +10,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.zip.GZIPOutputStream;
+
+import performance.Storable;
 
 /** writes a line into a text file.
  * Each line of the file has the following format:

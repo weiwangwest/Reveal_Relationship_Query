@@ -19,7 +19,7 @@ public class JenaTestSubClassnq {
 		Timer.start(null);
 
 		Timer.tick("1. G: the Original Graph");
-		Graph G = new Graph(Graph.GRAPH_CAPACITY);
+		Graph G = new Graph(Graph.GRAPH_VERTICES);
 		Dataset dataset = RDFDataMgr.loadDataset(
 				FileNameManager.pathToDataFiles+"subclass.nq",
 				RDFLanguages.NQUADS);
@@ -99,7 +99,7 @@ public class JenaTestSubClassnq {
 		Timer.start(null);
 
 		Timer.tick("1. G: the Original Graph");
-		Graph G = new Graph(Graph.GRAPH_CAPACITY);
+		Graph G = new Graph(Graph.GRAPH_VERTICES);
 		DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(
 				G, FileNameManager.pathToDataFiles+"subclass.nq");
 

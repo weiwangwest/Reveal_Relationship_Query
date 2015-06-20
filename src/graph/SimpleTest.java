@@ -4,7 +4,7 @@ import java.util.*;
 public class SimpleTest {
 	public static void main(String[] args) {
 		System.out.println("\n\n**********1. G: the Original Graph***************");
-		Graph G=new Graph(Graph.GRAPH_CAPACITY);
+		Graph G=new Graph(Graph.GRAPH_VERTICES);
 		G.addExistingVertex(new Vertex("entity"));
 		G.addExistingVertex(new Vertex("person"));
 		G.addExistingVertex(new Vertex("scientist"));

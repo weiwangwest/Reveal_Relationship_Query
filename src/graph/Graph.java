@@ -6,7 +6,8 @@ import fundamental.MyLinkedList;
 import java.util.*;
 
 public class Graph implements Iterable<Edge> {
-	public static final int GRAPH_CAPACITY = 32553223;
+	public static final int GRAPH_VERTICES = 32553223+1;
+	public static final int GRAPH_EDGES = 204806741+1;
 	public static final int TREE_CAPACITY = 2048;
 	public static final int NORMAL_CAPACITY = 100000; // not sure why this size
 	// public HashMap<Integer, Vertex> V; //max vertex id =32553223 (data-6.nq)

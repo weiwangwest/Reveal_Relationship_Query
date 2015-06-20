@@ -89,7 +89,7 @@ public class DBMapperTest {
 	}
 	@Test
 	public void uriTest() throws Exception{
-		 Graph g=new Graph(Graph.GRAPH_CAPACITY);
+		 Graph g=new Graph(Graph.GRAPH_VERTICES);
 		 DatasetLoaderWithJena.resetAllValues(true);
 		 DatasetLoaderWithJena.addEntitiesFromBigGzipNq(g, FileNameManager.pathToDataFiles+"data-2.nq.gz");
 		 HashSet <String> predicates=new HashSet<String>();	// a list of edges

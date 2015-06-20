@@ -24,12 +24,17 @@ public class FileNameManager {
 	public static String getNqDataFilePlusName(int i, String appendix){
 		return getNqDataFilePlusName(String.valueOf(i), appendix);
 	}	
-	public static String getNqGzipDataFileName(String idx, String whichPart){
+	public static String getNqGzipDataFilePlusName(String idx, String whichPart){
 		return getNqDataFilePlusName(idx, whichPart)+gzipFileNameSuffix;
 	}	
-	public static String getNqGzipDataFileName(int idx, String whichPart){
-		return getNqGzipDataFileName(String.valueOf(idx), whichPart);
+	public static String getNqGzipDataFilePlusName(int idx, String whichPart){
+		return getNqGzipDataFilePlusName(String.valueOf(idx), whichPart);
 	}
+	/**Remove all occurence of  ".gz" from previousName, add with extensionName and ".gz" in the end
+	 * @param previousName
+	 * @param extensionName
+	 * @return
+	 */
 	public static String getChangedGzipFileName(String previousName, String extensionName){
 		return previousName.replace(".gz", "") + extensionName + ".gz";
 	}
@@ -40,10 +45,10 @@ public class FileNameManager {
 		}
 		return fileNames.toArray(new String[fileNames.size()]);
 	}	
-	public static String [] getGzipDataFileNames(int start, int end, String whichPart){
+	public static String [] getNqGzipDataFilePlusNames(int start, int end, String whichPart){
 		ArrayList<String>fileNames=new ArrayList<String>();
 		for (int i=start; i<=end; i++){
-			fileNames.add(getNqGzipDataFileName(i, whichPart));
+			fileNames.add(getNqGzipDataFilePlusName(i, whichPart));
 		}
 		return fileNames.toArray(new String[fileNames.size()]);
 	}

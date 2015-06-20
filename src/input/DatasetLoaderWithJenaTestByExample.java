@@ -17,7 +17,7 @@ public class DatasetLoaderWithJenaTestByExample {
 		Timer.start(null);
 		// append the dataset report to lines of table 2.
 		Timer.tick("example.nq");
-		Graph G=new Graph(Graph.GRAPH_CAPACITY);
+		Graph G=new Graph(Graph.GRAPH_VERTICES);
 		DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(G, FileNameManager.pathToDataFiles	+ "example.nq");
 		DatasetLoaderWithJena.Entities = Vertex.vertexMap; // a list of entities
 		//do performance test 3 types(queries with 2, 3, 4 entities respectively), 3 queries/type, 10 runs/query

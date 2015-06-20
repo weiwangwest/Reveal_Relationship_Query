@@ -255,7 +255,7 @@ public class Vertex implements Comparable<Vertex> {
 		}
 	}
 	public static void main(String args[]) throws Exception{
-		Graph G = new Graph(Graph.GRAPH_CAPACITY);
+		Graph G = new Graph(Graph.GRAPH_VERTICES);
 		DatasetLoaderWithJena.addEntitiesFromNqNoExcetionProcessor(G, FileNameManager.pathToDataFiles+"example.nq");
 	    Random rand = new Random();
 		for (Vertex v: G.vertices()){		//1: for all v ∈ V do

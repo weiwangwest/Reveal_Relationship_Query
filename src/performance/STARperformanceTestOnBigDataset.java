@@ -16,7 +16,7 @@ public class  STARperformanceTestOnBigDataset {
 	
 	public static void main(String[] args) throws Exception {		
 		Timer.start(null);		
-		Graph G=new Graph(Graph.GRAPH_CAPACITY);
+		Graph G=new Graph(Graph.GRAPH_VERTICES);
 		// entities list
 		DatasetLoaderWithJena.resetAllValues(true);	//DatasetLoaderWithJena.Entities=Vertex.vertexMap;	
 

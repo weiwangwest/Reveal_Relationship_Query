@@ -12,7 +12,7 @@ import org.apache.jena.riot.RDFLanguages;
 
 public class JenaTest {
 	public static void main(String[] args) {
-		Graph G = new Graph(Graph.GRAPH_CAPACITY);
+		Graph G = new Graph(Graph.GRAPH_VERTICES);
 		System.out.println("\n\n**********1. G: the Original Graph***************");
 		Dataset dataset = RDFDataMgr.loadDataset(
 				FileNameManager.pathToDataFiles+"subclass.nq",
